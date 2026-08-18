@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workspace Prototype</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="meta-corner mono">WIREFRAME · DESKTOP 1440 / MOBILE 390</div>
+
+<a id="mini-folder" class="mini-folder-fixed" href="#entry-hero" aria-label="Close workspace — return to entry">
+  <span class="folder-icon-sm" aria-hidden="true"></span>
+  <span class="tag mono">HOME · CLOSE WORKSPACE</span>
+</a>
+
+<!-- ============ 01 ENTRY / HERO — single interactive intro, two states ============ -->
+<section id="entry-hero">
+  <span class="state-tag is-closed kicker mono">01 · ENTRY — CLOSED</span>
+  <span class="state-tag is-open kicker mono">01 · HERO — OPEN</span>
+
+  <button type="button" id="big-folder" class="eh-closed" aria-label="Open workspace">
+    <span class="folder-stack" aria-hidden="true">
+      <span class="folder-back"></span>
+      <span class="folder-front"></span>
+    </span>
+    <span class="tag mono">CLICK → OPEN WORKSPACE</span>
+  </button>
+
+  <div class="eh-open">
+    <div class="eh-header">
+      <div class="eh-eyebrow">DESIGN <span class="hero-line">×</span> CODE <span class="hero-line">×</span> AI</div>
+      <div class="eh-sig mono">HAM SEUNG HEE</div>
+    </div>
+    <div class="eh-main-group">
+      <h1 class="eh-main">
+        <span class="line">8 YEARS OF DESIGN</span>
+        <span class="line">NOW EXPANDING WITH AI</span>
+      </h1>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 SELECTED WORKS ============ -->
+<section id="works" class="section">
+  <div class="container">
+    <span class="kicker mono">02 · SELECTED WORKS</span>
+    <div class="folders">
+      <a class="folder-item" href="#project-momentrip">
+        <span class="folder-num mono">01</span>
+        <span class="folder-mini" aria-hidden="true"></span>
+        <span class="folder-meta">
+          <span class="folder-name">MOMENTRIP</span>
+          <span class="folder-cat mono">UI/UX · RESPONSIVE WEB · AI COLLABORATION</span>
+        </span>
+      </a>
+      <a class="folder-item" href="#project-mivy">
+        <span class="folder-num mono">02</span>
+        <span class="folder-mini" aria-hidden="true"></span>
+        <span class="folder-meta">
+          <span class="folder-name">MIVY</span>
+          <span class="folder-cat mono">MOBILE / PWA · FUNCTIONAL BUILD</span>
+        </span>
+      </a>
+      <a class="folder-item" href="#project-farmlink">
+        <span class="folder-num mono">03</span>
+        <span class="folder-mini" aria-hidden="true"></span>
+        <span class="folder-meta">
+          <span class="folder-name">FARMLINK</span>
+          <span class="folder-cat mono">UX IMPROVEMENT · BEFORE / AFTER</span>
+        </span>
+      </a>
+      <a class="folder-item" href="#project-archive">
+        <span class="folder-num mono">04</span>
+        <span class="folder-mini" aria-hidden="true"></span>
+        <span class="folder-meta">
+          <span class="folder-name">DESIGN ARCHIVE</span>
+          <span class="folder-cat mono">VISUAL DESIGN · ART DIRECTION</span>
+        </span>
+      </a>
+    </div>
+    <div class="works-note">
+      <span class="tag mono">EACH FOLDER — HOVER / CLICK → SMOOTH SCROLL TO PROJECT</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJECT 01 · MOMENTRIP ============ -->
+<section id="project-momentrip" class="section project">
+  <div class="container">
+    <div class="project-head">
+      <span class="kicker mono">PROJECT 01</span>
+      <span class="kicker mono">2026</span>
+    </div>
+    <h2 class="project-name">MOMENTRIP</h2>
+
+    <div class="ai-workspace" data-ai-workspace data-speed="normal">
+      <div class="ai-workspace-label mono">AI COLLABORATION WORKSPACE</div>
+
+      <div class="ai-prompt-block">
+        <div class="ai-role-label mono">USER / PROMPT</div>
+        <p class="prompt-text mono"><span data-typewriter>지역별 장소, 클래스, 행사와 사용자 커뮤니티를 하나의 경험으로 연결하는 반응형 웹 서비스를 설계하고 구현한다.</span><span class="cursor" aria-hidden="true">_</span></p>
+        <span class="ai-send mono" data-send data-state="idle">SEND</span>
+      </div>
+
+      <div class="ai-response-block" data-response>
+        <div class="ai-role-label mono">AI / RESPONSE</div>
+        <div class="ai-generating mono" data-generating>GENERATING…</div>
+        <div class="ai-response-body" data-response-body>
+          <p class="ai-response-status">BRIEF UNDERSTOOD — DRAFTING PROJECT DIRECTION</p>
+          <div class="label-sm mono">PROPOSED ROLE</div>
+          <div class="role-tags mono">
+            <span>UI/UX DESIGN</span><span>WEB PUBLISHING</span><span>AI COLLABORATION</span>
+          </div>
+          <button type="button" class="ai-replay mono" data-replay>↻ REPLAY</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px;"><span class="tag mono">AUTO-PLAYS ON SCROLL INTO VIEW</span></div>
+
+    <!-- Editorial content: variant A — large image + narrow text -->
+    <div class="ed-block ed-a">
+      <div class="ed-a-copy">
+        <div class="label-sm mono">OVERVIEW</div>
+        <p class="copy-sm">[ OVERVIEW — 프로젝트 개요 플레이스홀더 텍스트 ]</p>
+      </div>
+      <div class="ph"><span>[ IMAGE PLACEHOLDER — MAIN VISUAL ]</span></div>
+    </div>
+
+    <!-- variant B — oversized number + offset image -->
+    <div class="ed-block ed-b">
+      <div class="ed-b-num mono">01</div>
+      <div class="ed-b-copy">
+        <div class="label-sm mono">PROBLEM / GOAL</div>
+        <p class="copy-sm">[ PROBLEM / GOAL 플레이스홀더 텍스트 ]</p>
+      </div>
+      <div class="ph"><span>[ IMAGE PLACEHOLDER — PROCESS VISUAL ]</span></div>
+    </div>
+
+    <!-- variant C — selected process grid -->
+    <div class="ed-block ed-c">
+      <div class="label-sm mono">SELECTED DESIGN PROCESS</div>
+      <div class="ed-c-grid">
+        <div class="ph"><span>[ PROCESS 01 ]</span></div>
+        <div class="ph"><span>[ PROCESS 02 ]</span></div>
+        <div class="ph"><span>[ PROCESS 03 ]</span></div>
+      </div>
+    </div>
+
+    <!-- AI Collaboration -->
+    <div class="collab">
+      <div class="label-sm mono">AI COLLABORATION / HUMAN DECISION</div>
+      <div class="flow mono">AI OUTPUT <b>→</b> DESIGN REVIEW <b>→</b> ISSUE FOUND <b>→</b> HUMAN DECISION <b>→</b> REFINED RESULT</div>
+      <div class="compare">
+        <div class="before">
+          <div class="compare-label mono">BEFORE</div>
+          <div class="ph"><span>[ LARGE UI — AI OUTPUT ]</span></div>
+        </div>
+        <div class="after">
+          <div class="compare-label mono">AFTER</div>
+          <div class="ph"><span>[ LARGE UI — REFINED ]</span></div>
+        </div>
+        <div class="decision">
+          <div class="why mono">WHY I CHANGED IT</div>
+          <ul class="why-list mono">
+            <li><b>01</b>[ REASON PLACEHOLDER ]</li>
+            <li><b>02</b>[ REASON PLACEHOLDER ]</li>
+            <li><b>03</b>[ REASON PLACEHOLDER ]</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:16px;"><span class="tag mono">VISUAL COMPARISON — BEFORE / AFTER</span></div>
+    </div>
+
+    <!-- Device showcase: desktop-led, mobile overlap -->
+    <div class="devicewrap">
+      <div class="label-sm mono">DEVICE SHOWCASE</div>
+      <div class="devices">
+        <div class="device desktop">
+          <div class="device-scr"><span class="tag mono">[ DESKTOP FRAME ]</span></div>
+          <div class="device-base"></div>
+        </div>
+        <div class="device mobile">
+          <div class="device-scr"><span class="tag mono">[ MOBILE ]</span></div>
+          <div class="home"></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><span class="tag mono">SCROLL REVEAL POINT (STATIC PREVIEW)</span></div>
+    </div>
+
+    <a class="next" href="#project-mivy">
+      <div class="next-left">
+        <span class="kicker mono">NEXT PROJECT</span>
+        <span class="next-num mono">02</span>
+        <span class="next-name">MIVY</span>
+      </div>
+      <span class="next-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ PROJECT 02 · MIVY ============ -->
+<section id="project-mivy" class="section project">
+  <div class="container">
+    <div class="project-head">
+      <span class="kicker mono">PROJECT 02</span>
+      <span class="kicker mono">2026</span>
+    </div>
+    <h2 class="project-name">MIVY</h2>
+
+    <div class="ai-workspace" data-ai-workspace data-speed="fast">
+      <div class="ai-workspace-label mono">AI COLLABORATION WORKSPACE</div>
+
+      <div class="ai-prompt-block">
+        <div class="ai-role-label mono">USER / PROMPT</div>
+        <p class="prompt-text mono"><span data-typewriter>[ PROMPT TEXT — 프로젝트 브리프 플레이스홀더 ]</span><span class="cursor" aria-hidden="true">_</span></p>
+        <span class="ai-send mono" data-send data-state="idle">SEND</span>
+      </div>
+
+      <div class="ai-response-block" data-response>
+        <div class="ai-role-label mono">AI / RESPONSE</div>
+        <div class="ai-generating mono" data-generating>GENERATING…</div>
+        <div class="ai-response-body" data-response-body>
+          <div class="label-sm mono">PROPOSED ROLE</div>
+          <div class="role-tags mono">
+            <span>MOBILE UI DESIGN</span><span>PWA</span><span>FUNCTIONAL BUILD</span>
+          </div>
+          <button type="button" class="ai-replay mono" data-replay>↻ REPLAY</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px;"><span class="tag mono">AUTO-PLAYS ON SCROLL INTO VIEW — ABBREVIATED</span></div>
+
+    <!-- lighter editorial: process-forward, less text -->
+    <div class="ed-block ed-b">
+      <div class="ed-b-num mono">02</div>
+      <div class="ed-b-copy">
+        <div class="label-sm mono">OVERVIEW / PROCESS</div>
+        <p class="copy-sm">[ OVERVIEW·PROCESS 요약 플레이스홀더 텍스트 — MOMENTRIP 대비 축소 ]</p>
+      </div>
+      <div class="ph"><span>[ IMAGE PLACEHOLDER — MOBILE FLOW ]</span></div>
+    </div>
+
+    <div class="ed-block ed-c">
+      <div class="label-sm mono">SELECTED DESIGN PROCESS</div>
+      <div class="ed-c-grid">
+        <div class="ph"><span>[ PROCESS 01 ]</span></div>
+        <div class="ph"><span>[ PROCESS 02 ]</span></div>
+      </div>
+    </div>
+
+    <!-- AI Collaboration: compact -->
+    <div class="collab compact">
+      <div class="label-sm mono">AI COLLABORATION / HUMAN DECISION</div>
+      <div class="flow mono">AI OUTPUT <b>→</b> REVIEW <b>→</b> HUMAN DECISION <b>→</b> REFINED RESULT</div>
+      <div class="compare">
+        <div class="before">
+          <div class="compare-label mono">BEFORE</div>
+          <div class="ph"><span>[ AI OUTPUT ]</span></div>
+        </div>
+        <div class="after">
+          <div class="compare-label mono">AFTER</div>
+          <div class="ph"><span>[ REFINED ]</span></div>
+        </div>
+        <div class="decision">
+          <div class="why mono">WHY I CHANGED IT</div>
+          <ul class="why-list mono">
+            <li><b>01</b>[ REASON PLACEHOLDER ]</li>
+            <li><b>02</b>[ REASON PLACEHOLDER ]</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Device showcase: mobile-led, dominant -->
+    <div class="devicewrap">
+      <div class="label-sm mono">DEVICE SHOWCASE</div>
+      <div class="devices mobile-lead">
+        <div class="device mobile">
+          <div class="device-scr"><span class="tag mono">[ MOBILE FRAME — PRIMARY ]</span></div>
+          <div class="home"></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><span class="tag mono">SCROLL REVEAL POINT (STATIC PREVIEW)</span></div>
+    </div>
+
+    <a class="next" href="#project-farmlink">
+      <div class="next-left">
+        <span class="kicker mono">NEXT PROJECT</span>
+        <span class="next-num mono">03</span>
+        <span class="next-name">FARMLINK</span>
+      </div>
+      <span class="next-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ PROJECT 03 · FARMLINK — pending rebuild, placeholder only ============ -->
+<section id="project-farmlink" class="section project">
+  <div class="container">
+    <div class="project-head">
+      <span class="kicker mono">PROJECT 03</span>
+      <span class="kicker mono">REBUILDING</span>
+    </div>
+    <h2 class="project-name">FARMLINK</h2>
+
+    <div class="ph farmlink-ph">
+      <span>[ FARMLINK — PROJECT BEING REBUILT ]<br>CASE STUDY WILL BE ADDED AFTER REBUILD</span>
+    </div>
+
+    <a class="next" href="#project-archive">
+      <div class="next-left">
+        <span class="kicker mono">NEXT PROJECT</span>
+        <span class="next-num mono">04</span>
+        <span class="next-name">DESIGN ARCHIVE</span>
+      </div>
+      <span class="next-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ PROJECT 04 · DESIGN ARCHIVE ============ -->
+<section id="project-archive" class="section project">
+  <div class="container">
+    <div class="project-head">
+      <span class="kicker mono">PROJECT 04</span>
+      <span class="kicker mono">ARCHIVE</span>
+    </div>
+    <h2 class="project-name">DESIGN ARCHIVE</h2>
+    <p class="copy-sm" style="margin-top:12px;">[ VISUAL DESIGN · ART DIRECTION — 기존 디자인 경력 아카이브 ]</p>
+
+    <div class="ed-block">
+      <div class="label-sm mono">EDITORIAL GALLERY</div>
+      <div class="gallery">
+        <div class="ph"><span>[ VISUAL 01 ]</span></div>
+        <div class="ph"><span>[ VISUAL 02 ]</span></div>
+        <div class="ph"><span>[ VISUAL 03 ]</span></div>
+        <div class="ph"><span>[ VISUAL 04 ]</span></div>
+        <div class="ph"><span>[ VISUAL 05 ]</span></div>
+        <div class="ph"><span>[ VISUAL 06 ]</span></div>
+      </div>
+    </div>
+
+    <a class="next" href="#about">
+      <div class="next-left">
+        <span class="kicker mono">NEXT</span>
+        <span class="next-num mono">·</span>
+        <span class="next-name">ABOUT</span>
+      </div>
+      <span class="next-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="section">
+  <div class="container">
+    <span class="kicker mono">03 · ABOUT</span>
+    <h2 class="project-name" style="font-size:clamp(34px,5.5vw,64px);">HAM SEUNG HEE</h2>
+    <p class="copy-sm" style="margin-top:16px;font-size:16px;">[ SHORT INTRODUCTION — 한 줄 소개 플레이스홀더 텍스트 ]</p>
+
+    <div class="about-caps mono">
+      <div>8 YEARS DESIGN</div>
+      <div>UI / UX</div>
+      <div>WEB PUBLISHING</div>
+      <div>AI-ASSISTED WORKFLOW</div>
+    </div>
+
+    <div class="about-cols">
+      <div>
+        <div class="label-sm mono">TOOLS / SKILLS</div>
+        <ul>
+          <li>[ TOOL / SKILL 01 ]</li>
+          <li>[ TOOL / SKILL 02 ]</li>
+          <li>[ TOOL / SKILL 03 ]</li>
+          <li>[ TOOL / SKILL 04 ]</li>
+        </ul>
+      </div>
+      <div>
+        <div class="label-sm mono">CAREER SUMMARY</div>
+        <ul>
+          <li>[ YEAR ] — [ ROLE / COMPANY PLACEHOLDER ]</li>
+          <li>[ YEAR ] — [ ROLE / COMPANY PLACEHOLDER ]</li>
+          <li>[ YEAR ] — [ ROLE / COMPANY PLACEHOLDER ]</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact" class="section">
+  <span class="kicker mono" style="position:absolute; top:32px; left:50%; transform:translateX(-50%);">04 · CONTACT</span>
+  <h2 class="contact-h">LET'S WORK<br>TOGETHER</h2>
+  <div class="contact-links mono">
+    <a href="#" onclick="return false;">[ EMAIL ADDRESS ]</a>
+    <a href="#" onclick="return false;">[ GITHUB URL ]</a>
+  </div>
+</section>
+
+<script src="js/main.js"></script>
+</body>
+</html>
