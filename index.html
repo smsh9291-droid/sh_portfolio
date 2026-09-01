@@ -10,132 +10,318 @@
 
 <div class="meta-corner mono">WIREFRAME · DESKTOP 1440 / MOBILE 390</div>
 
+<div id="custom-cursor" class="custom-cursor" aria-hidden="true">
+  <img class="cursor-img cursor-img-default" src="assets/images/mouse-pointer.svg" alt="">
+  <img class="cursor-img cursor-img-hover" src="assets/images/hover-pointer.svg" alt="">
+</div>
+
 <a id="mini-folder" class="mini-folder-fixed" href="#entry-hero" aria-label="Close workspace — return to entry">
-  <span class="folder-icon-sm" aria-hidden="true"></span>
+  <img class="folder-icon-sm" src="assets/images/Mini-Folder.svg" alt="" width="241" height="218">
   <span class="tag mono">HOME · CLOSE WORKSPACE</span>
 </a>
+
+<!-- Folder Exit Mask: a real overflow:hidden clip container, sized/positioned by JS to the
+     folder's actual exit line at click time. js/main.js clones the real .eh-main into it
+     as the "Flying Main Copy" for the opening motion only — see runMainCopyEmergence(). -->
+<div id="folder-exit-mask" class="folder-exit-mask" aria-hidden="true"></div>
 
 <!-- ============ 01 ENTRY / HERO — single interactive intro, two states ============ -->
 <section id="entry-hero">
   <span class="state-tag is-closed kicker mono">01 · ENTRY — CLOSED</span>
   <span class="state-tag is-open kicker mono">01 · HERO — OPEN</span>
 
-  <button type="button" id="big-folder" class="eh-closed" aria-label="Open workspace">
-    <span class="folder-stack" aria-hidden="true">
-      <span class="folder-back"></span>
-      <span class="folder-front"></span>
-    </span>
+  <div id="big-folder" class="eh-closed">
+    <button type="button" id="folder-hit" class="folder-hit" aria-label="Open workspace">
+      <span class="folder-stack" aria-hidden="true">
+        <img class="folder-svg folder-svg-closed" src="assets/images/folder-closed.svg" alt="" width="685" height="565">
+        <img class="folder-svg folder-svg-open folder-svg-open-body" src="assets/images/folder-open.svg" alt="" width="757" height="624">
+        <img class="folder-svg folder-svg-open folder-svg-open-front" src="assets/images/folder-open.svg" alt="" width="757" height="624">
+      </span>
+    </button>
     <span class="tag mono">CLICK → OPEN WORKSPACE</span>
-  </button>
+  </div>
 
   <div class="eh-open">
+    <!-- Workspace Metadata Layer: MUST live inside .eh-open, not as its sibling. .eh-open
+         is position:absolute + z-index:2, so it always creates its own stacking context —
+         once html.ws-open gives it an opaque background:#1b1b1b (see style.css), that
+         background is painted as ONE atomic unit together with its Typography children;
+         nothing outside .eh-open can visually sit "between" that background and its text.
+         Placed here as .eh-open's FIRST child with z-index:-1 (see style.css), Workspace
+         Metadata paints after .eh-open's own background but before its in-flow Typography
+         content — exactly "behind Main Typography, in front of the Hero background" as
+         intended. It stays position:absolute so it is NOT a flex item (.eh-open is
+         display:flex) and cannot affect the Eyebrow/Main Copy/Signature flex order or the
+         52-53% flex-grow spacer placement. -->
+    <div class="workspace-metadata" aria-hidden="true">
+      <span class="wm-unit wm-top-a wm-bright"><span class="wm-dot"></span>WORKSPACE / ACTIVE</span>
+      <span class="wm-unit wm-top-b wm-bright">STATUS / AVAILABLE</span>
+      <span class="wm-unit wm-right-a">UI / UX</span>
+      <span class="wm-unit wm-right-b">FIGMA</span>
+      <span class="wm-unit wm-right-c">AI COLLABORATION</span>
+      <span class="wm-unit wm-lower-a">SELECTED WORKS / 2026</span>
+      <span class="wm-unit wm-lower-b">SEOUL / KR</span>
+      <span class="wm-unit wm-lower-c">01 — HERO</span>
+      <span class="wm-unit wm-left">01 / 06</span>
+      <span class="wm-unit wm2-top-a">GRID / 1440</span>
+      <span class="wm-unit wm2-top-b">ACCESSIBILITY</span>
+      <span class="wm-unit wm2-right-a">WEB PUBLISHING</span>
+      <span class="wm-unit wm2-right-b">HTML / CSS / JS</span>
+      <span class="wm-unit wm2-right-c">DESIGN SYSTEM</span>
+      <span class="wm-unit wm2-right-d">AI WORKFLOW</span>
+      <span class="wm-unit wm2-right-e wm-bright"><span class="wm-dot"></span>PROCESS / ACTIVE</span>
+      <span class="wm-unit wm2-right-f">BREAKPOINT / 390</span>
+      <span class="wm-unit wm2-lower-a">RESPONSIVE / READY</span>
+      <span class="wm-unit wm2-lower-b wm-bright"><span class="wm-dot"></span>INTERACTION / ON</span>
+    </div>
     <div class="eh-header">
-      <div class="eh-eyebrow">DESIGN <span class="hero-line">×</span> CODE <span class="hero-line">×</span> AI</div>
-      <div class="eh-sig mono">HAM SEUNG HEE</div>
+      <div class="eh-eyebrow" aria-label="DESIGN × CODE × AI">
+        <span class="type-text" data-type-text aria-hidden="true"></span><span class="type-caret" aria-hidden="true"></span>
+      </div>
+      <div class="eh-sig mono" aria-label="HAM SEUNG HEE">
+        <span class="type-text" data-type-text aria-hidden="true"></span><span class="type-caret" aria-hidden="true"></span>
+      </div>
     </div>
     <div class="eh-main-group">
       <h1 class="eh-main">
         <span class="line">8 YEARS OF DESIGN</span>
-        <span class="line">NOW EXPANDING WITH AI</span>
+        <span class="line"><span class="eh-now">NOW</span> EXPANDING WITH <span class="ai-gauge-wrap"><span class="accent-ai">AI</span><span class="ai-gauge-overlay" aria-hidden="true">AI</span></span></span>
       </h1>
     </div>
+    <!-- Sub Folder Navigation: also lives inside .eh-open (not as its sibling) for the
+         same stacking-context reason as .workspace-metadata above — .eh-open always
+         creates its own stacking context, so anything outside it can't sit correctly
+         relative to its opaque html.ws-open background. Positions below are measured
+         live against a settled Hero (Main Copy reaches right:34.1%/top:42.5-60.8%, the
+         Metadata right column starts around left:80%) so every item sits in the open gap
+         between them — no existing Metadata unit had to move. Revealed by JS only after
+         the Opening Sequence's typing has fully finished (js/main.js
+         revealFolderNavAfterOpening()), independently of and without delaying Main
+         Kinetic Idle Motion's own hold timer. -->
+    <nav class="hero-folder-nav" aria-label="Portfolio navigation">
+      <a class="hero-folder-item hfn-01" href="#works">
+        <span class="nav-index">01</span>
+        <span class="nav-folder-visual" aria-hidden="true">
+          <img class="nav-folder-svg nav-folder-closed" src="assets/images/nav-folder-closed.svg" alt="" width="410" height="337">
+          <img class="nav-folder-svg nav-folder-open" src="assets/images/nav-folder-open.svg" alt="" width="461" height="375">
+        </span>
+        <span class="nav-label">WORKS</span>
+      </a>
+      <a class="hero-folder-item hfn-02" href="#about">
+        <span class="nav-index">02</span>
+        <span class="nav-folder-visual" aria-hidden="true">
+          <img class="nav-folder-svg nav-folder-closed" src="assets/images/nav-folder-closed.svg" alt="" width="410" height="337">
+          <img class="nav-folder-svg nav-folder-open" src="assets/images/nav-folder-open.svg" alt="" width="461" height="375">
+        </span>
+        <span class="nav-label">ABOUT</span>
+      </a>
+      <a class="hero-folder-item hfn-03" href="#project-archive">
+        <span class="nav-index">03</span>
+        <span class="nav-folder-visual" aria-hidden="true">
+          <img class="nav-folder-svg nav-folder-closed" src="assets/images/nav-folder-closed.svg" alt="" width="410" height="337">
+          <img class="nav-folder-svg nav-folder-open" src="assets/images/nav-folder-open.svg" alt="" width="461" height="375">
+        </span>
+        <span class="nav-label">ARCHIVE</span>
+      </a>
+      <a class="hero-folder-item hfn-04" href="#contact">
+        <span class="nav-index">04</span>
+        <span class="nav-folder-visual" aria-hidden="true">
+          <img class="nav-folder-svg nav-folder-closed" src="assets/images/nav-folder-closed.svg" alt="" width="410" height="337">
+          <img class="nav-folder-svg nav-folder-open" src="assets/images/nav-folder-open.svg" alt="" width="461" height="375">
+        </span>
+        <span class="nav-label">CONTACT</span>
+      </a>
+    </nav>
   </div>
 </section>
 
-<!-- ============ 03 SELECTED WORKS ============ -->
+<!-- ============ 03 SELECTED WORKS — Editorial Project Index ============
+     Hero's Green Folder object is deliberately NOT repeated here (see the CSS block
+     comment above #works in style.css) — this is a Selection/Navigation layer, not a
+     second "choose a folder" moment. Visual language (dark bg, White/Gray/Green,
+     Large Sans + Small Mono) carries over from Hero; the interaction language does not. -->
 <section id="works" class="section">
   <div class="container">
     <span class="kicker mono">02 · SELECTED WORKS</span>
+    <h2 class="works-heading">SELECTED <span class="works-heading-break">WORKS</span></h2>
+    <div class="works-meta mono">2026 / DESIGN · CODE · AI</div>
+
     <div class="folders">
       <a class="folder-item" href="#project-momentrip">
         <span class="folder-num mono">01</span>
-        <span class="folder-mini" aria-hidden="true"></span>
         <span class="folder-meta">
           <span class="folder-name">MOMENTRIP</span>
           <span class="folder-cat mono">UI/UX · RESPONSIVE WEB · AI COLLABORATION</span>
         </span>
+        <span class="folder-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="folder-item" href="#project-mivy">
         <span class="folder-num mono">02</span>
-        <span class="folder-mini" aria-hidden="true"></span>
         <span class="folder-meta">
           <span class="folder-name">MIVY</span>
           <span class="folder-cat mono">MOBILE / PWA · FUNCTIONAL BUILD</span>
         </span>
+        <span class="folder-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="folder-item" href="#project-farmlink">
         <span class="folder-num mono">03</span>
-        <span class="folder-mini" aria-hidden="true"></span>
         <span class="folder-meta">
           <span class="folder-name">FARMLINK</span>
           <span class="folder-cat mono">UX IMPROVEMENT · BEFORE / AFTER</span>
         </span>
+        <span class="folder-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="folder-item" href="#project-archive">
         <span class="folder-num mono">04</span>
-        <span class="folder-mini" aria-hidden="true"></span>
         <span class="folder-meta">
           <span class="folder-name">DESIGN ARCHIVE</span>
           <span class="folder-cat mono">VISUAL DESIGN · ART DIRECTION</span>
         </span>
+        <span class="folder-arrow" aria-hidden="true">↗</span>
       </a>
     </div>
     <div class="works-note">
-      <span class="tag mono">EACH FOLDER — HOVER / CLICK → SMOOTH SCROLL TO PROJECT</span>
+      <span class="tag mono">EACH ROW — CLICK / TAP → SMOOTH SCROLL TO PROJECT</span>
     </div>
   </div>
 </section>
 
-<!-- ============ PROJECT 01 · MOMENTRIP ============ -->
+<!-- ============ PROJECT 01 · MOMENTRIP ============
+     Header + Chapter 01 (.ed-a) only are Dark Theme so far (wrapped in .pd-dark-zone,
+     which is a plain full-bleed block — #project-momentrip/.section itself is never
+     width-constrained, only .container inside it is, so no full-bleed CSS trick is
+     needed). Everything from .ai-workspace onward stays in its own, still-untouched
+     .container below, exactly as it was — this section is intentionally "half dark, half
+     light" until later Chapters get the same treatment in a future pass. -->
 <section id="project-momentrip" class="section project">
-  <div class="container">
-    <div class="project-head">
-      <span class="kicker mono">PROJECT 01</span>
-      <span class="kicker mono">2026</span>
-    </div>
-    <h2 class="project-name">MOMENTRIP</h2>
+  <div class="pd-dark-zone">
+    <div class="section-boundary" aria-hidden="true"></div>
+    <div class="container">
+      <div class="project-head">
+        <span class="kicker mono">PROJECT 01</span>
+        <span class="kicker mono">2026</span>
+      </div>
+      <h2 class="project-name" aria-label="MOMENTRIP"><span class="type-text" data-type-text aria-hidden="true"></span><span class="type-caret" aria-hidden="true"></span></h2>
+      <div class="project-cat mono">
+        <span>UI/UX DESIGN</span><span>RESPONSIVE WEB</span><span>AI COLLABORATION</span>
+      </div>
 
+      <!-- Chapter 01 — OVERVIEW. Same .ed-a grid, same .ph placeholder (untouched asset,
+           just resized/retoned for Dark Theme) — no new Card layout. data-ov-ready /
+           data-ov-visual / .ov-meta below are the Overview Motion Prototype's own hooks
+           only (see js/main.js "MOMENTRIP Chapter 01 OVERVIEW Motion Prototype" IIFE and
+           style.css) — layout/typography/spacing all untouched. -->
+      <div class="ed-block ed-a">
+        <div class="ed-a-copy" data-ov-ready="false">
+          <div class="chapter-label mono"><span class="chapter-label-num">01</span> / OVERVIEW</div>
+          <p class="copy-sm">지역 액티비티·장소·코스·클래스·행사와 사용자 커뮤니티를 하나의 서비스 안에서 탐색할 수 있도록 설계한 반응형 웹 프로젝트.</p>
+          <div class="project-meta mono">
+            <div><span class="project-meta-label">YEAR</span><span>2026</span></div>
+            <div><span class="project-meta-label">ROLE</span><span>UI/UX DESIGN · RESPONSIVE WEB · AI COLLABORATION</span></div>
+          </div>
+        </div>
+        <div class="ph" data-ov-visual>
+          <span>[ IMAGE PLACEHOLDER — MAIN VISUAL ]</span>
+          <span class="ov-meta ov-meta-tl mono">PROJECT PREVIEW / 01</span>
+          <span class="ov-meta ov-meta-br mono">VIEWPORT / DESKTOP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Visual/Information-Hierarchy redesign only — every data-attribute/class the JS in
+         js/main.js's initWorkspace() reads or writes ([data-ai-workspace], [data-typewriter],
+         [data-send], .ai-prompt-block, [data-response], [data-generating], [data-replay],
+         data-state/data-submitted values) is unchanged; only presentation markup was added
+         around them (.ai-workspace-header, .ai-prompt-footer/.ai-context, .ai-role-row,
+         .ai-proc-dots, .ai-decision/.ai-decision-final). -->
     <div class="ai-workspace" data-ai-workspace data-speed="normal">
-      <div class="ai-workspace-label mono">AI COLLABORATION WORKSPACE</div>
+      <div class="ai-workspace-header">
+        <span class="ai-workspace-title mono">AI WORKSPACE</span>
+        <div class="ai-workspace-meta mono">
+          <span>PROJECT / MOMENTRIP</span>
+          <span>MODE / AI COLLABORATION</span>
+          <span class="ai-session"><i class="ai-status-dot" aria-hidden="true"></i>SESSION / ACTIVE</span>
+        </div>
+      </div>
 
       <div class="ai-prompt-block">
-        <div class="ai-role-label mono">USER / PROMPT</div>
+        <div class="ai-role-label mono">&gt;_ PROMPT</div>
         <p class="prompt-text mono"><span data-typewriter>지역별 장소, 클래스, 행사와 사용자 커뮤니티를 하나의 경험으로 연결하는 반응형 웹 서비스를 설계하고 구현한다.</span><span class="cursor" aria-hidden="true">_</span></p>
-        <span class="ai-send mono" data-send data-state="idle">SEND</span>
+        <div class="ai-prompt-footer mono">
+          <span class="ai-context">CONTEXT / MOMENTRIP</span>
+          <span class="ai-send mono" data-send data-state="idle">SEND</span>
+        </div>
       </div>
 
       <div class="ai-response-block" data-response>
-        <div class="ai-role-label mono">AI / RESPONSE</div>
-        <div class="ai-generating mono" data-generating>GENERATING…</div>
+        <div class="ai-role-label mono ai-role-row">
+          <span>RESPONSE / 01</span><span class="ai-role-sub">AI GENERATED</span>
+        </div>
+        <div class="ai-generating mono" data-generating>
+          <span class="ai-proc-label">PROCESSING</span>
+          <span class="ai-proc-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        </div>
         <div class="ai-response-body" data-response-body>
-          <p class="ai-response-status">BRIEF UNDERSTOOD — DRAFTING PROJECT DIRECTION</p>
+          <p class="ai-response-status mono">BRIEF UNDERSTOOD — DRAFTING PROJECT DIRECTION</p>
           <div class="label-sm mono">PROPOSED ROLE</div>
           <div class="role-tags mono">
             <span>UI/UX DESIGN</span><span>WEB PUBLISHING</span><span>AI COLLABORATION</span>
           </div>
+          <div class="ai-decision mono">
+            <span>AI OUTPUT</span><span class="ai-decision-arrow">→</span><span>HUMAN REVIEW</span><span class="ai-decision-arrow">→</span><span>MODIFY</span><span class="ai-decision-arrow">→</span><span>VALIDATE</span>
+          </div>
+          <div class="ai-decision-final mono"><i class="ai-status-dot" aria-hidden="true"></i>HUMAN DECISION</div>
           <button type="button" class="ai-replay mono" data-replay>↻ REPLAY</button>
         </div>
       </div>
     </div>
-    <div style="margin-top:16px;"><span class="tag mono">AUTO-PLAYS ON SCROLL INTO VIEW</span></div>
+    <div style="margin-top:16px;"><span class="tag mono">AUTO PLAY / SCROLL</span></div>
 
-    <!-- Editorial content: variant A — large image + narrow text -->
-    <div class="ed-block ed-a">
-      <div class="ed-a-copy">
-        <div class="label-sm mono">OVERVIEW</div>
-        <p class="copy-sm">[ OVERVIEW — 프로젝트 개요 플레이스홀더 텍스트 ]</p>
-      </div>
-      <div class="ph"><span>[ IMAGE PLACEHOLDER — MAIN VISUAL ]</span></div>
-    </div>
+    <!-- 02 / PROBLEM — "Editorial Search Journey" Motion Prototype #6 (not final design).
+         Desktop-only rework of Prototype #5: the zigzag Scattered Path is replaced with an
+         ELLIPTICAL SEARCH LOOP (PLACE→CLASS→EVENT→COMMUNITY→COURSE→back-to-PLACE, one
+         closed clockwise orbit around a wide horizontal ellipse). Mobile's own Vertical
+         Editorial Journey (the 5 <line data-trace="N"> segments + data-hint as its 6th
+         node) is UNTOUCHED — the 5 new <path data-trace-arc="N"> elements below are a
+         Desktop-only PARALLEL structure js/main.js only ever writes into when
+         matchMedia('(min-width:701px)') is true, so Mobile's own elements/selectors/JS
+         path are never shared or touched by the Ellipse code. SEARCH AGAIN_ is no longer a
+         6th orbit node on Desktop — the Ellipse closes on its own (5 Fragments only), and
+         SEARCH AGAIN_ instead types itself in at the Ellipse's center afterward, reusing
+         the existing .scatter-hint/.cursor markup verbatim (Desktop just types into its
+         existing first text node instead of showing it as a static caption — Mobile's own
+         text node is never touched by this). Green Point still syncs 1:1 to whichever
+         segment is drawing; on Desktop this is now CSS Motion Path (offset-path/
+         offset-distance) walking the exact same elliptical arc the segment itself draws,
+         instead of straight-line cx/cy — see js/main.js "MOMENTRIP Chapter 02 PROBLEM
+         Motion PROTOTYPE #6" IIFE + style.css. -->
+    <div class="ed-block ed-b" data-problem-ready="false">
+      <div class="chapter-label mono problem-intro"><span class="chapter-label-num">02</span> / PROBLEM</div>
+      <p class="copy-sm problem-copy problem-intro">지역의 장소, 클래스, 행사와 커뮤니티 정보가 여러 서비스와 채널에 흩어져 있어, 사용자는 탐색과 이동을 반복해야 했다.</p>
 
-    <!-- variant B — oversized number + offset image -->
-    <div class="ed-block ed-b">
-      <div class="ed-b-num mono">01</div>
-      <div class="ed-b-copy">
-        <div class="label-sm mono">PROBLEM / GOAL</div>
-        <p class="copy-sm">[ PROBLEM / GOAL 플레이스홀더 텍스트 ]</p>
+      <div class="scatter-canvas" data-scatter aria-hidden="true">
+        <svg class="scatter-trace" data-scatter-trace focusable="false">
+          <line class="trace-line" data-trace="1"></line>
+          <line class="trace-line" data-trace="2"></line>
+          <line class="trace-line" data-trace="3"></line>
+          <line class="trace-line" data-trace="4"></line>
+          <line class="trace-line" data-trace="5"></line>
+          <path class="trace-arc" data-trace-arc="1"></path>
+          <path class="trace-arc" data-trace-arc="2"></path>
+          <path class="trace-arc" data-trace-arc="3"></path>
+          <path class="trace-arc" data-trace-arc="4"></path>
+          <path class="trace-arc" data-trace-arc="5"></path>
+          <circle class="trace-point" data-trace-point r="4" cx="-100" cy="-100"></circle>
+        </svg>
+        <span class="scatter-word" data-word="1">PLACE</span>
+        <span class="scatter-word" data-word="2">CLASS</span>
+        <span class="scatter-word" data-word="3">EVENT</span>
+        <span class="scatter-word scatter-word-tight" data-word="4">COMMUNITY</span>
+        <span class="scatter-word" data-word="5">COURSE</span>
+        <span class="scatter-hint" data-hint>SEARCH AGAIN<span class="cursor" aria-hidden="true">_</span></span>
       </div>
-      <div class="ph"><span>[ IMAGE PLACEHOLDER — PROCESS VISUAL ]</span></div>
     </div>
 
     <!-- variant C — selected process grid -->
@@ -253,7 +439,7 @@
     <!-- AI Collaboration: compact -->
     <div class="collab compact">
       <div class="label-sm mono">AI COLLABORATION / HUMAN DECISION</div>
-      <div class="flow mono">AI OUTPUT <b>→</b> REVIEW <b>→</b> HUMAN DECISION <b>→</b> REFINED RESULT</div>
+      <div class="flow mono">AI OUTPUT <b>→</b> REVIEW <b>→</b><br class="flow-break"> HUMAN DECISION <b>→</b> REFINED RESULT</div>
       <div class="compare">
         <div class="before">
           <div class="compare-label mono">BEFORE</div>
