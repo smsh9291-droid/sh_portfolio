@@ -1026,9 +1026,11 @@
    offset-distance transitioned on the SAME duration/easing as that segment's
    stroke-dashoffset) instead of straight-line cx/cy — same "one value, two properties,
    same tick" guarantee against drift as before, just riding a curve instead of a chord.
-   Once the orbit closes, the Point fades out and SEARCH AGAIN_ types itself into the
-   Ellipse's own center (typeCenterText() — reuses .scatter-hint/.cursor verbatim, just
-   writes into its existing first text node instead of showing it as a static caption).
+   Once the orbit closes, the Point fades out and SEARCH AGAIN_ types itself in beside the
+   Open Gap's own edge (RE-ENTRY SIGNAL Prototype — position/Typography live in style.css's
+   .scatter-hint min-width:701px block; revealCenterText() below is unchanged, it still
+   just writes into this element's existing first text node instead of showing it as a
+   static caption, only WHERE that element sits on screen moved).
 
    MOBILE: unchanged 6-node Journey (5 Fragments + the Hint as a real 6th node, 5 straight
    <line> segments) — runMobileSequence() is Prototype #5's runSequence() renamed, not
@@ -1576,4 +1578,35 @@
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = setTimeout(handleResize, 180);
   }, { passive: true });
+})();
+
+/* -- MIVY Minimum Case Study: scoped scroll reveal. Deliberately the smallest possible
+   motion — one class toggled per block by one IntersectionObserver, reusing the same
+   fade/rise language already on the page. No scroll scene, no parallax, no timeline, no
+   canvas, no library. Fully self-contained: it only ever reads #project-mivy and writes
+   .is-visible on that section's own [data-mivy-reveal] children, so no other section,
+   selector, observer or timer on the page is shared or touched.
+   Fail-safe by construction — .mivy-motion-ready (the class that arms the CSS hidden
+   state, see style.css) is added ONLY after IntersectionObserver support is confirmed, so
+   if this IIFE never runs or the browser lacks the API the case study still renders fully
+   visible. One-shot per block: reveal is an entrance, not a repeating effect. */
+(function(){
+  var section = document.getElementById('project-mivy');
+  if (!section) return;
+  var blocks = section.querySelectorAll('[data-mivy-reveal]');
+  if (!blocks.length) return;
+  if (!('IntersectionObserver' in window)) return; // leave everything visible
+
+  section.classList.add('mivy-motion-ready');
+  // Same shrunk-viewport gate the MOMENTRIP title and the AI Workspace already use
+  // (threshold .1 + rootMargin '0px 0px -12% 0px') so a block only counts as visible once
+  // it has genuinely entered the viewport, not the instant it grazes the bottom edge.
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -12% 0px' });
+  Array.prototype.forEach.call(blocks, function(b){ io.observe(b); });
 })();

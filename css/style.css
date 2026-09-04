@@ -2231,38 +2231,48 @@ html.ws-open.mini-ready .mini-folder-fixed{
   }
 }
 
-/* SEARCH AGAIN_ — on Desktop this is no longer an orbit node at all (2./3.): js/main.js
-   reveals it (revealCenterText()) straight into this element's own DOM once the Ellipse
-   closes, so the base rule below only needs to park it at the Ellipse's geometric center
-   (a slight -3% optical top nudge, since dead-center reads slightly low for a single line
-   of caps text) with enough clearance that it can never touch the orbit Line (the ellipse
-   boundary is ry≈30%/rx≈40% away from center — this tiny caption is nowhere close). Text
-   starts empty on Desktop (JS clears it before every play/reset); Mobile's own static
-   "SEARCH AGAIN" text node is never touched — see the Mobile block below, which is the
-   ONLY place this element's opacity reveal + full text now come from on that breakpoint.
-   No font-family/letter-spacing/text-transform override anymore (5./6.) — this inherits
-   the exact same Display stack + weight the 5 Fragments use (via .scatter-word's own
-   rules, both are font-weight:800 uppercase) instead of the old .mono System Label look;
-   only the .cursor caret below still opts back into the site's mono stack. */
+/* SEARCH AGAIN_ — RE-ENTRY SIGNAL Prototype (Desktop ≥701px only, see the min-width:701px
+   block below): no longer parked at the Ellipse's geometric center. js/main.js still
+   reveals it (revealCenterText(), untouched) straight into this element's own DOM once the
+   Orbit closes — only WHERE it lands changes. It now sits beside the Open Gap's own right
+   edge (the same Gap segments 0/4's visibleSegmentD() already holds open around PLACE —
+   see js/main.js OPEN_GAP_FRACTION; Gap size/position itself is untouched, only this
+   caption's placement relative to it) instead of the orbit center, so it reads as a small
+   Re-entry Signal beside the Gap the Journey exits through, never as a 6th orbit node or a
+   rival to PLACE. Text starts empty on Desktop (JS clears it before every play/reset);
+   Mobile's own static "SEARCH AGAIN" text/position/Typography is untouched below — this
+   shared rule only keeps what BOTH breakpoints still need (color/opacity/transition +
+   Mobile's own font-weight/letter-spacing, still 800/.01em here on purpose so Mobile's
+   render stays byte-identical); Desktop's own font-family/weight/letter-spacing/size/
+   position all move into the min-width:701px block instead of living here. */
 #project-momentrip .scatter-hint{
   position:absolute;
-  top:48%; left:50%; right:auto; /* OPEN ORBIT Prototype: was 51% (7.: itself a move down
-    from an earlier 47%) — PLACE's own -38px optical lift (see .scatter-word[data-word="1"])
-    now reads noticeably higher than before, so 51% started sitting low of the Ellipse's
-    optical center again; moved back up into the 47-48% range. Desktop only; Mobile's own
-    position is untouched (see the Mobile block below). */
-  transform:translate(-50%,-50%);
   font-weight:800;
   text-transform:uppercase;
   letter-spacing:.01em;
-  /* 6.: was ~64% of the Outer Fragment (17/2.2vw/27) — 10-15% smaller again, landing in
-     the requested 50-60% hierarchy (24/42 = 57%). Mobile's own size is untouched below. */
-  font-size:clamp(15px,1.9vw,24px);
   color:rgba(244,244,244,.4);
   opacity:0;
   transition:opacity .3s ease, color .4s ease;
 }
 #project-momentrip .scatter-hint.is-visited{ color:rgba(244,244,244,.75); }
+
+/* Desktop-only placement/Typography — wrapped the same way [data-word="1"]/PLACE already
+   is above, so this can never cascade onto Mobile (max-width:700px block further down
+   restates Mobile's own top/left/right/transform/font-size in full regardless, but this
+   guarantees Desktop's values never apply below 701px even before that block is reached).
+   Switches from the 5 Fragments' Display/800/uppercase look to the site's own mono System
+   Language (same stack the .cursor below already uses) and a materially smaller size than
+   any of the 5 Fragments, so it reads as a quiet system aside, not Orbit-node-tier text. */
+@media (min-width:701px){
+  #project-momentrip .scatter-hint{
+    top:34%; left:64%; right:auto;
+    transform:translate(0,-50%);
+    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+    font-weight:500;
+    letter-spacing:.08em;
+    font-size:clamp(11px,1.05vw,13px);
+  }
+}
 /* Per-character Display Reveal (7./8.) — replaces the old raw-text typing effect. Each
    character is its own <span class="hint-char"> (built fresh by revealCenterText() every
    play), starting faded/offset and settling in on its own transition-delay stagger. */
@@ -2490,4 +2500,149 @@ html.ws-open.mini-ready .mini-folder-fixed{
   padding:6px 10px;
   pointer-events:none;
   z-index:50;
+}
+
+/* ============ PROJECT 02 · MIVY — Minimum Public Case Study ============
+   Every rule here is scoped to #project-mivy / .mivy-* on purpose. Nothing global is
+   redefined and no MOMENTRIP selector is extended, so this block cannot reach
+   #project-momentrip, #works, Hero, ABOUT or CONTACT. Shared classes the MIVY markup
+   already reuses as-is (.pd-dark-zone, .section-boundary, .container, .project-head,
+   .project-name, .chapter-label/-num, .project-meta/-label, .copy-sm, .mono, .tag) are
+   NOT touched here — only MIVY-only additions and MIVY-only tone adjustments below.
+   Palette is the existing one: #141414 dark zone, #f4f4f4 ink, rgba(244,244,244,*) for
+   the soft tiers, var(--entry-accent) for chapter numbers. No Lemon / Acid Lime. */
+
+/* Category line under the Project Name — same construction as
+   #project-momentrip .project-cat, duplicated under MIVY's own scope rather than
+   widening that selector, so MOMENTRIP's rule keeps exactly one owner. */
+#project-mivy .project-cat{
+  display:flex; flex-wrap:wrap;
+  margin-top:16px;
+  font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  color:rgba(244,244,244,.5);
+}
+#project-mivy .project-cat span:not(:last-child)::after{
+  content:"·"; margin:0 14px; color:rgba(244,244,244,.25);
+}
+
+/* Chapter rhythm. Matches .ed-block's own clamp(64px,9vw,120px) so MIVY's chapters
+   breathe at the same cadence as MOMENTRIP's, without borrowing .ed-block itself (which
+   also carries grid rules in its ed-a/ed-b/ed-c variants). The first block sits closer to
+   the title — it is the same thought as the Category line above it, not a new chapter. */
+.mivy-block{ margin-top:clamp(64px,9vw,120px); }
+.mivy-block-intro{ margin-top:clamp(40px,5.5vw,72px); }
+
+/* Lead sentence. Sized between .copy-sm and .project-name so MIVY's identity is the
+   first thing read after the title. max-width (not a manual <br>) does all the wrapping:
+   ~46ch is wide enough that Desktop lays the sentence out in two comfortable lines
+   instead of a narrow column, and Mobile simply reflows to the viewport.
+   word-break:keep-all + text-wrap:pretty keep Korean from breaking mid-word. */
+.mivy-lead{
+  margin-top:22px;
+  font-size:clamp(19px,2.1vw,30px);
+  line-height:1.5;
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:#f4f4f4;
+  max-width:46ch;
+  word-break:keep-all;
+  text-wrap:pretty;
+}
+
+/* Technology Metadata — .project-meta supplies the layout/type/color; MIVY only widens
+   the label gutter so BUILD / DATA / APP align past .project-meta-label's 5ch floor. */
+.mivy-stack{ margin-top:26px; }
+.mivy-stack .project-meta-label{ min-width:7ch; }
+
+/* Chapter body copy. .copy-sm + .pd-dark-zone .copy-sm already give size and Dark Zone
+   color; only Korean wrapping and multi-paragraph spacing are added. */
+.mivy-copy{ margin-top:18px; word-break:keep-all; text-wrap:pretty; }
+.mivy-copy + .mivy-copy{ margin-top:12px; }
+
+/* Feature Index — a numbered index, not a bullet list. Thin low-contrast rules only
+   (rgba(244,244,244,.16), the same density SELECTED WORKS' own row dividers use), no
+   cards, no fills, no borders on the outside. */
+.mivy-features{
+  list-style:none;
+  margin:34px 0 0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0 clamp(20px,2.6vw,40px);
+}
+.mivy-feature{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding-top:18px;
+  border-top:1px solid rgba(244,244,244,.16);
+}
+.mivy-feature-num{
+  font-size:12px; letter-spacing:.14em;
+  color:var(--entry-accent);
+}
+.mivy-feature-title{
+  font-size:clamp(15px,1.35vw,19px);
+  font-weight:800;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  color:#f4f4f4;
+}
+.mivy-feature-desc{
+  font-size:13.5px;
+  line-height:1.62;
+  color:rgba(244,244,244,.62);
+  word-break:keep-all;
+  text-wrap:pretty;
+}
+
+/* .tag's shared palette (var(--tag) ink on a var(--line-soft) dashed border) is tuned for
+   the Light page surface and reads either muddy or too bright on the Dark Zone — retoned
+   to the Dark Zone's own tiers here only, inside MIVY. */
+.mivy-note{ margin-top:26px; }
+.mivy-note .tag{
+  color:rgba(244,244,244,.5);
+  border-color:rgba(244,244,244,.22);
+}
+
+/* Tablet: 4 columns would squeeze the Korean descriptions, 2x2 keeps them readable while
+   the Feature Index still reads as a grid rather than a stack. */
+@media (max-width:1024px){
+  .mivy-features{ grid-template-columns:repeat(2,1fr); gap:0 clamp(20px,3vw,32px); }
+}
+/* Mobile: the project's existing 700px breakpoint. Natural stack, no separate mobile
+   design — same sizes stepped down the way .copy-sm already steps itself down. */
+@media (max-width:700px){
+  .mivy-lead{ font-size:clamp(17px,4.6vw,21px); max-width:none; }
+  .mivy-features{ grid-template-columns:1fr; gap:0; margin-top:26px; }
+  .mivy-feature{ padding-top:16px; margin-top:16px; }
+  .mivy-feature:first-child{ margin-top:0; }
+  .mivy-feature-desc{ font-size:12.5px; }
+  .mivy-note .tag{ white-space:normal; }
+}
+
+/* NEXT PROJECT stays outside .pd-dark-zone (same structure MOMENTRIP uses) so it keeps the
+   shared Light-surface .next palette untouched — var(--ink-soft)/var(--line-soft) would be
+   illegible on #141414. Its shared top margin is trimmed here for MIVY only, because unlike
+   MOMENTRIP it now follows a block that already contributes .pd-dark-zone's own
+   padding-bottom; the house value would otherwise stack into an oversized empty band. */
+#project-mivy .next{ margin-top:clamp(48px,6vw,84px); }
+
+/* Scroll reveal — the ONLY motion added for MIVY, and the same fade family already used
+   elsewhere on the page (a class toggled by an IntersectionObserver, see js/main.js).
+   The hidden state is deliberately gated behind .mivy-motion-ready, which js/main.js adds
+   only after it has confirmed IntersectionObserver support: with JS off/failed the class
+   is never added and every block renders fully visible, so the case study can never be
+   hidden by its own animation. */
+#project-mivy.mivy-motion-ready [data-mivy-reveal]{
+  opacity:0;
+  transform:translateY(14px);
+  transition:opacity .55s ease, transform .55s ease;
+}
+#project-mivy.mivy-motion-ready [data-mivy-reveal].is-visible{
+  opacity:1;
+  transform:none;
+}
+@media (prefers-reduced-motion:reduce){
+  #project-mivy.mivy-motion-ready [data-mivy-reveal]{ transform:none; transition:opacity .2s ease; }
 }

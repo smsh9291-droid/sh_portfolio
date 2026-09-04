@@ -289,10 +289,11 @@
          matchMedia('(min-width:701px)') is true, so Mobile's own elements/selectors/JS
          path are never shared or touched by the Ellipse code. SEARCH AGAIN_ is no longer a
          6th orbit node on Desktop — the Ellipse closes on its own (5 Fragments only), and
-         SEARCH AGAIN_ instead types itself in at the Ellipse's center afterward, reusing
-         the existing .scatter-hint/.cursor markup verbatim (Desktop just types into its
-         existing first text node instead of showing it as a static caption — Mobile's own
-         text node is never touched by this). Green Point still syncs 1:1 to whichever
+         SEARCH AGAIN_ instead types itself in beside the Open Gap's own edge afterward (RE-
+         ENTRY SIGNAL Prototype — see style.css .scatter-hint's min-width:701px block),
+         reusing the existing .scatter-hint/.cursor markup verbatim (Desktop just types into
+         its existing first text node instead of showing it as a static caption — Mobile's
+         own text node is never touched by this). Green Point still syncs 1:1 to whichever
          segment is drawing; on Desktop this is now CSS Motion Path (offset-path/
          offset-distance) walking the exact same elliptical arc the segment itself draws,
          instead of straight-line cx/cy — see js/main.js "MOMENTRIP Chapter 02 PROBLEM
@@ -386,91 +387,104 @@
   </div>
 </section>
 
-<!-- ============ PROJECT 02 · MIVY ============ -->
+<!-- ============ PROJECT 02 · MIVY — Minimum Public Case Study ============
+     Scope of this pass: MIVY's detail area previously held only unfilled scaffolding
+     (a second [data-ai-workspace] with "[ PROMPT TEXT — ... 플레이스홀더 ]", ed-b/ed-c
+     .ph blocks, a compact .collab BEFORE/AFTER with "[ REASON PLACEHOLDER ]", and a
+     .devicewrap mobile frame). Since the portfolio is already circulating in a live
+     hiring process, that scaffolding is replaced by the four blocks below —
+     00/INTRO · 01/WHY · 02/CORE FEATURES · 03/BUILD — so a reviewer can identify the
+     project and its real implementation scope within ~10-30s. NOT a full case study.
+
+     Visual language is entirely borrowed, nothing new: .pd-dark-zone + .section-boundary
+     (both documented in style.css as reusable across future Projects), .container,
+     .project-head/.project-name/.project-cat, .chapter-label/.chapter-label-num,
+     .project-meta/.project-meta-label, .copy-sm, .ed-block spacing, .mono, .tag,
+     var(--entry-accent). No new accent color, no new navigation, no new motion system —
+     only the small scoped fade-up in js/main.js's MIVY IIFE.
+
+     NO SCREENSHOTS: assets/images/ contains only the Folder/Cursor SVGs used by Hero and
+     the nav — there is no real MIVY capture in this repo, and inventing one was out of
+     scope, so this pass is Typography + Layout only. Drop real captures in later between
+     00/INTRO and 02/CORE FEATURES.
+
+     The <a class="next"> below and the MOMENTRIP section above are untouched. -->
 <section id="project-mivy" class="section project">
+  <div class="pd-dark-zone">
+    <div class="section-boundary" aria-hidden="true"></div>
+    <div class="container">
+      <div class="project-head">
+        <span class="kicker mono">PROJECT 02</span>
+        <span class="kicker mono">2026</span>
+      </div>
+      <h2 class="project-name">MIVY</h2>
+      <div class="project-cat mono">
+        <span>MOBILE / PWA</span><span>FUNCTIONAL BUILD</span>
+      </div>
+
+      <!-- 00 / INTRO — identity + technology metadata. The lead sentence carries no manual
+           <br>: .mivy-lead's own max-width does the wrapping, so Desktop uses its full
+           measure and Mobile reflows to the viewport. -->
+      <div class="mivy-block mivy-block-intro" data-mivy-reveal>
+        <div class="chapter-label mono"><span class="chapter-label-num">00</span> / INTRO</div>
+        <p class="mivy-lead">일상의 순간을 텍스트와 사진으로 기록하고, 언제든 다시 꺼내볼 수 있도록 만든 개인 기록형 메모 앱.</p>
+        <!-- Technology Metadata reuses .project-meta / .project-meta-label verbatim (the
+             same Label + Value Mono pair already under MOMENTRIP's Chapter 01 copy) —
+             no new badge system. Only technologies actually used in MIVY are listed. -->
+        <div class="project-meta mono mivy-stack">
+          <div><span class="project-meta-label">BUILD</span><span>HTML · CSS · VANILLA JAVASCRIPT</span></div>
+          <div><span class="project-meta-label">DATA</span><span>LOCALSTORAGE · INDEXEDDB</span></div>
+          <div><span class="project-meta-label">APP</span><span>SERVICE WORKER · PWA / MANIFEST</span></div>
+        </div>
+      </div>
+
+      <!-- 01 / WHY -->
+      <div class="mivy-block" data-mivy-reveal>
+        <div class="chapter-label mono"><span class="chapter-label-num">01</span> / WHY</div>
+        <p class="copy-sm mivy-copy">복잡한 기능보다, 필요한 순간 빠르게 기록하고 사진과 함께 다시 찾아볼 수 있는 개인 메모 경험을 목표로 했다.</p>
+      </div>
+
+      <!-- 02 / CORE FEATURES — Feature Index, not a long bullet list. The nine implemented
+           features (Text Memo / Photo Attachment 10 / Gallery / Lightbox / Photo Counter /
+           Prev-Next / Card Photo Badge / SPA Navigation + History / Sorting / Local
+           Persistence) are compressed into four groups without changing what was built. -->
+      <div class="mivy-block" data-mivy-reveal>
+        <div class="chapter-label mono"><span class="chapter-label-num">02</span> / CORE FEATURES</div>
+        <ol class="mivy-features">
+          <li class="mivy-feature">
+            <span class="mivy-feature-num mono">01</span>
+            <span class="mivy-feature-title">TEXT + PHOTO</span>
+            <span class="mivy-feature-desc">텍스트 메모에 최대 10장까지 사진을 함께 기록. 목록 카드에는 첨부 장수를 배지로 표시.</span>
+          </li>
+          <li class="mivy-feature">
+            <span class="mivy-feature-num mono">02</span>
+            <span class="mivy-feature-title">GALLERY</span>
+            <span class="mivy-feature-desc">첨부한 사진을 라이트박스로 확대하고, 이전 / 다음 이동과 현재 위치 카운터를 제공.</span>
+          </li>
+          <li class="mivy-feature">
+            <span class="mivy-feature-num mono">03</span>
+            <span class="mivy-feature-title">NAVIGATION</span>
+            <span class="mivy-feature-desc">SPA 방식으로 화면을 전환하고 히스토리를 처리. 기록 목록은 정렬해서 다시 찾을 수 있음.</span>
+          </li>
+          <li class="mivy-feature">
+            <span class="mivy-feature-num mono">04</span>
+            <span class="mivy-feature-title">LOCAL DATA</span>
+            <span class="mivy-feature-desc">텍스트는 LocalStorage, 이미지는 IndexedDB에 저장해 브라우저 안에서 기록이 유지됨.</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- 03 / BUILD -->
+      <div class="mivy-block" data-mivy-reveal>
+        <div class="chapter-label mono"><span class="chapter-label-num">03</span> / BUILD</div>
+        <p class="copy-sm mivy-copy">HTML / CSS와 Vanilla JavaScript로 기능을 직접 구현하고, 텍스트 기반 데이터는 LocalStorage, 이미지 데이터는 IndexedDB를 사용해 저장 역할을 분리했다.</p>
+        <p class="copy-sm mivy-copy">Service Worker와 Manifest를 적용해 PWA 구조로 확장했다.</p>
+        <div class="mivy-note"><span class="tag mono">DESIGN + FUNCTIONAL BUILD — RUNS IN THE BROWSER</span></div>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
-    <div class="project-head">
-      <span class="kicker mono">PROJECT 02</span>
-      <span class="kicker mono">2026</span>
-    </div>
-    <h2 class="project-name">MIVY</h2>
-
-    <div class="ai-workspace" data-ai-workspace data-speed="fast">
-      <div class="ai-workspace-label mono">AI COLLABORATION WORKSPACE</div>
-
-      <div class="ai-prompt-block">
-        <div class="ai-role-label mono">USER / PROMPT</div>
-        <p class="prompt-text mono"><span data-typewriter>[ PROMPT TEXT — 프로젝트 브리프 플레이스홀더 ]</span><span class="cursor" aria-hidden="true">_</span></p>
-        <span class="ai-send mono" data-send data-state="idle">SEND</span>
-      </div>
-
-      <div class="ai-response-block" data-response>
-        <div class="ai-role-label mono">AI / RESPONSE</div>
-        <div class="ai-generating mono" data-generating>GENERATING…</div>
-        <div class="ai-response-body" data-response-body>
-          <div class="label-sm mono">PROPOSED ROLE</div>
-          <div class="role-tags mono">
-            <span>MOBILE UI DESIGN</span><span>PWA</span><span>FUNCTIONAL BUILD</span>
-          </div>
-          <button type="button" class="ai-replay mono" data-replay>↻ REPLAY</button>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:16px;"><span class="tag mono">AUTO-PLAYS ON SCROLL INTO VIEW — ABBREVIATED</span></div>
-
-    <!-- lighter editorial: process-forward, less text -->
-    <div class="ed-block ed-b">
-      <div class="ed-b-num mono">02</div>
-      <div class="ed-b-copy">
-        <div class="label-sm mono">OVERVIEW / PROCESS</div>
-        <p class="copy-sm">[ OVERVIEW·PROCESS 요약 플레이스홀더 텍스트 — MOMENTRIP 대비 축소 ]</p>
-      </div>
-      <div class="ph"><span>[ IMAGE PLACEHOLDER — MOBILE FLOW ]</span></div>
-    </div>
-
-    <div class="ed-block ed-c">
-      <div class="label-sm mono">SELECTED DESIGN PROCESS</div>
-      <div class="ed-c-grid">
-        <div class="ph"><span>[ PROCESS 01 ]</span></div>
-        <div class="ph"><span>[ PROCESS 02 ]</span></div>
-      </div>
-    </div>
-
-    <!-- AI Collaboration: compact -->
-    <div class="collab compact">
-      <div class="label-sm mono">AI COLLABORATION / HUMAN DECISION</div>
-      <div class="flow mono">AI OUTPUT <b>→</b> REVIEW <b>→</b><br class="flow-break"> HUMAN DECISION <b>→</b> REFINED RESULT</div>
-      <div class="compare">
-        <div class="before">
-          <div class="compare-label mono">BEFORE</div>
-          <div class="ph"><span>[ AI OUTPUT ]</span></div>
-        </div>
-        <div class="after">
-          <div class="compare-label mono">AFTER</div>
-          <div class="ph"><span>[ REFINED ]</span></div>
-        </div>
-        <div class="decision">
-          <div class="why mono">WHY I CHANGED IT</div>
-          <ul class="why-list mono">
-            <li><b>01</b>[ REASON PLACEHOLDER ]</li>
-            <li><b>02</b>[ REASON PLACEHOLDER ]</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- Device showcase: mobile-led, dominant -->
-    <div class="devicewrap">
-      <div class="label-sm mono">DEVICE SHOWCASE</div>
-      <div class="devices mobile-lead">
-        <div class="device mobile">
-          <div class="device-scr"><span class="tag mono">[ MOBILE FRAME — PRIMARY ]</span></div>
-          <div class="home"></div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:12px;"><span class="tag mono">SCROLL REVEAL POINT (STATIC PREVIEW)</span></div>
-    </div>
-
     <a class="next" href="#project-farmlink">
       <div class="next-left">
         <span class="kicker mono">NEXT PROJECT</span>
