@@ -4,7 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Workspace Prototype</title>
+<!-- Pretendard (Korean only): sits after the Latin design fonts in every font stack in
+     style.css, so Hangul falls through to it while English keeps Arial / the mono stack.
+     Dynamic-subset build = only the glyph ranges a page actually uses are downloaded.
+     If the CDN fails, the stacks fall back to Apple SD Gothic Neo / Malgun Gothic. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="css/style.css">
+<!-- Portfolio Workspace V2 — Desktop-only (>=1024px) interaction shell. Loaded AFTER
+     style.css so its media-query-scoped rules layer on top; below 1024px it only
+     applies a display:contents pass-through, so the existing page is unchanged. -->
+<link rel="stylesheet" href="css/workspace-v2.css">
+<!-- No-JS safety net for the Desktop V2 shell. Lives in <noscript> on purpose: an
+     equivalent ":not(.v2-js)" rule in the stylesheet would stop matching the
+     instant the controller tags itself, and that class change would START
+     transitions from the fallback values at load — which never finish in a
+     background tab and left the intro measuring the wrong geometry. Here it can
+     only ever apply when scripting is genuinely off. Without JS there is no
+     Intro sequence, no Prompt, no Project Navigation to open — so this simply
+     shows the identity bar and every existing section at once, a plain static
+     one-pager (the Prompt/AI-Presence/Nav chrome is all hidden). -->
+<noscript>
+<style>
+@media (min-width:1024px){
+  .v2-core, .v2-convo, .v2-bar, .v2-skip,
+  .v2-nav, .v2-progress-line{ display:none; }
+  #v2-host{ opacity:1; pointer-events:auto; }
+  #v2-host > section{ display:block; animation:none; }
+}
+</style>
+</noscript>
 </head>
 <body>
 
@@ -134,6 +163,137 @@
     </nav>
   </div>
 </section>
+<!-- ============================================================================
+     PORTFOLIO WORKSPACE V2 — Desktop shell (>= 1024px)
+     ----------------------------------------------------------------------------
+     Everything from SELECTED WORKS to CONTACT below is now WRAPPED by this shell
+     instead of being rewritten. Nothing inside #v2-host was moved, renamed,
+     shortened or re-designed — MOMENTRIP (incl. its AI Workspace and the mobile
+     PROBLEM journey), MIVY, FARMLINK, DESIGN ARCHIVE, ABOUT and CONTACT are the
+     exact same markup as before.
+
+     BELOW 1024px this <div>, .v2-stage and #v2-host are display:contents (see
+     css/workspace-v2.css), so those sections keep flowing as plain <body>
+     children in the original order and the existing Tablet/Mobile page renders
+     identically to before. The V2 chrome below is display:none there.
+
+     AT >= 1024px this becomes the workspace. STRUCTURAL REVISION (3rd pass):
+     the Intro is a single full-viewport composition with NO sidebar/rail —
+     AI Presence -> Prompt -> Direction message -> RUN is the only thing on
+     screen. Project navigation lives at the LEFT EDGE, vertically centred: a
+     small curved tab by default, revealing left->right into a large curved
+     shell on hover/click. It overlays the Main Stage (no push layout) and
+     only exists AFTER RUN. Main Stage uses the freed width. ================ -->
+<div id="v2" data-phase="presence">
+
+  <!-- AI PRESENCE — one complete scene, not a scattered set of marks. The dot
+       (the actual Presence) settles in FIRST; a halo — the ONE supporting
+       line, a real 2px stroke so it never anti-aliases into a soft/broken
+       hairline — follows it a beat later; a short hairline (invisible until
+       Morph A actually needs it) and the "AI" label (with a drawn-in
+       underline) complete the composition last, each arriving on its own
+       stagger (see the .is-on transition-delays in workspace-v2.css) so the
+       scene assembles itself — object, then line — rather than a pile of
+       hairlines appearing together. No particles/blob/3D/glow/generated
+       imagery — every piece here is a flat line or a solid dot, the same
+       vocabulary as the rest of the page. The point is not faded out and
+       swapped later: js/workspace-v2.js walks it into the Prompt frame, grows
+       the hairline to the frame's own width, then morphs the point into the
+       Prompt caret — Presence becomes Prompt. -->
+  <div class="v2-core" id="v2-core" aria-hidden="true">
+    <span class="v2-core-dot"></span>
+    <span class="v2-core-halo"></span>
+    <span class="v2-core-line"></span>
+    <span class="v2-core-label">
+      <span class="v2-core-label-text">AI</span>
+      <span class="v2-core-label-rule"></span>
+    </span>
+  </div>
+
+  <!-- MAIN STAGE — the Direction message (prompt state) and the portfolio
+       content host (workspace state) occupy the SAME grid cell, so the stage
+       box is continuous across RUN. No rail column any more: this row now
+       spans the full viewport width. -->
+  <main class="v2-stage">
+    <!-- Direction message — revealed only AFTER the Prompt Area has finished
+         typing and descended, in the space it vacates. Two steps, not a
+         paragraph: the identity mark, then the three-word direction sequence.
+         Both use the existing "reveal via one class + per-item transition-
+         delay" technique already established by .hero-folder-nav in style.css
+         — no per-item JS timing. -->
+    <!-- BACKGROUND ATMOSPHERE — Intro-only (DESIGN × CODE × AI scene). Sits in
+         the same grid-area:"stage" cell as .v2-convo/#v2-host, placed BEFORE
+         both in source so normal stacking order alone keeps it behind them —
+         no z-index needed. Toggled by the SAME .is-in class technique already
+         used for .v2-convo (js/workspace-v2.js adds it once the Prompt frame
+         has descended, just ahead of the Direction message reveal), and
+         hidden again by the existing #v2.is-ws rule the instant RUN fires.
+         pointer-events:none throughout — this is atmosphere, never a hit
+         target. Content is the project's own code-comment vocabulary
+         (/* */, <tag>, mono) already used by .ai-response-status/.label-sm
+         in style.css — no new terminal/matrix/hacker visual language. -->
+    <div class="v2-bg-fx" id="v2-bg-fx" aria-hidden="true">
+      <div class="v2-bg-noise"></div>
+      <div class="v2-bg-static"></div>
+      <div class="v2-code-frag v2-frag-1 v2-frag--near"><span class="v2-frag-drift"><span class="v2-frag-signal">/* human direction */</span></span></div>
+      <div class="v2-code-frag v2-frag-2 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">&lt;workspace state="ready"&gt;</span></span></div>
+      <div class="v2-code-frag v2-frag-3 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">const intent = "preserve";</span></span></div>
+      <div class="v2-code-frag v2-frag-4 v2-frag--near"><span class="v2-frag-drift"><span class="v2-frag-signal">interaction.state = "active";</span></span></div>
+      <div class="v2-code-frag v2-frag-5 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">function build(direction) {
+  return preserve(intent);
+}</span></span></div>
+      <div class="v2-code-frag v2-frag-6 v2-frag--far v2-frag--accent"><span class="v2-frag-drift"><span class="v2-frag-signal">--accent: #C1F85C;</span></span></div>
+      <div class="v2-code-frag v2-frag-7 v2-frag--near"><span class="v2-frag-drift"><span class="v2-frag-signal">[data-stage="intro"]</span></span></div>
+      <div class="v2-code-frag v2-frag-8 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">const output = implement(direction);</span></span></div>
+      <div class="v2-code-frag v2-frag-9 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">&lt;design-system&gt;</span></span></div>
+      <div class="v2-code-frag v2-frag-10 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">if (humanDirection) {
+  ai.collaborate();
+}</span></span></div>
+      <div class="v2-code-frag v2-frag-11 v2-frag--near"><span class="v2-frag-drift"><span class="v2-frag-signal">function compose() {
+  return design(intent);
+}</span></span></div>
+      <div class="v2-code-frag v2-frag-12 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">system.align(intent);</span></span></div>
+      <div class="v2-code-frag v2-frag-13 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">[data-stage="intro"] {
+  visibility: active;
+}</span></span></div>
+      <div class="v2-code-frag v2-frag-14 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">interface.observe();</span></span></div>
+      <div class="v2-code-frag v2-frag-15 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">AI-assisted !== AI-generated;</span></span></div>
+      <div class="v2-code-frag v2-frag-16 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">const workspace = {
+  mode: "interaction",
+  state: "ready"
+};</span></span></div>
+      <div class="v2-code-frag v2-frag-17 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">&lt;output verified&gt;</span></span></div>
+      <div class="v2-code-frag v2-frag-18 v2-frag--near"><span class="v2-frag-drift"><span class="v2-frag-signal">function collaborate() {
+  return implementation;
+}</span></span></div>
+      <div class="v2-code-frag v2-frag-19 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">interaction.bind({
+  select: click,
+  progress: scroll
+});</span></span></div>
+      <div class="v2-code-frag v2-frag-20 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">render(direction);</span></span></div>
+      <div class="v2-code-frag v2-frag-21 v2-frag--near"><span class="v2-frag-drift"><span class="v2-frag-signal">function refine() {
+  return verify(result);
+}</span></span></div>
+      <div class="v2-code-frag v2-frag-22 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">&lt;system mode="collaborative"&gt;</span></span></div>
+      <div class="v2-code-frag v2-frag-23 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">layout.observe(viewport);</span></span></div>
+      <div class="v2-code-frag v2-frag-24 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">/* interface state */</span></span></div>
+      <div class="v2-code-frag v2-frag-25 v2-frag--mid"><span class="v2-frag-drift"><span class="v2-frag-signal">[data-output="ready"] {
+  transition: opacity .4s;
+}</span></span></div>
+      <div class="v2-code-frag v2-frag-26 v2-frag--far"><span class="v2-frag-drift"><span class="v2-frag-signal">const context = preserve(direction);</span></span></div>
+      <div class="v2-code-frag v2-frag-27 v2-frag--near"><span class="v2-frag-drift"><span class="v2-frag-signal">&lt;interaction state="active"&gt;</span></span></div>
+    </div>
+
+    <div class="v2-convo">
+      <p class="v2-convo-mark">DESIGN <i>×</i> CODE <i>×</i> <span>AI</span></p>
+      <ol class="v2-convo-steps">
+        <li><i>01</i>Human direction</li>
+        <li><i>02</i>AI collaboration</li>
+        <li><i>03</i>Implementation</li>
+      </ol>
+    </div>
+
+    <div id="v2-host">
 
 <!-- ============ 03 SELECTED WORKS — Editorial Project Index ============
      Hero's Green Folder object is deliberately NOT repeated here (see the CSS block
@@ -220,10 +380,28 @@
             <div><span class="project-meta-label">ROLE</span><span>UI/UX DESIGN · RESPONSIVE WEB · AI COLLABORATION</span></div>
           </div>
         </div>
-        <div class="ph" data-ov-visual>
-          <span>[ IMAGE PLACEHOLDER — MAIN VISUAL ]</span>
-          <span class="ov-meta ov-meta-tl mono">PROJECT PREVIEW / 01</span>
-          <span class="ov-meta ov-meta-br mono">VIEWPORT / DESKTOP</span>
+        <!-- LIVE PREVIEW — static WebP by default; the deployed site is only requested once
+             [data-preview-launch] is pressed (Desktop V2 only, see js/workspace-v2.js
+             "MOMENTRIP LIVE PREVIEW"). Below 1024px the launch control is hidden and only
+             the image + OPEN SITE remain. The bar sits outside the iframe so EXIT is always
+             reachable whatever the embedded page's own scroll position is. -->
+        <div class="ov-preview" data-ov-preview data-state="static">
+          <div class="ov-preview-bar mono">
+            <span class="ov-preview-status" data-preview-status aria-live="polite">STATIC PREVIEW</span>
+            <span class="ov-preview-url">momentrip-phi.vercel.app</span>
+            <span class="ov-preview-actions">
+              <button type="button" class="ov-preview-btn is-primary" data-preview-launch hidden>LIVE PREVIEW 실행</button>
+              <button type="button" class="ov-preview-btn is-exit" data-preview-exit hidden>EXIT PREVIEW</button>
+              <a class="ov-preview-btn" href="https://momentrip-phi.vercel.app/" target="_blank" rel="noopener noreferrer">OPEN SITE ↗</a>
+            </span>
+          </div>
+          <div class="ph has-img" data-ov-visual>
+            <img class="ph-img" src="assets/images/momentrip/momentrip-overview-desktop.webp" width="1920" height="1200" decoding="async" alt="MOMENTRIP 메인 화면 — 현재 지역 선택, 검색과 카테고리 버튼, 지도와 오늘 인기 Spot 목록">
+
+            <span class="ov-meta ov-meta-tl mono">PROJECT PREVIEW / 01</span>
+            <span class="ov-meta ov-meta-br mono">VIEWPORT / DESKTOP</span>
+            <div class="ov-preview-frame" data-preview-frame></div>
+          </div>
         </div>
       </div>
     </div>
@@ -326,38 +504,82 @@
     </div>
 
     <!-- variant C — selected process grid -->
+    <!-- Real material only, all from the MOMENTRIP repo's own Git history:
+         01 = commit 20edeee (low-fi wireframe, rendered as committed), 02 = the design
+         tokens in css/wireframe.css (values copied verbatim, not an image), 03 = the
+         deployed community page. Previous placeholder markup kept below for reference:
+         <div class="ph"><span>[ PROCESS 01 ]</span></div>
+         <div class="ph"><span>[ PROCESS 02 ]</span></div>
+         <div class="ph"><span>[ PROCESS 03 ]</span></div> -->
     <div class="ed-block ed-c">
       <div class="label-sm mono">SELECTED DESIGN PROCESS</div>
       <div class="ed-c-grid">
-        <div class="ph"><span>[ PROCESS 01 ]</span></div>
-        <div class="ph"><span>[ PROCESS 02 ]</span></div>
-        <div class="ph"><span>[ PROCESS 03 ]</span></div>
+        <figure class="proc">
+          <div class="ph has-img zoomable" data-lightbox="assets/images/momentrip/momentrip-process-wireframe-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="와이어프레임 이미지 크게 보기">
+            <img class="ph-img" src="assets/images/momentrip/momentrip-process-wireframe.webp" width="1200" height="750" loading="lazy" decoding="async" alt="MOMENTRIP 로우파이 와이어프레임 — 회색조 헤더, 지도 자리, 오늘 인기 Spot 목록, 검색과 빠른 카테고리 영역">
+          </div>
+          <figcaption class="proc-cap mono"><b>01 / WIREFRAME</b><span>LOW-FI · GRAYSCALE · 2026.08.03</span></figcaption>
+        </figure>
+        <figure class="proc">
+          <div class="ph proc-tokens zoomable" data-lightbox="html" data-lightbox-alt="MOMENTRIP 디자인 토큰 — 컬러 #8FCFC3, #4E6F69, #FFF4DF, #FFFCF6, #EADCC8 / 글자 크기 12·15·17·22·34px / 모서리 4·8·16px" role="button" tabindex="0" aria-haspopup="dialog" aria-label="디자인 시스템 토큰 크게 보기 — 컬러 #8FCFC3, #4E6F69, #FFF4DF, #FFFCF6, #EADCC8 / 글자 크기 12·15·17·22·34px / 모서리 4·8·16px">
+            <ul class="tk-swatches" aria-hidden="true">
+              <li><i style="background:#8FCFC3"></i><span>PRIMARY<br>#8FCFC3</span></li>
+              <li><i style="background:#4E6F69"></i><span>STRONG<br>#4E6F69</span></li>
+              <li><i style="background:#FFF4DF"></i><span>ACCENT<br>#FFF4DF</span></li>
+              <li><i style="background:#FFFCF6"></i><span>BG<br>#FFFCF6</span></li>
+              <li><i style="background:#EADCC8"></i><span>NEUTRAL<br>#EADCC8</span></li>
+            </ul>
+            <div class="tk-type" aria-hidden="true">
+              <span style="font-size:12px">Aa</span><span style="font-size:15px">Aa</span><span style="font-size:17px">Aa</span><span style="font-size:22px">Aa</span><span style="font-size:34px">Aa</span>
+            </div>
+            <div class="tk-row mono" aria-hidden="true"><span>TYPE 12 · 15 · 17 · 22 · 34</span><span>RADIUS 4 · 8 · 16</span></div>
+          </div>
+          <figcaption class="proc-cap mono"><b>02 / DESIGN SYSTEM</b><span>TOKENS · 2026.08.04</span></figcaption>
+        </figure>
+        <figure class="proc">
+          <div class="ph has-img zoomable" data-lightbox="assets/images/momentrip/momentrip-process-ui-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="커뮤니티 UI 이미지 크게 보기">
+            <img class="ph-img" src="assets/images/momentrip/momentrip-process-ui.webp" width="1200" height="750" loading="lazy" decoding="async" alt="MOMENTRIP 커뮤니티 화면 — 카테고리 탭, 검색과 지역 필터, 사진이 있는 게시글 목록">
+          </div>
+          <figcaption class="proc-cap mono"><b>03 / UI DESIGN</b><span>COMMUNITY BOARD · 2026.08.13</span></figcaption>
+        </figure>
       </div>
     </div>
 
-    <!-- AI Collaboration -->
+    <!-- Design iteration, BEFORE / AFTER. Both captures are the MOMENTRIP repo rendered at
+         its own commits (664db01 -> 6f99fe1, both 2026-08-07); reason 03 is commit 692143a
+         (2026-08-05), contrast ratios measured from the committed color values. No "AI
+         draft" claim: Git cannot show the BEFORE was AI output, and that layout already
+         existed in the hand-made wireframe (20edeee). Previous placeholder copy kept here:
+         label "AI COLLABORATION / HUMAN DECISION"; flow "AI OUTPUT → DESIGN REVIEW → ISSUE
+         FOUND → HUMAN DECISION → REFINED RESULT"; [ LARGE UI — AI OUTPUT ] /
+         [ LARGE UI — REFINED ]; 3x [ REASON PLACEHOLDER ];
+         tag "VISUAL COMPARISON — BEFORE / AFTER". -->
     <div class="collab">
-      <div class="label-sm mono">AI COLLABORATION / HUMAN DECISION</div>
-      <div class="flow mono">AI OUTPUT <b>→</b> DESIGN REVIEW <b>→</b> ISSUE FOUND <b>→</b> HUMAN DECISION <b>→</b> REFINED RESULT</div>
+      <div class="label-sm mono">DESIGN ITERATION — BEFORE / AFTER</div>
+      <div class="flow mono">08.03 WIREFRAME <b>→</b> 08.04 DESIGN SYSTEM <b>→</b> 08.05 CONTRAST FIX <b>→</b> 08.07 HERO SEARCH FLOW <b>→</b> 08.13 FINAL UI</div>
       <div class="compare">
         <div class="before">
-          <div class="compare-label mono">BEFORE</div>
-          <div class="ph"><span>[ LARGE UI — AI OUTPUT ]</span></div>
+          <div class="compare-label mono">BEFORE — HERO · 2026.08.07</div>
+          <div class="ph has-img zoomable" data-lightbox="assets/images/momentrip/momentrip-before-hero-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="변경 전 Hero 이미지 크게 보기">
+            <img class="ph-img" src="assets/images/momentrip/momentrip-before-hero.webp" width="1440" height="675" loading="lazy" decoding="async" alt="변경 전 Hero — 검색창은 왼쪽 아래, 빠른 카테고리는 오른쪽 지도 열 아래에 따로 배치">
+          </div>
         </div>
         <div class="after">
-          <div class="compare-label mono">AFTER</div>
-          <div class="ph"><span>[ LARGE UI — REFINED ]</span></div>
+          <div class="compare-label mono">AFTER — HERO · 2026.08.07</div>
+          <div class="ph has-img zoomable" data-lightbox="assets/images/momentrip/momentrip-after-hero-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="변경 후 Hero 이미지 크게 보기">
+            <img class="ph-img" src="assets/images/momentrip/momentrip-after-hero.webp" width="1440" height="675" loading="lazy" decoding="async" alt="변경 후 Hero — 헤드라인 아래 왼쪽 열에 빠른 카테고리와 검색창을 함께 배치">
+          </div>
         </div>
         <div class="decision">
           <div class="why mono">WHY I CHANGED IT</div>
           <ul class="why-list mono">
-            <li><b>01</b>[ REASON PLACEHOLDER ]</li>
-            <li><b>02</b>[ REASON PLACEHOLDER ]</li>
-            <li><b>03</b>[ REASON PLACEHOLDER ]</li>
+            <li><b>01</b>UI 가독성 — 헤드라인 → 카테고리 → 검색을 한 열에 두어 읽는 순서를 하나로 정리</li>
+            <li><b>02</b>사용자 경험 — 지도 열 아래 떨어져 있던 카테고리를 질문 바로 아래로 옮겨 탐색 시작 동작을 한곳에 모음</li>
+            <li><b>03</b>ACCESSIBILITY — 08.05 별도 개선(Hero 변경과 무관): 채움 버튼 글자 대비 1.77:1 → 7.15:1, 메뉴 활성 상태 1.77:1 → 5.52:1</li>
           </ul>
         </div>
       </div>
-      <div style="margin-top:16px;"><span class="tag mono">VISUAL COMPARISON — BEFORE / AFTER</span></div>
+      <div style="margin-top:16px;"><span class="tag mono">SOURCE — MOMENTRIP GIT HISTORY · 664db01 → 6f99fe1 · 692143a</span></div>
     </div>
 
     <!-- Device showcase: desktop-led, mobile overlap -->
@@ -365,11 +587,11 @@
       <div class="label-sm mono">DEVICE SHOWCASE</div>
       <div class="devices">
         <div class="device desktop">
-          <div class="device-scr"><span class="tag mono">[ DESKTOP FRAME ]</span></div>
+          <div class="device-scr"><img src="assets/images/momentrip/momentrip-device-desktop.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="MOMENTRIP 데스크톱 화면 — MOMENTRIP PICK 추천 코스와 이번 주 HOT 콘텐츠"></div>
           <div class="device-base"></div>
         </div>
         <div class="device mobile">
-          <div class="device-scr"><span class="tag mono">[ MOBILE ]</span></div>
+          <div class="device-scr"><img src="assets/images/momentrip/momentrip-device-mobile.webp" width="780" height="1604" loading="lazy" decoding="async" alt="MOMENTRIP 모바일 화면 — 지역 선택, 검색, 카테고리 버튼과 지도"></div>
           <div class="home"></div>
         </div>
       </div>
@@ -599,6 +821,109 @@
   </div>
 </section>
 
+    </div><!-- /#v2-host -->
+  </main>
+
+  <!-- PROMPT AREA. Rises to a central position for the AI Presence morph and
+       for typing (.is-elevated, applied by JS the instant the sequence
+       starts), then js/workspace-v2.js removes that class once typing
+       finishes — the frame animates back down to this resting bar position,
+       which is exactly "Prompt Area descends", freeing the space above for
+       the Direction message. After RUN the whole bar collapses away (no
+       persistent status/progress bar here any more — see .v2-progress-line
+       and .v2-nav below for the Workspace's own minimal chrome). -->
+  <div class="v2-bar">
+    <div class="v2-frame">
+      <div class="v2-frame-prompt">
+        <pre class="v2-prompt" id="v2-prompt" aria-label="Prompt"><span class="v2-caret" aria-hidden="true"></span></pre>
+        <div class="v2-frame-foot">
+          <span>Context / SH portfolio</span>
+          <!-- PROMPT = EXECUTE. RUN appears only after the Direction message
+               has finished revealing, and nothing auto-advances past it. -->
+          <button type="button" class="v2-run" id="v2-run" aria-disabled="true">Run prompt <i>↗</i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="v2-skip" id="v2-skip">Skip</button>
+
+  <!-- WORKSPACE CHROME (post-RUN only) ======================================
+       Minimal by design: a hairline reading-progress line (SCROLL = PROGRESS)
+       and the Project Navigation below — no persistent sidebar, no status
+       bar, no full-screen modal. -->
+  <div class="v2-progress-line" aria-hidden="true"><i id="v2-progress-fill"></i></div>
+
+  <!-- PROJECT NAVIGATION — 10th pass: a MORPHING SURFACE, not a growing
+       box. Re-verified against the Reference (https://shethmihir98.com/#works)
+       live — its own corner pieces are SVG paths
+       (`M 0 0 C 45.98 0 37 34 87 34 L 87 0 Z`), a cubic bezier flush/
+       tangent to the flat top edge at one end and to the flat pill bottom
+       at the other: a continuous, organically-eased curve, never a
+       circle/ellipse/pill outline. The previous pass's rounded-rectangle
+       capsule was a simplification too far — this pass reproduces the
+       actual curve-easing principle as ONE continuous SVG path per state
+       (see the .v2-nav-surface path `d` values in workspace-v2.css, and
+       that file's own header comment for the full derivation), rotated
+       90° per this project's brief (Reference: top edge, downward bulge —
+       ours: left edge, rightward bulge), and built around the user's own
+       sketch silhouette rather than the Reference's exact proportions
+       (our own bulge grows in BOTH depth and span from CLOSED to OPEN;
+       the Reference's bulge depth is actually fixed, only its width
+       grows — a real difference this pass does not paper over).
+
+       TRIGGER = the Folder, doing the Reference "MS" mark's exact job as
+       the surface's own visual/interaction anchor — nav-folder-closed.svg
+       at rest, nav-folder-open.svg once open/hovered (opacity crossfade
+       only, no bounce/rotation/glow). Its (left, top) is the exact same
+       point the surface path's own vertical centre (cy) is built around,
+       which is what keeps it from ever appearing to jump between states.
+
+       MENU = five items placed at fixed offsets from that same centre —
+       MOMENTRIP/MIVY above the Folder, FARMLINK/DESIGN ARCHIVE below it,
+       ABOUT a little further below still (never all on one side) — sitting
+       inside the OPEN surface's own flat "belly" span, included in this
+       one surface (not a separate top bar), per the brief.
+
+       Project-switching logic itself — setStage()/openNav()/closeNav(),
+       ESC, outside-click, hover-commits-then-auto-pins — is fully reused
+       unchanged from js/workspace-v2.js: the ids v2-nav-guide/v2-nav-panel
+       are kept on the trigger/menu on purpose so none of that JS needed
+       to change. -->
+  <nav class="v2-nav" aria-label="Project navigation">
+    <button type="button" class="v2-nav-trigger" id="v2-nav-guide" aria-haspopup="true" aria-expanded="false" aria-label="Toggle project navigation">
+      <span class="v2-nav-trigger-visual" aria-hidden="true">
+        <img class="v2-nav-trigger-closed" src="assets/images/nav-folder-closed.svg" alt="" width="410" height="337">
+        <img class="v2-nav-trigger-open" src="assets/images/nav-folder-open.svg" alt="" width="461" height="375">
+      </span>
+    </button>
+
+    <div class="v2-nav-panel" id="v2-nav-panel" aria-hidden="true">
+      <svg class="v2-nav-surface" viewBox="0 0 320 720" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path></path>
+      </svg>
+      <div class="v2-nav-menu">
+        <button type="button" class="v2-nav-item" data-nav-go="momentrip">
+          <span class="v2-nav-name"><i>01</i>Momentrip</span>
+        </button>
+        <button type="button" class="v2-nav-item" data-nav-go="mivy">
+          <span class="v2-nav-name"><i>02</i>Mivy</span>
+        </button>
+        <button type="button" class="v2-nav-item" data-nav-go="farmlink">
+          <span class="v2-nav-name"><i>03</i>Farmlink</span>
+        </button>
+        <button type="button" class="v2-nav-item" data-nav-go="archive">
+          <span class="v2-nav-name"><i>04</i>Design archive</span>
+        </button>
+        <button type="button" class="v2-nav-item v2-nav-item-about" data-nav-go="about">
+          <span class="v2-nav-name">About</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+</div><!-- /#v2 -->
+
 <script src="js/main.js"></script>
+<script src="js/workspace-v2.js"></script>
 </body>
 </html>

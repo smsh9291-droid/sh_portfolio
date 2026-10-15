@@ -11,7 +11,8 @@
   --tag:#7a7a7a;
   --entry-bg:#141414;
   --entry-ink:#f4f4f4;
-  --entry-accent:#0AFA42; /* Green Folder asset's core color — AI accent only, not a theme */
+  --entry-accent:#C1F85C; /* Green/Lime Folder asset's core color — AI accent only, not a theme */
+  --entry-accent-rgb:193,248,92; /* rgba() derivations of --entry-accent share this base */
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -48,13 +49,13 @@ body{
   margin:0;
   background:var(--bg);
   color:var(--ink);
-  font-family: Arial, Helvetica, "Segoe UI", sans-serif;
+  font-family: Arial, Helvetica, "Segoe UI", "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
 }
 
 .mono{
-  font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
 }
 
 a{ color:inherit; }
@@ -810,7 +811,7 @@ html.ws-open .eh-open{
   .workspace-metadata.is-visible{ opacity:1; }
   .wm-unit{
     position:absolute;
-    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
     font-size:clamp(10px,.85vw,12px);
     font-weight:400;
     letter-spacing:.14em;
@@ -831,7 +832,7 @@ html.ws-open .eh-open{
     still below Main Typography and Signature, just the most legible tier of Metadata */
   .wm-unit .wm-dot{
     display:inline-block; width:5px; height:5px; border-radius:50%;
-    background:rgba(10,250,66,.85); /* the ONLY Green in the layer — capped at 3 status dots
+    background:rgba(var(--entry-accent-rgb),.85); /* the ONLY Green in the layer — capped at 3 status dots
       total (WORKSPACE / ACTIVE, PROCESS / ACTIVE, INTERACTION / ON); rgba (not `opacity`)
       so it isn't re-multiplied by the parent's own color-alpha above */
     vertical-align:middle; margin-right:.6em;
@@ -963,7 +964,7 @@ html.ws-open .eh-open{
   .wm-top-a, .wm-top-b, .wm-right-a, .wm2-right-a, .wm-right-c, .wm-lower-c{
     display:block;
     position:absolute;
-    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
     font-size:10px;
     font-weight:400;
     letter-spacing:.1em;
@@ -974,7 +975,7 @@ html.ws-open .eh-open{
   .wm-top-a, .wm-top-b{ color:rgba(244,244,244,.52); } /* System Label tier: .48-.56 */
   .wm-unit .wm-dot{
     display:inline-block; width:4px; height:4px; border-radius:50%;
-    background:rgba(10,250,66,.85); /* the only Green on Mobile Metadata too */
+    background:rgba(var(--entry-accent-rgb),.85); /* the only Green on Mobile Metadata too */
     vertical-align:middle; margin-right:.5em;
   }
   /* placement: scattered through the negative space around the (now center-grouped)
@@ -1125,13 +1126,13 @@ html.ws-open .eh-open{
      Metadata tier, per the brief's hierarchy — and Green is never used on the Label,
      hover included (only the Main Folder graphic itself is Green). */
   .nav-index{
-    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
     font-size:clamp(11px,1vw,13px);
     letter-spacing:.12em;
     color:rgba(244,244,244,.42);
   }
   .nav-label{
-    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
     font-size:clamp(13px,1.15vw,16px);
     font-weight:600;
     letter-spacing:.08em;
@@ -1215,7 +1216,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
 }
 
 /* ============ WORKS — Editorial Project Index ============
-   Carries Hero's visual language (dark bg, White/Gray text, #0AFA42 accent used only as a
+   Carries Hero's visual language (dark bg, White/Gray text, #C1F85C accent used only as a
    small interaction indicator, Large Sans + Small Mono) WITHOUT repeating Hero's Green
    Folder object or its Open/Close interaction — clicking WORKS in the Hero Nav should not
    feel like "pick another folder" a second time. Row-based Editorial Index instead: no
@@ -1309,7 +1310,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
   z-index:-1;
   inset:-24px;
   border-radius:50%;
-  background:radial-gradient(circle, rgba(10,250,66,1) 0%, rgba(10,250,66,0) 70%);
+  background:radial-gradient(circle, rgba(var(--entry-accent-rgb),1) 0%, rgba(var(--entry-accent-rgb),0) 70%);
   filter:blur(16px);
   opacity:0;
   pointer-events:none;
@@ -1398,13 +1399,13 @@ html.ws-open.mini-ready .mini-folder-fixed{
 }
 @keyframes works-num-light-on{
   0%   { color:rgba(244,244,244,.4); text-shadow:none; animation-timing-function:steps(1,jump-end); }
-  10%  { color:#8dffb0; text-shadow:0 0 4px rgba(10,250,66,.9), 0 0 10px rgba(10,250,66,.55); animation-timing-function:steps(1,jump-end); } /* FLASH 1 */
+  10%  { color:#D7FF8D; text-shadow:0 0 4px rgba(var(--entry-accent-rgb),.9), 0 0 10px rgba(var(--entry-accent-rgb),.55); animation-timing-function:steps(1,jump-end); } /* FLASH 1 */
   20%  { color:rgba(244,244,244,.4); text-shadow:none; animation-timing-function:steps(1,jump-end); } /* near-OFF dip */
-  32%  { color:#8dffb0; text-shadow:0 0 4px rgba(10,250,66,.9), 0 0 10px rgba(10,250,66,.55); animation-timing-function:steps(1,jump-end); } /* FLASH 2 */
-  42%  { color:#0a5c22; text-shadow:none; animation-timing-function:steps(1,jump-end); } /* dimmer */
-  55%  { color:#8dffb0; text-shadow:0 0 4px rgba(10,250,66,.8); animation-timing-function:ease-out; } /* short FLASH 3 */
-  70%  { color:#0AFA42; text-shadow:0 0 3px rgba(10,250,66,.4); animation-timing-function:ease-out; } /* settling */
-  100% { color:#0AFA42; text-shadow:0 0 3px rgba(10,250,66,.3); } /* stable */
+  32%  { color:#D7FF8D; text-shadow:0 0 4px rgba(var(--entry-accent-rgb),.9), 0 0 10px rgba(var(--entry-accent-rgb),.55); animation-timing-function:steps(1,jump-end); } /* FLASH 2 */
+  42%  { color:#3F5C0A; text-shadow:none; animation-timing-function:steps(1,jump-end); } /* dimmer */
+  55%  { color:#D7FF8D; text-shadow:0 0 4px rgba(var(--entry-accent-rgb),.8); animation-timing-function:ease-out; } /* short FLASH 3 */
+  70%  { color:var(--entry-accent); text-shadow:0 0 3px rgba(var(--entry-accent-rgb),.4); animation-timing-function:ease-out; } /* settling */
+  100% { color:var(--entry-accent); text-shadow:0 0 3px rgba(var(--entry-accent-rgb),.3); } /* stable */
 }
 @keyframes works-num-glow{
   0%   { opacity:0; animation-timing-function:steps(1,jump-end); }
@@ -1427,7 +1428,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
   #works .folder-item:focus-visible .folder-num,
   #works .folder-item.works-row-active .folder-num{
     animation:none;
-    color:#0AFA42;
+    color:var(--entry-accent);
   }
 }
 #works .folder-item:focus-visible{ outline:2px solid rgba(244,244,244,.4); outline-offset:6px; }
@@ -1677,7 +1678,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
 .ai-status-dot{
   display:inline-block; width:6px; height:6px; margin-right:7px;
   border-radius:50%; background:var(--entry-accent);
-  box-shadow:0 0 3px rgba(10,250,66,.4); /* glow trimmed slightly (was 4px/.45) — Green
+  box-shadow:0 0 3px rgba(var(--entry-accent-rgb),.4); /* glow trimmed slightly (was 4px/.45) — Green
     reads more vivid on this Dark Charcoal than it did on the old Light Surface, so the
     minimum opacity/glow trim allowed by 9./GREEN LOCK. This dot and the Prompt Caret are
     the only two full-strength Green accents left; Human Decision below keeps its own dot
@@ -1715,7 +1716,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
 .cursor{
   display:inline-block;
   color:var(--entry-accent);
-  text-shadow:0 0 3px rgba(10,250,66,.28); /* trimmed slightly, same reasoning as the
+  text-shadow:0 0 3px rgba(var(--entry-accent-rgb),.28); /* trimmed slightly, same reasoning as the
     Status Dot above — still faint, not the Hero's strong Glow */
 }
 @media (prefers-reduced-motion:no-preference){
@@ -1803,7 +1804,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
 /* Muted Green (HTML Tag) — .label-sm's shared base color (var(--tag)) is tuned for the
    site's Light Theme sections, where .label-sm is reused elsewhere — scoped override
    here, base rule untouched. #4CA868 is a desaturated/muted green, deliberately NOT the
-   vivid Portfolio accent (--entry-accent, #0AFA42) — 9./GREEN LOCK keeps that neon value
+   vivid Portfolio accent (--entry-accent, #C1F85C) — 9./GREEN LOCK keeps that neon value
    confined to the Active Dot / Prompt Caret / Human Decision Point only; this Syntax use
    is the separate, muted "Code Tag" color 8./CODE COLOR calls for. */
 .ai-workspace .label-sm{ color:#4CA868; margin-bottom:12px; }
@@ -1844,6 +1845,24 @@ html.ws-open.mini-ready .mini-folder-fixed{
   transition:border-color .2s ease, color .2s ease;
 }
 .ai-replay:hover, .ai-replay:focus-visible{ border-color:rgba(244,244,244,.6); color:#f0f0ee; }
+
+/* Response Code Writing (js/main.js initWorkspace): each text node is split into its typed
+   part + a still-hidden remainder (.ai-tw-rest), so the final layout is reserved from the
+   first frame — the block never grows/shrinks while writing. data-tw only gates visibility:
+   "wait" = line not reached yet, "typing" = being written (its CSS-generated ::after
+   closing mark — comment end, tag end, middle dot — waits until the text before it is
+   done). The caret is the Prompt
+   caret's own color, drawn as a zero-net-width inline mark (every Response line is .mono,
+   so -1ch cancels exactly one glyph) — never shifts the text it sits in. */
+.ai-tw, .ai-tw-rest, .ai-tw-caret{ font-style:inherit; }
+.ai-tw-rest{ visibility:hidden; }
+.ai-response-body [data-tw="wait"]{ visibility:hidden; }
+.ai-response-body [data-tw="typing"]::after{ visibility:hidden; }
+.ai-tw-caret::before{
+  content:"_"; letter-spacing:0; margin-right:-1ch;
+  color:var(--entry-accent);
+  text-shadow:0 0 3px rgba(var(--entry-accent-rgb),.28);
+}
 @media (prefers-reduced-motion:reduce){
   .ai-prompt-block, .ai-send, .ai-response-body{ transition:none; }
   .ai-proc-dots i{ opacity:.6; }
@@ -1885,8 +1904,18 @@ html.ws-open.mini-ready .mini-folder-fixed{
    image) — gated to >900px so it can never fight the shared mobile 1-column collapse
    rule above on specificity (an ID+class rule active at all widths would otherwise beat
    that plain-class rule even under 900px). */
+/* LIVE PREVIEW pass: the visual moved from the right column to a full-width row under the
+   copy (see .ov-preview below), so the block is one column at every width; on wider
+   screens the copy itself spreads across that width (description left, YEAR/ROLE right)
+   instead of leaving a narrow text column over a wide preview. */
+#project-momentrip .ed-a{ grid-template-columns:minmax(0,1fr); align-items:start; gap:32px; }
 @media (min-width:901px){
-  #project-momentrip .ed-a{ grid-template-columns:4fr 8fr; align-items:start; }
+  #project-momentrip .ed-a-copy{
+    display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+    column-gap:40px; row-gap:18px; align-items:end;
+  }
+  #project-momentrip .ed-a-copy > .chapter-label{ grid-column:1 / -1; }
+  #project-momentrip .ed-a-copy > .project-meta{ margin-top:0; }
 }
 /* Placeholder box, resized/retoned for the Dark Zone only (asset itself untouched) —
    aspect-ratio replaces the fixed 420px floor so it scales cleanly with the wider column
@@ -1962,6 +1991,107 @@ html.ws-open.mini-ready .mini-folder-fixed{
 #project-momentrip .ov-meta-tl{ top:14px; left:16px; }
 #project-momentrip .ov-meta-br{ bottom:14px; right:16px; }
 #project-momentrip .ov-meta.is-visible{ opacity:1; transform:translateY(0); }
+/* Real capture in place of the stripe placeholder (.has-img): the image fills the same 8:5
+   box (captured at 16:10, so nothing meaningful is cropped) and rides the existing reveal
+   untouched. The light screenshot would swallow the light metadata and the top-left label
+   would sit on the site's own logo, so with an image both labels sit on a dark chip along
+   the screenshot's empty bottom strip. */
+#project-momentrip .ph.has-img .ph-img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:top center; display:block;
+}
+#project-momentrip .ph.has-img .ov-meta{
+  z-index:1; padding:2px 6px;
+  background:rgba(20,20,20,.78); color:rgba(244,244,244,.72);
+}
+/* % of the box height, so the chips stay inside that empty strip (bottom ~13% of the
+   capture) at every width — ~14px on Desktop, ~6px on Mobile's much shorter box. */
+#project-momentrip .ph.has-img .ov-meta-tl,
+#project-momentrip .ph.has-img .ov-meta-br{ top:auto; bottom:2.6%; }
+
+/* ---- LIVE PREVIEW (Chapter 01 only). States on [data-ov-preview][data-state]:
+   static (WebP only, nothing requested from the deployed site) -> loading -> live, driven
+   by js/workspace-v2.js. The bar lives outside the .ph box (and so outside the iframe):
+   EXIT stays reachable whatever the embedded page does with its own scroll. */
+#project-momentrip .ov-preview{ display:flex; flex-direction:column; min-width:0; }
+#project-momentrip .ov-preview-bar{
+  display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap;
+  padding:10px 12px 10px 16px;
+  border:1.5px solid rgba(244,244,244,.2); border-bottom:none;
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:rgba(244,244,244,.5);
+  transition:opacity .4s ease 1.5s; /* appears with the Overview metadata (see below) */
+}
+/* hidden until the Overview reveal has started — [data-ov-visual] is "" before it,
+   "in" after (js/main.js) */
+#project-momentrip .ov-preview:has(> .ph[data-ov-visual=""]) .ov-preview-bar{ opacity:0; transition:none; }
+#project-momentrip .ed-a.ov-resetting .ov-preview-bar{ transition:none !important; }
+#project-momentrip .ov-preview-status{ display:inline-flex; align-items:center; gap:8px; color:rgba(244,244,244,.72); }
+#project-momentrip .ov-preview-status::before{
+  content:""; width:6px; height:6px; border-radius:50%;
+  background:rgba(244,244,244,.35);
+}
+#project-momentrip .ov-preview[data-state="loading"] .ov-preview-status::before{
+  background:var(--entry-accent); animation:ov-preview-pulse 1s ease-in-out infinite;
+}
+#project-momentrip .ov-preview[data-state="live"] .ov-preview-status::before{ background:var(--entry-accent); }
+@keyframes ov-preview-pulse{ 50%{ opacity:.25; } }
+#project-momentrip .ov-preview-url{ color:rgba(244,244,244,.32); text-transform:none; letter-spacing:.04em; }
+#project-momentrip .ov-preview-actions{ display:flex; gap:8px; margin-left:auto; }
+#project-momentrip .ov-preview-btn{
+  display:inline-flex; align-items:center;
+  padding:7px 12px;
+  font:inherit; letter-spacing:.1em; text-transform:uppercase; text-decoration:none;
+  color:#f4f4f4; background:transparent;
+  border:1px solid rgba(244,244,244,.28);
+  cursor:pointer;
+  transition:border-color .2s ease, color .2s ease, background-color .2s ease;
+}
+#project-momentrip .ov-preview-btn[hidden]{ display:none; }
+#project-momentrip .ov-preview-btn:hover,
+#project-momentrip .ov-preview-btn:focus-visible{ border-color:var(--entry-accent); color:var(--entry-accent); }
+#project-momentrip .ov-preview-btn:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:2px; }
+#project-momentrip .ov-preview-btn.is-primary{ border-color:rgba(193,248,92,.55); }
+/* EXIT must read at a glance over a busy live page: solid light chip */
+#project-momentrip .ov-preview-btn.is-exit{ background:#f4f4f4; border-color:#f4f4f4; color:#141414; }
+#project-momentrip .ov-preview-btn.is-exit:hover,
+#project-momentrip .ov-preview-btn.is-exit:focus-visible{ background:var(--entry-accent); border-color:var(--entry-accent); color:#141414; }
+
+/* iframe slot — only ever filled while live; the WebP underneath stays as the loading
+   backdrop until the embedded page paints over it */
+#project-momentrip .ov-preview-frame{ display:none; position:absolute; inset:0; z-index:2; overflow:hidden; }
+#project-momentrip .ov-preview:not([data-state="static"]) .ov-preview-frame{ display:block; }
+#project-momentrip .ov-preview-frame::before{
+  content:"LOADING LIVE SITE…";
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  padding:8px 14px;
+  font-family:inherit; font-size:11px; letter-spacing:.1em;
+  background:rgba(20,20,20,.86); color:rgba(244,244,244,.8);
+}
+#project-momentrip .ov-preview-frame iframe{
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  border:0; display:block; background:transparent;
+  transform-origin:0 0;
+}
+#project-momentrip .ov-preview:not([data-state="static"]) .ov-meta{ visibility:hidden; }
+
+/* Desktop: wide, viewport-fitted preview box (max 720px tall) in place of the 8:5 ratio */
+@media (min-width:1024px){
+  #project-momentrip .ed-a .ov-preview .ph{
+    aspect-ratio:auto;
+    height:clamp(360px, calc(100vh - 230px), 720px);
+  }
+}
+/* Below 1024px: no live preview at all — image + OPEN SITE only */
+@media (max-width:1023px){
+  #project-momentrip .ov-preview-btn[data-preview-launch],
+  #project-momentrip .ov-preview-btn[data-preview-exit],
+  #project-momentrip .ov-preview-frame{ display:none !important; }
+}
+@media (max-width:767px){
+  #project-momentrip .ov-preview-bar{ padding:8px 8px 8px 12px; font-size:10px; }
+  #project-momentrip .ov-preview-url{ display:none; }
+}
 
 @media (prefers-reduced-motion:reduce){
   #project-momentrip .ed-a-copy[data-ov-ready] > *{
@@ -1971,6 +2101,8 @@ html.ws-open.mini-ready .mini-folder-fixed{
     clip-path:none; transform:none; transition:none;
   }
   #project-momentrip .ov-meta{ opacity:1; transform:none; transition:none; }
+  #project-momentrip .ov-preview-bar{ transition:none; }
+  #project-momentrip .ov-preview[data-state="loading"] .ov-preview-status::before{ animation:none; }
 }
 
 /* ---- Project Detail Background Unification (#project-momentrip only) — the page-level
@@ -2018,6 +2150,110 @@ html.ws-open.mini-ready .mini-folder-fixed{
 #project-momentrip .device.desktop .device-scr{ border-color:rgba(244,244,244,.22); }
 #project-momentrip .device.desktop .device-base{ background:rgba(244,244,244,.3); }
 #project-momentrip .device.mobile .home{ background:rgba(244,244,244,.3); }
+/* Real captures (desktop 1440x900 = 16:10, mobile 390x802 ~ 9:18.5) fill each screen at
+   its own ratio; overflow:hidden only so the mobile screen's 12px radius clips the image. */
+#project-momentrip .device-scr{ overflow:hidden; }
+#project-momentrip .device-scr > img{
+  display:block; width:100%; height:100%;
+  object-fit:cover; object-position:top center;
+}
+/* DESIGN PROCESS cards + BEFORE/AFTER — real captures in the existing .ph boxes (same
+   grid/compare layout, only the box ratio follows the capture so nothing is cropped). */
+#project-momentrip .proc{ margin:0; min-width:0; }
+#project-momentrip .ed-c-grid .ph,
+#project-momentrip .compare .ph.has-img{ position:relative; min-height:0; padding:0; overflow:hidden; }
+#project-momentrip .ed-c-grid .ph{ aspect-ratio:8/5; }
+#project-momentrip .compare .ph.has-img{ aspect-ratio:32/15; }
+#project-momentrip .ed-c-grid .ph.has-img,
+#project-momentrip .compare .ph.has-img{ background:#FFFCF6; }
+#project-momentrip .compare .ph.has-img .ph-img{ object-position:center; }
+#project-momentrip .proc-cap{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 12px;
+  margin-top:10px; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:rgba(244,244,244,.42);
+}
+#project-momentrip .proc-cap b{ font-weight:600; color:rgba(244,244,244,.78); }
+/* 02 token card: values copied from MOMENTRIP css/wireframe.css :root (also styles its
+   live copy inside the lightbox, which sits outside #project-momentrip) */
+#project-momentrip .ed-c-grid .ph.proc-tokens,
+.lightbox-sheet .ph.proc-tokens{
+  flex-direction:column; align-items:stretch; justify-content:center; gap:18px;
+  padding:6% 7%; text-align:left;
+  background:#FFFCF6; color:#333;
+  overflow:visible; /* lets the 8:5 box grow instead of clipping on narrow cards */
+}
+#project-momentrip .tk-swatches, .lightbox-sheet .tk-swatches{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:0; padding:0; list-style:none; }
+#project-momentrip .tk-swatches li, .lightbox-sheet .tk-swatches li{ min-width:0; }
+#project-momentrip .tk-swatches i, .lightbox-sheet .tk-swatches i{ display:block; aspect-ratio:1; border-radius:8px; border:1px solid rgba(51,51,51,.12); }
+#project-momentrip .tk-swatches span, .lightbox-sheet .tk-swatches span{
+  display:block; margin-top:6px; font-size:9px; line-height:1.35; letter-spacing:.04em;
+  text-transform:none; color:#555; overflow-wrap:anywhere;
+}
+#project-momentrip .tk-type, .lightbox-sheet .tk-type{ display:flex; align-items:baseline; gap:14px; font-weight:700; color:#333; line-height:1; }
+#project-momentrip .tk-type span, .lightbox-sheet .tk-type span{ text-transform:none; letter-spacing:0; }
+#project-momentrip .tk-row, .lightbox-sheet .tk-row{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 12px;
+  padding-top:12px; border-top:1px solid rgba(51,51,51,.14);
+  font-size:10px; letter-spacing:.08em; color:#4E6F69;
+}
+#project-momentrip .tk-row span, .lightbox-sheet .tk-row span{ font-size:inherit; letter-spacing:inherit; }
+#project-momentrip .why-list li{ line-height:1.55; }
+/* Zoomable captures (js/main.js lightbox) — quiet affordance only: a lighter border and a
+   small ZOOM chip on hover/focus; on touch screens (no hover) the chip simply stays on. */
+#project-momentrip .zoomable{ cursor:zoom-in; transition:border-color .2s ease; }
+#project-momentrip .zoomable::after{
+  content:"+ ZOOM";
+  position:absolute; right:8px; bottom:8px; z-index:1;
+  padding:3px 7px;
+  font-family:ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  font-size:10px; letter-spacing:.1em;
+  background:rgba(20,20,20,.82); color:#f4f4f4;
+  opacity:0; transition:opacity .2s ease;
+  pointer-events:none;
+}
+#project-momentrip .zoomable:hover,
+#project-momentrip .zoomable:focus-visible{ border-color:rgba(244,244,244,.5); }
+#project-momentrip .zoomable:hover::after,
+#project-momentrip .zoomable:focus-visible::after{ opacity:1; }
+#project-momentrip .zoomable:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:3px; }
+@media (hover:none){ #project-momentrip .zoomable::after{ opacity:1; } }
+
+.lightbox{
+  position:fixed; inset:0; z-index:900; /* over the V2 Stage/Navigation (60), under the custom cursor (999) */
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.5);
+  opacity:0; transition:opacity .2s ease;
+  cursor:zoom-out;
+  overscroll-behavior:contain;
+}
+.lightbox[hidden]{ display:none; }
+.lightbox.is-open{ opacity:1; }
+.lightbox:focus{ outline:none; }
+.lightbox-img{
+  display:block; max-width:92vw; max-height:90vh; object-fit:contain;
+  background:#fff; box-shadow:0 18px 60px rgba(0,0,0,.45);
+}
+/* HTML content (the 02 token card): the sheet is the framed, scrollable window; the copy
+   inside keeps the card's own 8:5 layout at 600px and is enlarged by js via CSS zoom */
+.lightbox-sheet{
+  max-width:92vw; max-height:90vh; overflow:auto; overscroll-behavior:contain;
+  background:#FFFCF6; box-shadow:0 18px 60px rgba(0,0,0,.45);
+}
+.lightbox-img[hidden], .lightbox-sheet[hidden]{ display:none; }
+.lightbox-sheet .ph.proc-tokens{
+  min-height:375px; padding:36px 42px; /* = the card's 8:5 box and its 6%/7% padding at 600px */
+  border:0;
+}
+/* phones: five swatches across would split "PRIMARY"/"#8FCFC3" mid-word at a readable
+   size, so the enlarged copy (only) wraps them into rows of three */
+.lightbox-sheet .ph.proc-tokens.is-narrow{ min-height:0; padding:20px 18px; }
+.lightbox-sheet .is-narrow .tk-swatches{ grid-template-columns:repeat(3,1fr); row-gap:14px; }
+@media (prefers-reduced-motion:reduce){ .lightbox{ transition:none; } }
+#project-momentrip .collab .tag{ display:inline-block; max-width:100%; white-space:normal; line-height:1.5; text-transform:none; }
+@media (min-width:701px) and (max-width:1100px){
+  #project-momentrip .tk-swatches span{ font-size:8px; }
+  #project-momentrip .tk-type{ gap:8px; }
+}
 #project-momentrip .next{ border-top-color:rgba(244,244,244,.14); }
 #project-momentrip .next-num{ color:rgba(244,244,244,.55); }
 
@@ -2130,7 +2366,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
 #project-momentrip .trace-point{
   fill:var(--entry-accent);
   opacity:0;
-  filter:drop-shadow(0 0 6px rgba(10,250,66,.4));
+  filter:drop-shadow(0 0 6px rgba(var(--entry-accent-rgb),.4));
   transform-box:fill-box;
   transform-origin:center;
   transition:opacity .3s ease; /* fade in/out only — cx/cy are set via setAttribute every
@@ -2267,7 +2503,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
   #project-momentrip .scatter-hint{
     top:34%; left:64%; right:auto;
     transform:translate(0,-50%);
-    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+    font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
     font-weight:500;
     letter-spacing:.08em;
     font-size:clamp(11px,1.05vw,13px);
@@ -2292,7 +2528,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
    this same element — mixing the two would conflict) so it only appears once the last
    character has settled in, never mid-reveal. */
 #project-momentrip .scatter-hint .cursor{
-  font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", monospace;
   visibility:hidden;
 }
 #project-momentrip .scatter-hint .cursor.is-in{ visibility:visible; }

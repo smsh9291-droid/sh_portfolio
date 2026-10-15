@@ -619,12 +619,17 @@
   // script-init time (not a wheel/touchmove listener, which only proves an input event
   // happened, not that the page actually moved) — a small tolerance (20px) absorbs
   // scroll-restoration/rubber-banding jitter without counting as real user scroll.
+  // Desktop V2 scrolls its own Stage (#v2-host) instead of the page — window.scrollY
+  // stays 0 there forever, so the host's scrollTop counts as user scroll too (the
+  // 'scroll' event itself already reaches window: js/workspace-v2.js forwards it).
   var initialScrollY = window.scrollY;
   var hasUserScrolled = false;
   var scrollGateCallbacks = [];
+  var v2Host = document.getElementById('v2-host');
   window.addEventListener('scroll', function(){
     if (hasUserScrolled) return;
-    if (window.scrollY > initialScrollY + 20) {
+    var hostScrolled = v2Host ? v2Host.scrollTop : 0;
+    if (window.scrollY > initialScrollY + 20 || hostScrolled > 20) {
       hasUserScrolled = true;
       scrollGateCallbacks.forEach(function(cb){ cb(); });
     }
@@ -667,11 +672,102 @@
       sendEl.textContent = label;
     }
 
+    // Response Code Writing: once the Response is 'done', its existing markup is written
+    // out line by line (one line = one direct child of [data-response-body]), each line's
+    // text typed in quickly — markedly faster than the Prompt's CHAR_MS. Every non-blank
+    // text node is wrapped ONCE, at init, in <i class="ai-tw"> = [typed text][caret][<i
+    // class="ai-tw-rest"> hidden remainder]; each tick only moves characters between those
+    // two text nodes' .data, so no markup is ever rebuilt and the hidden remainder keeps
+    // the final layout reserved the whole time (no height change, no reflow of the
+    // surrounding page). Existing span/class structure and the CSS-generated syntax marks
+    // (/* */, <>, ·) are untouched; data-tw only gates visibility per owning element (see
+    // style.css). [data-replay] is a control, not code — it simply appears once done.
+    var bodyEl = root.querySelector('[data-response-body]');
+    var RESP_CHAR_MS = fast ? 18 : 25;
+    var RESP_LINE_GAP_MS = 150;
+    var segs = [];
+    var caretEl = document.createElement('i');
+    caretEl.className = 'ai-tw-caret';
+    caretEl.setAttribute('aria-hidden', 'true');
+
+    if (bodyEl) {
+      Array.prototype.forEach.call(bodyEl.children, function(lineEl, lineIdx){
+        if (lineEl === replayBtn) return;
+        var walker = document.createTreeWalker(lineEl, NodeFilter.SHOW_TEXT, {
+          acceptNode: function(n){ return n.data.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; }
+        });
+        var nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(function(node){
+          var wrap = document.createElement('i');
+          wrap.className = 'ai-tw';
+          var restEl = document.createElement('i');
+          restEl.className = 'ai-tw-rest';
+          var restText = document.createTextNode('');
+          restEl.appendChild(restText);
+          var owner = node.parentNode;
+          owner.replaceChild(wrap, node);
+          wrap.appendChild(node);
+          wrap.appendChild(restEl);
+          segs.push({ line:lineIdx, el:owner, wrap:wrap, typed:node, restEl:restEl, restText:restText, text:node.data });
+        });
+      });
+      segs.forEach(function(s, i){ s.lastOfEl = !segs[i + 1] || segs[i + 1].el !== s.el; });
+    }
+
+    function setResponseText(full){
+      segs.forEach(function(s){
+        s.typed.data = full ? s.text : '';
+        s.restText.data = full ? '' : s.text;
+        if (full) s.el.removeAttribute('data-tw');
+        else s.el.setAttribute('data-tw', 'wait');
+      });
+      if (replayBtn) {
+        if (full) replayBtn.removeAttribute('data-tw');
+        else replayBtn.setAttribute('data-tw', 'wait');
+      }
+      if (caretEl.parentNode) caretEl.parentNode.removeChild(caretEl);
+      if (bodyEl) bodyEl.removeAttribute('aria-busy');
+    }
+
+    function startSeg(s){
+      s.el.setAttribute('data-tw', 'typing');
+      s.wrap.insertBefore(caretEl, s.restEl);
+    }
+
+    function writeResponse(){
+      if (!segs.length) return;
+      setResponseText(false);
+      bodyEl.setAttribute('aria-busy', 'true');
+      var gapTicks = Math.round(RESP_LINE_GAP_MS / RESP_CHAR_MS);
+      var si = 0, ci = 0, wait = 0;
+      startSeg(segs[0]);
+      var timer = setInterval(function(){
+        if (wait > 0) { wait -= 1; return; }
+        var s = segs[si];
+        ci += 1;
+        s.typed.data = s.text.slice(0, ci);
+        s.restText.data = s.text.slice(ci);
+        if (ci < s.text.length) return;
+        if (s.lastOfEl) s.el.removeAttribute('data-tw');
+        si += 1; ci = 0;
+        if (si >= segs.length) {
+          clearInterval(timer);
+          setResponseText(true);
+          return;
+        }
+        if (segs[si].line !== s.line) wait = gapTicks;
+        startSeg(segs[si]);
+      }, RESP_CHAR_MS);
+      pending.push(timer);
+    }
+
     function showFinalState(){
       typeEl.textContent = fullText;
       promptBlock.setAttribute('data-submitted', 'true');
       setSend('sent', 'SENT');
       responseBlock.setAttribute('data-state', 'done');
+      setResponseText(true);
     }
 
     function afterTyping(){
@@ -687,6 +783,7 @@
           var t3 = fast ? 320 : 650;
           after(t3, function(){
             responseBlock.setAttribute('data-state', 'done');
+            writeResponse();
           });
         });
       });
@@ -701,6 +798,7 @@
       // entirely and jumped straight to the full sentence) — only the per-character
       // interval (CHAR_MS above) differs between them. SEND/SENDING/GENERATING/Response
       // Fade timing in afterTyping() above is untouched.
+      setResponseText(false); // clears any previous (or half-written) Response first
       typeEl.textContent = '';
       var i = 0;
       var timer = setInterval(function(){
@@ -738,6 +836,7 @@
         played = false;
         clearPending();
         responseBlock.removeAttribute('data-state');
+        setResponseText(false);
         typeEl.textContent = '';
         promptBlock.removeAttribute('data-submitted');
         setSend('idle', 'SEND');
@@ -1609,4 +1708,173 @@
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -12% 0px' });
   Array.prototype.forEach.call(blocks, function(b){ io.observe(b); });
+})();
+
+/* -- MOMENTRIP image lightbox (DESIGN PROCESS 01/03, BEFORE/AFTER). Any
+   #project-momentrip [data-lightbox] box opens its 2x capture over a 50% black backdrop;
+   a click anywhere on it (image or backdrop) or ESC closes it and focus returns to the
+   box that opened it. The Stage is never restyled: wheel/touch/scroll keys are simply
+   swallowed while open, so neither #v2-host nor the Mobile page moves and no scrollbar
+   disappears/reappears underneath. The thumbnail is shown at the final size first and
+   swapped for the 2x file once that has loaded (same aspect ratio by construction).
+   data-lightbox="html" (DESIGN PROCESS 02, the HTML/CSS token card) shows a live copy of
+   the box itself instead of an image: laid out at a fixed 600x375 (the card's 8:5) and
+   enlarged with CSS zoom, so the text is re-rendered at size, not scaled pixels. On narrow
+   screens the zoom never drops below HTML_MIN_ZOOM; the copy reflows narrower instead and
+   the sheet scrolls inside if it ever gets taller than the screen. */
+(function(){
+  var triggers = document.querySelectorAll('#project-momentrip [data-lightbox]');
+  if (!triggers.length) return;
+  var cursor = document.getElementById('custom-cursor');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var SCROLL_KEYS = { ' ':1, 'Spacebar':1, 'ArrowUp':1, 'ArrowDown':1, 'ArrowLeft':1, 'ArrowRight':1, 'PageUp':1, 'PageDown':1, 'Home':1, 'End':1 };
+  var HTML_W = 600, HTML_H = 375, HTML_MIN_ZOOM = 1.35;
+  var box = null, img = null, sheet = null, copy = null, current = null, thumb = null, hi = null, hideTimer = null;
+
+  function build(){
+    box = document.createElement('div');
+    box.className = 'lightbox';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.tabIndex = -1;
+    box.hidden = true;
+    img = document.createElement('img');
+    img.className = 'lightbox-img';
+    img.decoding = 'async';
+    box.appendChild(img);
+    sheet = document.createElement('div');
+    sheet.className = 'lightbox-sheet';
+    sheet.hidden = true;
+    box.appendChild(sheet);
+    box.addEventListener('click', close); // image, HTML copy or backdrop — all close
+    box.addEventListener('wheel', function(e){
+      if (!sheetScrolls()) e.preventDefault(); // only an overflowing sheet scrolls itself
+    }, { passive:false });
+    box.addEventListener('touchmove', function(e){
+      // one-finger drag would scroll the page underneath — block it; pinch-zoom (and
+      // panning while zoomed in) stays available so phones can still read fine print
+      if (e.touches.length > 1) return;
+      if (window.visualViewport && window.visualViewport.scale > 1.01) return;
+      if (sheetScrolls()) return; // overscroll-behavior keeps it from chaining outward
+      e.preventDefault();
+    }, { passive:false });
+    box.addEventListener('mouseover', function(){ if (cursor) cursor.classList.add('is-hover'); });
+    document.body.appendChild(box);
+  }
+  function sheetScrolls(){ return !!copy && sheet.scrollHeight > sheet.clientHeight + 1; }
+
+  // fit the source ratio inside the viewport (never larger than the screen)
+  function fit(){
+    if (copy) return fitHtml();
+    if (!current || !thumb) return;
+    var nw = thumb.naturalWidth || +thumb.getAttribute('width');
+    var nh = thumb.naturalHeight || +thumb.getAttribute('height');
+    var s = Math.min(window.innerWidth * 0.92 / nw, window.innerHeight * 0.9 / nh);
+    img.style.width = Math.round(nw * s) + 'px';
+    img.style.height = Math.round(nh * s) + 'px';
+  }
+  function fitHtml(){
+    var vw = window.innerWidth * 0.92, vh = window.innerHeight * 0.9;
+    var z = Math.min(vw / HTML_W, vh / HTML_H), w = HTML_W;
+    if (z < HTML_MIN_ZOOM) { z = HTML_MIN_ZOOM; w = Math.floor(vw / z); }
+    copy.classList.toggle('is-narrow', w < HTML_W);
+    copy.style.width = w + 'px';
+    copy.style.zoom = z;
+  }
+
+  // a live copy of the card, stripped of its trigger role so it is just a picture
+  function makeCopy(trigger){
+    var c = trigger.cloneNode(true);
+    ['id', 'role', 'tabindex', 'aria-haspopup', 'aria-label', 'data-lightbox', 'data-lightbox-alt'].forEach(function(a){ c.removeAttribute(a); });
+    c.classList.remove('zoomable');
+    c.setAttribute('role', 'img');
+    c.setAttribute('aria-label', trigger.getAttribute('data-lightbox-alt') || '');
+    return c;
+  }
+
+  function onKey(e){
+    if (!current) return;
+    if (e.repeat) { e.preventDefault(); return; } // a held Enter/Space must not re-toggle
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      e.preventDefault(); e.stopPropagation(); // not also an ESC for the V2 Navigation
+      close();
+    } else if (e.key === 'Enter') {
+      e.preventDefault(); e.stopPropagation(); // nothing behind the overlay may react
+      close();
+    } else if (e.key === 'Tab') {
+      e.preventDefault(); // the dialog is the only focus stop while open
+    } else if (SCROLL_KEYS[e.key]) {
+      e.preventDefault();
+      if (e.key === ' ' || e.key === 'Spacebar') close(); // Space toggles it back, like a click
+      else if (sheetScrolls()) { // an overflowing HTML sheet still scrolls by keyboard
+        var step = { ArrowUp:-40, ArrowDown:40, PageUp:-sheet.clientHeight * 0.9, PageDown:sheet.clientHeight * 0.9, Home:-1e6, End:1e6 }[e.key];
+        if (step) sheet.scrollTop += step;
+      }
+    }
+  }
+
+  function open(trigger){
+    if (current) return;
+    if (!box) build();
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    current = trigger;
+    if (copy) { copy.remove(); copy = null; }
+    if (trigger.getAttribute('data-lightbox') === 'html') {
+      thumb = null;
+      img.hidden = true;
+      img.removeAttribute('src');
+      copy = makeCopy(trigger);
+      sheet.appendChild(copy);
+      sheet.hidden = false;
+      sheet.scrollTop = 0;
+      box.setAttribute('aria-label', trigger.getAttribute('data-lightbox-alt') || '확대 보기');
+      fit();
+    } else {
+      sheet.hidden = true;
+      img.hidden = false;
+      thumb = trigger.querySelector('img');
+      img.alt = thumb ? thumb.alt : '';
+      box.setAttribute('aria-label', (thumb && thumb.alt) || '확대 이미지');
+      img.src = thumb.currentSrc || thumb.src;
+      fit();
+      hi = new Image();
+      hi.onload = function(){ if (current === trigger) img.src = hi.src; };
+      hi.src = trigger.getAttribute('data-lightbox');
+    }
+
+    box.hidden = false;
+    void box.offsetWidth;
+    box.classList.add('is-open');
+    box.focus({ preventScroll:true });
+    // the opening click is still bubbling: V2's outside-click handler may close an open
+    // Navigation and focus its guide after this — take focus back once it has settled
+    setTimeout(function(){ if (current === trigger) box.focus({ preventScroll:true }); }, 0);
+    document.addEventListener('keydown', onKey, true);
+    window.addEventListener('resize', fit);
+  }
+
+  function close(){
+    if (!current) return;
+    var trigger = current;
+    current = null;
+    if (hi) { hi.onload = null; hi = null; }
+    document.removeEventListener('keydown', onKey, true);
+    window.removeEventListener('resize', fit);
+    box.classList.remove('is-open');
+    if (cursor) cursor.classList.remove('is-hover');
+    hideTimer = setTimeout(function(){
+      box.hidden = true; hideTimer = null;
+      if (copy) { copy.remove(); copy = null; }
+    }, reduced ? 0 : 200);
+    trigger.focus({ preventScroll:true });
+  }
+
+  Array.prototype.forEach.call(triggers, function(t){
+    t.addEventListener('click', function(){ open(t); });
+    t.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); open(t); }
+    });
+    t.addEventListener('mouseenter', function(){ if (cursor) cursor.classList.add('is-hover'); });
+    t.addEventListener('mouseleave', function(){ if (cursor) cursor.classList.remove('is-hover'); });
+  });
 })();

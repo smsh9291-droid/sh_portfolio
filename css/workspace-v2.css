@@ -1,0 +1,1081 @@
+/* ============================================================================
+   PORTFOLIO WORKSPACE V2 — Desktop-only interaction shell (>= 1024px)
+   ----------------------------------------------------------------------------
+   This file adds NO new design system. Every colour, type size and rule below is
+   taken from the existing tokens in css/style.css (--entry-bg #141414,
+   --entry-ink #f4f4f4, the .mono stack, the .kicker/.tag scale) — the ONLY new
+   value is --v2-accent, which is not invented either: it is the exact lime
+   already baked into the user-authored assets nav-folder-closed.svg /
+   nav-folder-open.svg / mouse-pointer.svg / hover-pointer.svg (#C1F85C).
+
+   STRUCTURAL REVISION (4th pass) — polishing pass, no structural rewrite.
+   What changed from the 3rd pass:
+   - AI Presence line cleanup: the one-shot arrival ring (a second concentric
+     stroke around the halo, doing the same "something arrived" job the
+     halo's own scale-in already does) is removed outright. The halo's stroke
+     goes from 1px to 2px so it renders as one stable line at any DPR instead
+     of a soft/broken hairline on a fractional-pixel circle. The horizontal
+     hairline no longer shows during the static Presence hold at all — it
+     only gets a real width once Morph A starts drawing it toward the Prompt
+     frame — so the "first screen" never has a stray floating segment on it.
+     The dot settles in first, the halo follows ~120ms later: object first,
+     line second.
+   - Prompt/message/RUN composition: --v2-convo-shift and .v2-frame.is-resting
+     (both set live by js/workspace-v2.js's applyRestPosition()) move the
+     Direction message and the descended Prompt frame UP together, as one
+     unit, to a fixed short gap apart — replacing the old behaviour where the
+     frame simply fell back to the true viewport-bottom bar position on
+     "descend", stranding RUN near the floor while the message centred itself
+     independently above it.
+   - Project Navigation (5th-pass rewrite): the 4th pass drew the ellipse as
+     a big background PANEL (one giant clip-path shape with a list inside
+     it) — that read as a dark oval blob, the wrong result again, just at a
+     bigger scale. There is no panel now, at all: .v2-nav-panel is a
+     zero-size fixed anchor point only. The ellipse survives purely as an
+     ITEM POSITIONING PATH — each of the 4 project folders gets its own
+     (--ix,--iy) offset computed from that ellipse's parametric equation
+     (ix=rx·cos θ, iy=ry·sin θ), so their four centres, connected, read as
+     one smooth curve. MOMENTRIP/ARCHIVE sit at the largest |θ| (smallest
+     cos θ), so they land furthest LEFT; MIVY/FARMLINK sit near θ=0, the
+     arc's widest point, furthest right. Opening the nav slides each folder in from a shared
+     left start X to its own distinct arc X — never a uniform list reveal.
+     ABOUT is fixed off the arc (its own small, constant x/y), separated by
+     a short hairline. The Main Stage gets only a very light recede now
+     (no big dark panel to read as foreground against any more).
+   (3rd/2nd-pass baseline, unchanged this pass): the Intro is a single full-
+   viewport composition with no rail during Intro; the Prompt frame RISES to
+   a central position for the AI-point morph and for typing (.is-elevated).
+   RUN appears only after the Direction message has revealed. The bottom
+   "NEXT PROJECT" navigation already inside the V1 project sections (.next)
+   stays hidden here, Desktop-V2-only, via CSS — the DOM itself is untouched
+   so Mobile keeps it.
+
+   BREAKPOINT CONTRACT
+   -------------------
+   >= 1024px : V2 Workspace is the page. #entry-hero (the V1 big-folder intro),
+               #mini-folder and #folder-exit-mask are hidden; every existing
+               <section> lives inside #v2-host as a Main Stage state.
+   <  1024px : NOTHING here applies except the display:contents pass-through
+               below, so the existing Tablet/Mobile page — including MOMENTRIP's
+               mobile PROBLEM journey and the whole mobile Hero — renders exactly
+               as it did before this file existed.
+   ========================================================================== */
+
+/* -- Below the V2 breakpoint the V2 wrapper elements must be invisible to
+   layout entirely, so the sections they contain keep flowing as direct <body>
+   children exactly like before. display:contents does that with no box of its
+   own; the V2-only chrome children are simply not rendered. ---------------- */
+#v2, .v2-stage, #v2-host{ display:contents; }
+.v2-core, .v2-convo, .v2-bg-fx, .v2-bar, .v2-skip,
+.v2-progress-line, .v2-nav{ display:none; }
+
+@media (min-width:1024px){
+
+/* -- Theme: the workspace is a Dark Editorial canvas, so the document runs on the
+   design system's OWN dark token set (identical values to the existing
+   :root[data-theme="dark"] block in style.css) instead of a second palette. This
+   is what turns the still-light sections (FARMLINK / DESIGN ARCHIVE / ABOUT /
+   CONTACT / MOMENTRIP's lower half) dark inside the Stage without editing a
+   single one of their own rules. ------------------------------------------ */
+  :root{
+    --bg:#121212;
+    --bg-soft:#1b1b1b;
+    --bg-soft-2:#262626;
+    --ink:#f0f0f0;
+    --ink-soft:#a6a6a6;
+    --line:#f0f0f0;
+    --line-soft:#3a3a3a;
+    --fill-a:#262626;
+    --fill-b:#333333;
+    --tag:#8f8f8f;
+
+    /* the lime that already exists inside the user's own updated SVG assets */
+    --v2-accent:#C1F85C;
+    --v2-accent-rgb:193,248,92; /* rgba() derivations of --v2-accent share this base */
+    --v2-panel:#1b1b1b;
+    --v2-hair:rgba(244,244,244,.12);
+    --v2-dim:rgba(244,244,244,.42);
+    --v2-dim2:rgba(244,244,244,.26);
+  }
+
+  html, body{ height:100%; overflow:hidden; }
+
+  /* V1 intro objects are retired on Desktop — not deleted, just not part of V2. */
+  #entry-hero, #mini-folder, #folder-exit-mask, .meta-corner{ display:none; }
+
+  /* ---------------------------------------------------------------- SHELL --
+     Editorial Stage + Fixed Interface. Single column, single row — no rail,
+     no global header — so the Main Stage owns the full viewport. The
+     Prompt Area (.v2-bar/.v2-frame) is NOT a grid row — it is fixed-
+     positioned directly over the stage (see the BAR block below) so its
+     "rise to centre" transform is never clipped by a row's own box, and it
+     needs no grid space reserved for it at all. -------------------------- */
+  #v2{
+    position:fixed; inset:0; z-index:30;
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr);
+    grid-template-areas: "stage";
+    height:100dvh;
+    background:var(--entry-bg);
+    color:var(--entry-ink);
+  }
+
+  /* ----------------------------------------------------------------- STAGE --
+     Direction message (prompt state) and Portfolio content host (workspace
+     state) occupy the SAME grid cell — the stage box never moves, only its
+     state changes. This row now spans the full viewport width. ------------ */
+  .v2-stage{
+    grid-area:stage;
+    display:grid; grid-template-areas:"stage"; min-height:0;
+  }
+  .v2-convo, #v2-host, .v2-bg-fx{ grid-area:stage; min-height:0; min-width:0; }
+
+  /* Direction message — centred editorial block, not full-bleed text; revealed
+     only after the Prompt Area has descended (see js/workspace-v2.js). Two
+     reveal steps sharing one technique: a class addition + CSS transition, the
+     three-item list staggered via transition-delay (same pattern
+     .hero-folder-nav already uses in style.css) — no per-item JS timing.
+
+     --v2-convo-shift (4th pass): by default this flex box centres itself
+     alone within the FULL stage height, with no knowledge of the Prompt
+     frame sitting below it — which is exactly why the message used to end up
+     near true centre while the frame (a tall, independently-positioned
+     element) drifted toward the very bottom, reading as two disconnected
+     areas. js/workspace-v2.js's applyRestPosition() now measures both boxes
+     together and sets this custom property so the mark+steps and the frame
+     move UP as one unit, keeping a fixed, short gap between them regardless
+     of viewport height — see .v2-frame.is-resting below for the frame's own
+     half of the same calculation. Applied unconditionally (not just while
+     .is-in) so the shift is already in place, silently, before the message
+     ever becomes visible — nothing visibly slides into position. */
+  .v2-convo{
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    max-width:920px; margin-inline:auto;
+    padding:0 clamp(24px,4vw,64px);
+    text-align:center;
+    opacity:0; pointer-events:none;
+    transform:translateY(var(--v2-convo-shift, 0px));
+    transition:opacity .3s ease;
+  }
+  .v2-convo.is-in{ opacity:1; pointer-events:auto; }
+  /* IDENTITY layer — "DESIGN × CODE × AI" reads as three EQUAL terms on one
+     baseline, not "AI" as a standalone headline. white-space:nowrap plus a
+     font-size ceiling low enough to always fit inside .v2-convo's own content
+     width is what actually guarantees the single line — at the previous
+     30-64px clamp the phrase could tip past its container at common desktop
+     widths and wrap "AI" onto its own line, where the accent colour then read
+     as a second, bigger, separate headline even though the CSS never gave it
+     a different size or weight. The accent stays — it is explicitly allowed —
+     but only as colour, on the same line, same size, same weight as the rest. */
+  .v2-convo-mark{
+    margin:0; white-space:nowrap;
+    font-size:clamp(20px,3.4vw,50px); font-weight:800; line-height:1.02;
+    letter-spacing:-.01em; color:#f4f4f4;
+    opacity:0; transform:translateY(10px);
+    transition:opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-convo.is-in .v2-convo-mark{ opacity:1; transform:none; }
+  .v2-convo-mark i{ font-style:normal; color:var(--v2-dim2); padding:0 .12em; }
+  /* the same "AI" accent the V1 Hero already used on this exact mark — colour
+     only, never a different size/weight/line, so the hierarchy stays equal */
+  .v2-convo-mark span{ color:var(--v2-accent); }
+  /* PROCESS layer — a second, visually distinct tier below IDENTITY, never
+     merged onto the same line/size as the mark above. */
+  .v2-convo-steps{
+    list-style:none; margin:30px 0 0; padding:0;
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+    gap:14px 18px;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:clamp(11.5px,1.05vw,13.5px); letter-spacing:.12em; text-transform:uppercase;
+    color:var(--v2-dim);
+  }
+  .v2-convo-steps li{
+    display:flex; align-items:center; gap:9px;
+    opacity:0; transform:translateY(8px);
+    transition:opacity .42s ease, transform .42s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-convo-steps li i{ font-style:normal; color:var(--v2-accent); font-weight:600; }
+  .v2-convo-steps li + li::before{
+    content:"→"; margin-right:9px; color:var(--v2-dim2);
+  }
+  .v2-convo-steps.is-in li{ opacity:1; transform:none; }
+  .v2-convo-steps.is-in li:nth-child(1){ transition-delay:0ms; }
+  .v2-convo-steps.is-in li:nth-child(2){ transition-delay:160ms; }
+  .v2-convo-steps.is-in li:nth-child(3){ transition-delay:320ms; }
+
+  /* Portfolio content host: exactly one existing <section> visible at a time. */
+  #v2-host{
+    display:block; overflow-y:auto; overflow-x:hidden;
+    opacity:0; pointer-events:none;
+    transition:opacity .42s ease, filter .42s ease;
+    scrollbar-width:thin; scrollbar-color:rgba(244,244,244,.22) transparent;
+  }
+  #v2-host::-webkit-scrollbar{ width:8px; }
+  #v2-host::-webkit-scrollbar-thumb{ background:rgba(244,244,244,.18); }
+  #v2.is-ws #v2-host{ opacity:1; pointer-events:auto; }
+  #v2-host > section{ display:none; border-top:none; }
+  #v2-host > section.is-stage{
+    display:block;
+    animation:v2-stage-in .42s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes v2-stage-in{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:none; }
+  }
+  /* 5th-pass: there is no panel/shell to read as foreground any more — the
+     folder arc itself IS the navigation, floating directly over the Main
+     Stage. So the Stage only needs a VERY light recede (not the heavier
+     4th-pass dim, which belonged to a design that needed to compete against
+     a large dark panel) — just enough that SELECTED WORKS stops reading as
+     a second, competing navigation list while the arc is open. */
+  #v2.is-nav-open #v2-host{
+    opacity:.7;
+    filter:brightness(.82) saturate(.92);
+  }
+  /* Pinned (click-opened) reads more clearly as "Navigation is now the
+     foreground object" than a hover preview does — a slightly stronger
+     recede, still short of a heavy dark panel. */
+  #v2.is-nav-pinned #v2-host{
+    opacity:.55;
+    filter:brightness(.7) saturate(.85);
+  }
+
+  /* Desktop V2 only: this caption describes the V1 long-scroll behaviour
+     ("SMOOTH SCROLL TO PROJECT"), which no longer matches CLICK = SELECT here.
+     Left untouched in the DOM so Mobile keeps showing it. */
+  #v2.is-ws .works-note{ display:none; }
+  /* Duplicate bottom navigation removed on Desktop V2 only — Project movement
+     is unified into the one left-edge Project Navigation (see .v2-nav below).
+     The .next elements themselves are untouched in the DOM, so Mobile keeps them. */
+  #v2.is-ws .next{ display:none; }
+  /* Common Project-top divider removed, Desktop V2 only. #v2-host > section
+     (see above) already neutralises .project's own border-top:2px (an ID
+     selector always outranks that class, regardless of source order) — that
+     already leaves FARMLINK/DESIGN ARCHIVE with no line of their own. The
+     one still showing is a DIFFERENT element: css/style.css's own
+     .section-boundary (a bare border-top:1px div MOMENTRIP and MIVY each
+     place at the top of their .pd-dark-zone — see index.html) is not a
+     <section>'s own border, so that rule never touched it. Only the border
+     is removed here, not the element's margin-bottom, which is real vertical
+     rhythm (it and .pd-dark-zone's padding-top are documented in style.css
+     as two halves of one deliberate spacing budget) — killing the line
+     without disturbing where .project-head sits. style.css itself is
+     unedited; the #v2-host id here outranks style.css's own bare
+     .section-boundary class on specificity alone; regardless of source
+     order (same technique as #v2-host > section{border-top:none} above).
+     Neither FARMLINK nor DESIGN ARCHIVE use .section-boundary at all, so
+     there is nothing to override there. ABOUT never had one. */
+  #v2-host .section-boundary{ border-top:none; }
+
+  /* ------------------------------------------------------------------- BAR --
+     .v2-frame is the Prompt Area. .is-elevated lifts it to a central position
+     for the AI-point morph and for typing; removing that class is literally
+     "the Prompt Area descends" back to this bar position. After RUN the whole
+     bar fades away — there is no persistent status bar.
+
+     .v2-bar is deliberately position:fixed (NOT a grid row): a grid row's own
+     box would need overflow:hidden to collapse cleanly on RUN, and that same
+     overflow:hidden would clip .v2-frame the instant .is-elevated translates
+     it up and OUT of that row's box — the frame would still be laid out
+     correctly (getBoundingClientRect proves it) but literally invisible.
+     Fixed positioning removes it from grid flow entirely, so the transform is
+     never clipped by anything and no grid space needs to be reserved for it. */
+  .v2-bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:33;
+    display:flex; justify-content:center;
+    padding:0 clamp(24px,3vw,48px) clamp(16px,2.2vh,24px);
+    pointer-events:none; /* only .v2-frame's own interactive children opt back in */
+    transition:opacity .4s ease;
+  }
+  .v2-bar > *{ pointer-events:auto; }
+  #v2.is-ws .v2-bar{ opacity:0; pointer-events:none; }
+  /* Same reasoning as the Navigation panel fix below: a child's explicit
+     pointer-events:auto always beats an ancestor's inherited none, so once
+     RUN has happened the (invisible, faded) frame must be told directly, or
+     its still-armed RUN button would keep intercepting clicks over the Main
+     Stage underneath it. */
+  #v2.is-ws .v2-frame{ pointer-events:none; }
+  .v2-frame{
+    position:relative;
+    width:100%; max-width:880px;
+    background:var(--v2-panel);
+    border:1px solid var(--v2-hair);
+    border-radius:22px;
+    padding:18px 22px 14px;
+    opacity:0;
+    transition:opacity .45s ease, transform .64s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-frame.is-in{ opacity:1; }
+  /* Rise to a central stage position for typing. --v2-rise is set by
+     js/workspace-v2.js from a LIVE measurement (the frame's own resting rect
+     vs. the viewport), the same "measured live, never hardcoded" approach
+     moveCore() already uses — a fixed vh guess undershot badly on tall
+     viewports (a 900px-tall window only reached ~74% down screen, nowhere
+     near "central"). The fallback here only matters if JS never set the
+     variable. */
+  .v2-frame.is-elevated{ transform:translateY(var(--v2-rise, -46vh)); }
+  /* 4th pass — replaces "just remove .is-elevated" (which used to mean
+     "fall back to the true bottom-of-viewport bar position", the actual
+     cause of RUN ending up far below the message). .is-resting is a SECOND,
+     much shorter rise, computed by the same applyRestPosition() call that
+     sets --v2-convo-shift above: it places the frame's centre a fixed, short
+     gap directly below wherever the Direction message's own bottom edge
+     lands, so mark -> steps -> frame -> RUN read as one composition instead
+     of drifting apart on taller viewports. Reuses .v2-frame's own existing
+     opacity/transform transition — no separate rule needed for the motion. */
+  .v2-frame.is-resting{ transform:translateY(var(--v2-rest, 0px)); }
+
+  .v2-frame-prompt{ min-width:0; }
+
+  /* Prompt text — height is reserved up front so nothing reflows while it types
+     and so the caret's first line never moves under the travelling AI point. */
+  .v2-prompt{
+    margin:0;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:clamp(11.5px,.92vw,13px);
+    line-height:1.62;
+    letter-spacing:.02em;
+    color:rgba(244,244,244,.78);
+    white-space:pre-wrap;
+    min-height:calc(12 * 1.62em);
+    overflow:hidden;
+  }
+  /* No letter-spacing override here on purpose: the prompt's label column is
+     aligned with plain monospace padding, so any extra tracking on the labels
+     alone would push each value line by a different amount and ragged the
+     column (INTERACTION drifting further than TASK). */
+  .v2-k{ color:#f4f4f4; font-weight:600; }
+  .v2-caret{
+    display:inline-block; width:2px; height:1.05em;
+    vertical-align:-.16em; margin-left:1px;
+    background:var(--v2-accent);
+    opacity:0;
+  }
+  .v2-caret.is-on{ opacity:1; }
+  @media (prefers-reduced-motion:no-preference){
+    .v2-caret.is-blinking{ animation:v2-blink 1s steps(1,end) infinite; }
+  }
+  @keyframes v2-blink{ 0%,49%{ opacity:1; } 50%,100%{ opacity:0; } }
+
+  .v2-frame-foot{
+    display:flex; align-items:center; gap:16px;
+    margin-top:12px; padding-top:12px;
+    border-top:1px solid var(--v2-hair);
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--v2-dim2);
+  }
+  .v2-run{
+    margin-left:auto;
+    appearance:none; background:none; cursor:default;
+    border:1px solid var(--v2-hair);
+    padding:7px 14px;
+    font:inherit; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--v2-dim2);
+    opacity:.5; pointer-events:none;
+    transition:color .3s ease, border-color .3s ease, opacity .3s ease, background-color .2s ease;
+  }
+  .v2-run i{ font-style:normal; }
+  /* PROMPT = EXECUTE : RUN only becomes real once the Direction message above
+     has finished revealing — it is the LAST thing to appear, not a competing
+     element shown alongside the Prompt. */
+  .v2-run.is-armed{
+    opacity:1; pointer-events:auto; cursor:pointer;
+    color:var(--v2-accent); border-color:var(--v2-accent);
+  }
+  .v2-run.is-armed:hover,
+  .v2-run.is-armed:focus-visible{ background:var(--v2-accent); color:#141414; }
+
+  /* ------------------------------------------------------------ AI PRESENCE --
+     4th-pass line cleanup: fewer strokes, each one deliberate. The CENTRE
+     object (the dot) is the actual Presence and always settles in FIRST; the
+     halo is the only supporting line and follows a beat later, so the scene
+     reads "object, then a line around it" rather than a pile of hairlines
+     appearing together. The one-shot arrival ring that used to sit inside the
+     halo is gone — that was a second concentric stroke doing the same job
+     (marking arrival) the halo's own scale-in already does; removing it is
+     one fewer line without losing the "something is arriving" read. The
+     horizontal hairline (.v2-core-line) is NOT shown during the static
+     Presence hold any more — a lone floating segment attached to nothing was
+     the most "technical wireframe" -looking element on screen; it now only
+     exists from the moment Morph A actually starts drawing it toward the
+     Prompt frame, so it never appears in the "first screen" at all.
+
+     The halo's stroke is 2px (not 1px): a true 1px border sits on a fractional
+     device pixel about half the time (percentage-based centring on a
+     clamp()-sized, non-integer box), which is what read as "broken" — a 1px
+     border there anti-aliases into a soft, inconsistent line depending on
+     exact viewport width. 2px is wide enough to render as a single solid
+     stroke at 1x/2x/3x DPR regardless of that fractional offset, without
+     looking like a "thick" ring (opacity stays low). No particles, no blob,
+     no glow (no blurred box-shadow anywhere here), no 3D, no generated
+     imagery. The point does not fade out and get replaced later — it travels
+     to the Prompt frame, becomes that frame's own width line, then becomes
+     the Prompt caret: Presence becomes Prompt, not two unrelated scenes.
+     Every coordinate is measured live in js/workspace-v2.js, so this holds at
+     any viewport size. */
+  .v2-core{
+    display:block;
+    position:fixed; inset:0;
+    z-index:34; pointer-events:none;
+  }
+
+  /* transform-centred (not margin-centred) on purpose: the dot's width/height
+     are animated as it becomes the caret, and translate(-50%,-50%) keeps its
+     centre pinned to the wrapper origin at every size, so the travel path
+     stays exact. Settles in FIRST (no delay) — the central object leads,
+     every line follows it. */
+  .v2-core-dot{
+    position:fixed; left:50%; top:50%;
+    width:9px; height:9px;
+    transform:translate(-50%,-50%);
+    background:var(--v2-accent); border-radius:50%;
+    opacity:0; transition:opacity .5s ease;
+  }
+  .v2-core.is-on .v2-core-dot{ opacity:1; }
+
+  /* The Presence's ONLY persistent supporting line — a real 2px stroke (see
+     comment above), centred on the dot, arriving ~120ms after it so the dot
+     always reads first. Large enough to read as a real object's scale, not a
+     UI dot with a ring glued to it. */
+  .v2-core-halo{
+    position:fixed; left:50%; top:50%;
+    width:clamp(136px,15vw,204px); aspect-ratio:1/1;
+    transform:translate(-50%,-50%) scale(.94);
+    border:2px solid rgba(var(--v2-accent-rgb),.4); border-radius:50%;
+    opacity:0;
+    transition:opacity .55s .12s ease, transform .55s .12s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-core.is-on .v2-core-halo{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  .v2-core.is-morphing .v2-core-halo{ opacity:0; transition:opacity .4s ease; }
+
+  /* Hidden throughout the static Presence hold on purpose — see the file
+     comment above. js/workspace-v2.js only gives it a real width once Morph A
+     starts (growing it from 0 to the Prompt frame's own width), so it never
+     appears as a lone floating segment during the "first screen". */
+  .v2-core-line{
+    position:fixed; left:50%; top:50%;
+    width:0; height:2px; margin-top:-1px;
+    transform:translateX(-50%);
+    background:var(--v2-accent);
+    opacity:0;
+  }
+  .v2-core-label{
+    position:fixed; left:50%; top:50%;
+    transform:translate(-50%,36px);
+    display:flex; flex-direction:column; align-items:center; gap:7px;
+    opacity:0; transition:opacity .5s .38s ease;
+  }
+  .v2-core-label-text{
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:12px; letter-spacing:.4em; text-transform:uppercase;
+    white-space:nowrap; color:var(--v2-dim);
+  }
+  .v2-core-label-rule{
+    display:block; width:0; height:1px; background:var(--v2-accent);
+    transition:width .45s .5s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-core.is-on .v2-core-label{ opacity:1; }
+  .v2-core.is-on .v2-core-label-rule{ width:34px; }
+  .v2-core.is-morphing .v2-core-label{ opacity:0; }
+  .v2-core.is-done{ display:none; }
+
+  /* ------------------------------------------------------------------ SKIP -- */
+  .v2-skip{
+    display:block;
+    position:fixed; right:20px; bottom:18px; z-index:35;
+    appearance:none; background:none; border:0; padding:6px 8px;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--v2-dim2); cursor:pointer;
+    opacity:0; pointer-events:none;
+    transition:opacity .4s ease, color .2s ease;
+  }
+  .v2-skip.is-in{ opacity:1; pointer-events:auto; }
+  .v2-skip:hover, .v2-skip:focus-visible{ color:#f4f4f4; }
+  .v2-skip.is-done{ opacity:0; pointer-events:none; }
+
+  #v2.is-ws .v2-convo, #v2.is-ws .v2-bg-fx{ opacity:0; pointer-events:none; }
+
+  /* ================================================= BACKGROUND ATMOSPHERE =
+     Intro-only "DESIGN × CODE × AI" scene dressing — a near-flat noise
+     texture plus dispersed, portfolio-specific code fragments. Pure CSS, no
+     new image/SVG asset, no terminal/matrix look. Fills the same box as
+     .v2-convo/#v2-host (grid-area:stage, default stretch), sits behind both
+     purely by DOM order (declared first in index.html) — no z-index used
+     anywhere in this section, so it can never fight the fixed-position
+     chrome (.v2-core/.v2-bar/.v2-nav/etc.) that already owns 30-39.
+     .is-in is added by js/workspace-v2.js the moment the Prompt frame has
+     descended to rest, just ahead of the Direction message's own .is-in —
+     "background forms, then the title arrives on top of it". Every piece
+     here is opacity+transform only (no blur/glow/scale/rotate), and the
+     noise layer never animates at all. */
+  .v2-bg-fx{
+    display:block; /* overrides the base (<1024px) display:none — see top of file */
+    position:relative; overflow:hidden;
+    pointer-events:none;
+    transition:opacity .4s ease;
+  }
+
+  /* NOISE — two tiny repeating-radial-gradient tiles at different pitches/
+     offsets standing in for grain; no image asset anywhere. Motionless base
+     texture. 2nd-polish pass: opacity pulled back down to .03 (from .05) —
+     the whole-screen static/flicker duo was reading as its own effect
+     rather than atmosphere; the brief for this pass is to move that
+     "alive" quality onto the CODE FRAGMENTS themselves (see .v2-frag-signal
+     further down) and let this base layer go back to being a near-inert
+     floor. */
+  .v2-bg-noise{
+    position:absolute; inset:-2px;
+    background-image:
+      repeating-radial-gradient(circle at 0 0, rgba(244,244,244,.9) 0 .6px, transparent .6px 3px),
+      repeating-radial-gradient(circle at 1.5px 2px, rgba(244,244,244,.7) 0 .6px, transparent .6px 4px);
+    background-size:3px 3px, 4px 4px;
+    opacity:0;
+    transition:opacity .5s ease;
+  }
+  .v2-bg-fx.is-in .v2-bg-noise{ opacity:.03; }
+
+  /* ELECTRONIC STATIC — demoted this pass: still present (a full-screen
+     "flat black is too digitally perfect" texture), but no longer a primary
+     effect — values roughly halved from the previous pass (.035-.07 down to
+     .015-.03) so it never reads as the screen itself flickering. The
+     per-fragment micro-glitch below (.v2-frag-signal) is now where the
+     "electronic instability" personality actually lives. Two independent,
+     non-multiple durations (7.4s / 12.6s) still run at once so no single
+     period is obvious; `linear` between the irregular keyframe stops for
+     the same reason as before — a stepped snap here would read as the
+     brief's forbidden "glitch jump" at full-screen scale, which is worse
+     than at fragment scale. */
+  .v2-bg-static{
+    position:absolute; inset:-2px;
+    background-image:
+      repeating-radial-gradient(circle at 0 0, rgba(244,244,244,.9) 0 .6px, transparent .6px 3.4px),
+      repeating-radial-gradient(circle at 1px 1.5px, rgba(244,244,244,.7) 0 .6px, transparent .6px 4.6px);
+    background-size:3.4px 3.4px, 4.6px 4.6px;
+    opacity:0;
+  }
+  .v2-bg-fx.is-in .v2-bg-static{
+    animation:
+      v2-static-flicker 7.4s linear infinite,
+      v2-static-jitter 12.6s linear infinite;
+  }
+  @keyframes v2-static-flicker{
+    0%{ opacity:.015; }
+    9%{ opacity:.028; }
+    17%{ opacity:.019; }
+    26%{ opacity:.03; }
+    33%{ opacity:.021; }
+    44%{ opacity:.026; }
+    52%{ opacity:.017; }
+    63%{ opacity:.029; }
+    71%{ opacity:.021; }
+    81%{ opacity:.025; }
+    90%{ opacity:.018; }
+    100%{ opacity:.015; }
+  }
+  @keyframes v2-static-jitter{
+    0%,100%{ background-position:0 0, 0 0; }
+    22%{ background-position:1px 0, 0 1px; }
+    47%{ background-position:0 1px, -1px 0; }
+    68%{ background-position:-1px 0, 0 -1px; }
+    85%{ background-position:0 -1px, 1px 0; }
+  }
+
+  /* CODE FRAGMENTS — atmosphere, but now meant to actually be READ as code on
+     a normal glance, not just registered as "texture". Mono type already
+     used by .v2-prompt/.v2-core-label-text; lowercase/mixed-case literal
+     code (never the page's own uppercase UI-label casing) so these still
+     read as a different register from the chrome around them.
+
+     THREE-element structure per fragment now (was two): the OUTER
+     .v2-code-frag owns position + the one-time REVEAL (opacity + a small
+     translate, transition-based, per-fragment delay — see .v2-frag-N
+     below); the MIDDLE .v2-frag-drift owns typography + the CONTINUOUS
+     horizontal drift (a `transform` keyframe animation); the INNER
+     .v2-frag-signal wraps the literal text and owns nothing but the
+     intermittent MICRO-GLITCH (opacity dip + 1-3px translateX + a near-tier-
+     only letter-spacing/clip-path blip — see further down). Three separate
+     elements is what lets three different animations/transitions each own
+     `transform`/`opacity` independently without one silently overwriting
+     another — reveal, drift and glitch never fight over the same element. */
+  .v2-code-frag{
+    position:absolute;
+    opacity:0;
+    transition:opacity .62s cubic-bezier(.16,1,.3,1), transform .62s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-bg-fx.is-in .v2-code-frag{ opacity:var(--frag-o); transform:none; }
+
+  /* DRIFT — a LEFT<->RIGHT<->LEFT pendulum (the 0%/50%/100% keyframe below
+     is already a symmetric round trip, so no `alternate` is needed),
+     ease-in-out so it decelerates into each turnaround instead of reading as
+     a linear marquee/ticker. 2nd-polish pass: both duration (was 8.4-18s,
+     now 4.5-9s) and distance (was 8-26px, now 16-48px) roughly doubled in
+     perceptibility — the brief for this pass is "felt within 2-3s", which
+     the previous pass's slow multi-second-plus cycle did not clear. Runs
+     unconditionally from load — while its ancestor .v2-code-frag is still
+     at opacity:0 (pre-reveal) the motion is simply invisible, so no JS gate
+     is needed. --dx (distance) and --dur (duration) are set per fragment
+     below so no two move the same amount at the same speed; --delay is a
+     NEGATIVE value per fragment (starts mid-cycle) so fragments don't all
+     turn around in sync — at any instant roughly half should be drifting
+     each way. */
+  .v2-frag-drift{
+    display:inline-block;
+    margin:0; white-space:pre;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:13px; line-height:1.5; letter-spacing:.02em;
+    color:rgba(244,244,244,1);
+    animation:v2-frag-drift var(--dur,7s) ease-in-out infinite;
+    animation-delay:var(--delay,0s);
+  }
+  @keyframes v2-frag-drift{
+    0%{ transform:translateX(calc(var(--dx,28px) * -1)); }
+    50%{ transform:translateX(var(--dx,28px)); }
+    100%{ transform:translateX(calc(var(--dx,28px) * -1)); }
+  }
+
+  /* MICRO-GLITCH — this pass's core addition. Runs on the INNERMOST
+     .v2-frag-signal (the element that directly wraps the text), so it never
+     touches the drift transform on its own parent. Each fragment's own
+     --gdur (a full "how often" cycle, ~6-12.5s, all different) plays this
+     keyframe on loop, but the actual disturbance only occupies a ~1.7% slice
+     near the end of that cycle — everything else is the plain, undisturbed
+     state — so in real time each fragment shows a brief (~100-220ms, scales
+     with its own --gdur) signal hiccup once every several seconds, never a
+     continuous shimmer. --gdelay is a per-fragment negative offset (like
+     --delay above) so glitches land at unrelated moments across the 20
+     fragments — at most 1-3 should ever be disturbed at the same instant.
+     Depth tiers set their own --gx (translateX distance) and --go (the
+     opacity dip's target) below: near reads a bit more clearly disturbed,
+     far barely more than an opacity blip — see the near-only keyframe
+     variant further down for the extra letter-spacing/clip-path touch. */
+  .v2-frag-signal{
+    display:inline-block;
+    animation:v2-frag-glitch var(--gdur,8s) linear infinite;
+    animation-delay:var(--gdelay,0s);
+  }
+  @keyframes v2-frag-glitch{
+    0%,98.3%,100%{ opacity:1; transform:translateX(0); }
+    98.7%{ opacity:var(--go,.75); transform:translateX(var(--gx,1.5px)); }
+    99.3%{ opacity:1; transform:translateX(calc(var(--gx,1.5px) * -1)); }
+    99.7%{ opacity:var(--go,.75); transform:translateX(0); }
+  }
+  /* near tier only — adds a letter-spacing widen + a brief clip-path cut so
+     the closest fragments read as a slightly more distinct disturbance,
+     never RGB split/blur/skew/rotate, just spacing + a hard clip edge. */
+  .v2-frag--near .v2-frag-signal{ animation-name:v2-frag-glitch-near; }
+  @keyframes v2-frag-glitch-near{
+    0%,98.3%,100%{ opacity:1; transform:translateX(0); letter-spacing:.02em; clip-path:none; }
+    98.7%{ opacity:var(--go,.55); transform:translateX(var(--gx,2.6px)); letter-spacing:.08em; }
+    99.1%{ opacity:1; transform:translateX(calc(var(--gx,2.6px) * -1)); clip-path:inset(0 0 32% 0); }
+    99.5%{ opacity:var(--go,.55); transform:translateX(0); clip-path:none; letter-spacing:.02em; }
+  }
+
+  /* Depth tiers — opacity and font-size both raised a full step from the
+     previous pass (that version tested as "have to go looking for it" even
+     after the first increase); the strongest tier is still far below the
+     Hero mark's own full-strength #f4f4f4 text. --gx/--go set the
+     micro-glitch's own distance/opacity-dip per tier (near most visible,
+     far barely-there), per the brief's depth-links-to-signal rule. */
+  .v2-frag--near{ --frag-o:.27; --gx:2.6px; --go:.55; }
+  .v2-frag--near .v2-frag-drift{ font-size:14px; }
+  .v2-frag--mid{ --frag-o:.16; --gx:1.8px; --go:.68; }
+  .v2-frag--mid .v2-frag-drift{ font-size:13px; }
+  .v2-frag--far{ --frag-o:.09; --gx:1.1px; --go:.82; }
+  .v2-frag--far .v2-frag-drift{ font-size:11.5px; }
+  /* The ONE permitted lime token (per the brief) — still far dimmer than the
+     interaction accent used on RUN/the nav guide dot. */
+  .v2-frag--accent .v2-frag-drift{ color:var(--v2-accent); }
+  .v2-frag--accent{ --frag-o:.09; }
+
+  /* Positions — asymmetric across the full stage, corners/outer-edges only;
+     the centre column (where the Hero mark/steps/Prompt/RUN all sit) and the
+     true viewport edges that would crowd them are left empty on purpose.
+     Percentages are of the stage box, which stretches to the full viewport
+     below the identity bar. Fragments in the MIDDLE vertical band (roughly
+     20-80% down, i.e. level with the Prompt frame) got a slightly wider
+     inset than the previous pass (some pushed from ~12-16% to ~16-20%) to
+     absorb the larger font-size/drift-distance without any risk of grazing
+     the frame — top-strip/bottom-strip fragments keep their original tight
+     single-digit insets since they're vertically clear of the frame's row
+     regardless. --dx/--dur (drift) and --gx/--gdur/--gdelay (glitch, tier
+     defaults above; --gdur/--gdelay per fragment here) — near fragments
+     move furthest/fastest-cycling and glitch most often/visibly, far least,
+     per the brief's depth-links-to-motion/signal rule. */
+  .v2-frag-1{ top:7%;    left:6%;   transform:translate(-6px,-4px); transition-delay:0ms;   --dx:44px; --dur:5.1s; --delay:-1.2s; --gdur:6.2s;  --gdelay:-1.1s; }
+  .v2-frag-2{ top:10%;   right:8%;  transform:translate(6px,-4px);  transition-delay:90ms;  --dx:30px; --dur:6.1s; --delay:-2.2s; --gdur:9.4s;  --gdelay:-3.6s; }
+  .v2-frag-3{ top:29%;   left:3%;   transform:translate(-6px,2px);  transition-delay:150ms; --dx:20px; --dur:8.2s; --delay:-1.8s; --gdur:11.4s; --gdelay:-5.2s; }
+  .v2-frag-4{ top:35%;   right:16%; transform:translate(6px,2px);   transition-delay:40ms;  --dx:36px; --dur:6.2s; --delay:-3.4s; --gdur:7.8s;  --gdelay:-2.4s; }
+  .v2-frag-5{ bottom:32%; left:16%; transform:translate(-6px,4px);  transition-delay:120ms; --dx:26px; --dur:7.4s; --delay:-5.0s; --gdur:10.1s; --gdelay:-0.8s; }
+  .v2-frag-6{ bottom:29%; right:6%; transform:translate(6px,4px);   transition-delay:20ms;  --dx:16px; --dur:7.6s; --delay:-3.9s; --gdur:8.6s;  --gdelay:-6.1s; }
+  .v2-frag-7{ bottom:11%; left:8%;  transform:translate(-6px,6px);  transition-delay:100ms; --dx:48px; --dur:4.6s; --delay:-0.6s; --gdur:6.9s;  --gdelay:-4.3s; }
+  .v2-frag-8{ bottom:8%;  right:9%; transform:translate(6px,6px);   transition-delay:160ms; --dx:34px; --dur:5.6s; --delay:-1.5s; --gdur:9.9s;  --gdelay:-1.7s; }
+  .v2-frag-9{ top:19%;   right:21%; transform:translate(6px,-4px);  transition-delay:60ms;  --dx:24px; --dur:8.8s; --delay:-0.4s; --gdur:12.2s; --gdelay:-7.5s; }
+
+  .v2-frag-10{ top:12%;    left:13%;  transform:translate(-6px,-3px); transition-delay:70ms;  --dx:38px; --dur:6.8s; --delay:-3.7s; --gdur:7.3s;  --gdelay:-2.9s; }
+  .v2-frag-11{ top:39%;    left:19%;  transform:translate(-6px,3px);  transition-delay:200ms; --dx:40px; --dur:5.8s; --delay:-2.9s; --gdur:10.6s; --gdelay:-0.3s; }
+  .v2-frag-12{ top:52%;    left:22%;  transform:translate(-6px,3px);  transition-delay:230ms; --dx:18px; --dur:7.2s; --delay:-8.4s; --gdur:8.1s;  --gdelay:-5.8s; }
+  .v2-frag-13{ bottom:44%; left:2%;   transform:translate(-6px,4px);  transition-delay:180ms; --dx:26px; --dur:8.5s; --delay:-6.7s; --gdur:11.0s; --gdelay:-3.1s; }
+  .v2-frag-14{ bottom:22%; left:14%;  transform:translate(-6px,5px);  transition-delay:130ms; --dx:24px; --dur:7.1s; --delay:-1.9s; --gdur:6.5s;  --gdelay:-1.4s; }
+  .v2-frag-15{ bottom:1%;  left:19%;  transform:translate(-6px,6px);  transition-delay:210ms; --dx:22px; --dur:7.9s; --delay:-4.4s; --gdur:9.2s;  --gdelay:-4.7s; }
+  .v2-frag-16{ top:24%;    right:8%;  transform:translate(6px,-3px);  transition-delay:110ms; --dx:32px; --dur:5.9s; --delay:-4.6s; --gdur:7.6s;  --gdelay:-2.0s; }
+  .v2-frag-17{ top:2%;     right:26%; transform:translate(6px,-3px);  transition-delay:190ms; --dx:28px; --dur:9.0s; --delay:-1.0s; --gdur:10.9s; --gdelay:-6.6s; }
+  .v2-frag-18{ bottom:46%; right:20%; transform:translate(6px,3px);   transition-delay:80ms;  --dx:33px; --dur:6.5s; --delay:-4.1s; --gdur:8.4s;  --gdelay:-0.9s; }
+  .v2-frag-19{ bottom:18%; right:22%; transform:translate(6px,5px);   transition-delay:220ms; --dx:28px; --dur:6.4s; --delay:-2.6s; --gdur:12.5s; --gdelay:-3.8s; }
+  .v2-frag-20{ top:47%;    right:3%;  transform:translate(6px,3px);   transition-delay:150ms; --dx:19px; --dur:7.3s; --delay:-3.3s; --gdur:6.7s;  --gdelay:-5.5s; }
+
+  /* TOP/BOTTOM composition pass — the left/right field above already carries
+     plenty of density; this pass's own job is purely to stop the canvas
+     reading as "two side columns with an empty middle strip" by adding a
+     thin code field along the TOP and BOTTOM edges too, framing the Hero/
+     Prompt from all four sides instead of just two. All seven reuse the
+     EXISTING tier classes verbatim (.v2-frag--near/mid/far) — none of their
+     opacity/font-size/drift-range/glitch values are touched by this pass,
+     only position + this fragment's own --dx/--dur/--delay/--gdur/--gdelay
+     (values drawn from the same ranges the first 20 already use). Every one
+     sits in the top ~2-9% or bottom ~1-7% strip — clear of the Hero/Process/
+     Prompt/RUN band (roughly 20-80% down) regardless of how close to
+     horizontal centre it sits, the same "vertical clearance, not horizontal
+     margin" rule the original edge fragments already relied on. The two
+     multi-line blocks (frag-21/25) sit at the corner-adjacent positions
+     where there's the most room; the two centre-adjacent pairs (frag-22/23
+     and, loosely, frag-26 alone at bottom) deliberately sit on DIFFERENT
+     top/bottom rows from their nearest neighbour, not just different
+     left/right insets — at this font size their boxes are wide enough that
+     insets alone weren't enough clearance (verified/fixed via an actual
+     pairwise bounding-box check in-browser, not estimated). frag-26,
+     nearest the true bottom edge, is allowed to crop slightly, per the
+     brief. */
+  .v2-frag-21{ top:3%;    left:30%;  transform:translate(-6px,-4px); transition-delay:240ms; --dx:37px; --dur:5.4s; --delay:-2.1s; --gdur:8.9s;  --gdelay:-4.9s; }
+  .v2-frag-22{ top:2%;    left:47%;  transform:translate(-5px,-4px); transition-delay:250ms; --dx:21px; --dur:8.0s; --delay:-2.7s; --gdur:7.1s;  --gdelay:-3.4s; }
+  .v2-frag-23{ top:14%;   right:43%; transform:translate(5px,-4px);  transition-delay:260ms; --dx:35px; --dur:6.0s; --delay:-1.4s; --gdur:11.7s; --gdelay:-0.6s; }
+  .v2-frag-24{ top:6%;    right:27%; transform:translate(6px,-4px);  transition-delay:270ms; --dx:29px; --dur:6.6s; --delay:-3.1s; --gdur:9.6s;  --gdelay:-1.6s; }
+  .v2-frag-25{ bottom:5%; left:28%;  transform:translate(-6px,4px);  transition-delay:280ms; --dx:27px; --dur:7.0s; --delay:-4.9s; --gdur:6.8s;  --gdelay:-2.3s; }
+  .v2-frag-26{ bottom:1%; left:46%;  transform:translate(-4px,5px);  transition-delay:290ms; --dx:24px; --dur:8.6s; --delay:-1.1s; --gdur:10.3s; --gdelay:-5.7s; }
+  .v2-frag-27{ bottom:11%; right:32%; transform:translate(6px,4px);  transition-delay:300ms; --dx:41px; --dur:4.9s; --delay:-3.6s; --gdur:7.4s;  --gdelay:-1.9s; }
+
+  /* A small handful of "important" fragments read slightly larger/stronger
+     than their own near-tier default (per the brief's "some up to 15-16px,
+     not all the same size") — frag-1 and frag-18 are the two multi-line
+     blocks placed where there's the most open room (top-left / lower-right
+     outer), so they carry the size well without crowding anything. */
+  .v2-frag-1{ --frag-o:.30; }
+  .v2-frag-1 .v2-frag-drift{ font-size:15px; }
+  .v2-frag-18{ --frag-o:.29; }
+  .v2-frag-18 .v2-frag-drift{ font-size:15.5px; }
+  .v2-frag-11 .v2-frag-drift{ font-size:14.5px; }
+
+  /* Shorter/narrower viewports inside the >=1024px V2 breakpoint (the brief's
+     own 1024x640 case): dropping the far tier alone takes the full 27
+     fragments (20 original + 7 top/bottom) down to 17 — inside this pass's
+     own 14-17 target — and it is the right tier to drop first (least
+     visible). Font-size also steps down here (~12%) since this pass's
+     larger base sizes need a bit more room to clear the centre at narrower
+     widths — never forced to stay at full size/density just to match the
+     wide-desktop composition. */
+  @media (max-width:1366px), (max-height:760px){
+    .v2-frag--far{ display:none; }
+    .v2-frag--near .v2-frag-drift{ font-size:14px; }
+    .v2-frag--mid .v2-frag-drift{ font-size:11.5px; }
+    /* frag-23 (top-centre-right) has no row left to sit in at narrow widths
+       without either grazing frag-21 above it or the Hero mark below it —
+       both real, verified via an in-browser bounding-box check at 1024x640,
+       not estimated. Dropping this single fragment here (17 -> 16, still
+       inside the 14-17 target) is simpler and safer than forcing a third
+       position that only half-clears both. */
+    .v2-frag-23{ display:none; }
+  }
+
+  /* ============================================================ WORKSPACE ==
+     Minimal, persistent chrome once RUN has happened: a hairline reading-
+     progress line and the left-edge Project Navigation. No sidebar, no status
+     bar, no full-screen panel. ------------------------------------------- */
+
+  /* SCROLL = PROGRESS, carried over from the previous pass — now a plain
+     reading-progress hairline pinned to the true bottom edge instead of a
+     labelled status bar, so it reads as an editorial device, not tool UI. */
+  .v2-progress-line{
+    display:block; /* overrides the base (<1024px) display:none — see top of file */
+    position:fixed; left:0; right:0; bottom:0; height:2px; z-index:32;
+    background:var(--v2-hair);
+    opacity:0; transition:opacity .4s ease;
+  }
+  #v2.is-ws .v2-progress-line{ opacity:1; }
+  .v2-progress-line i{
+    position:absolute; inset:0 auto 0 0; width:0;
+    background:var(--v2-accent);
+    transition:width .12s linear;
+  }
+
+  /* Overrides the base (<1024px) display:none — see top of file. .v2-nav is
+     a pure semantic wrapper; its own box never needs a layout role beyond
+     that, so display:block is enough (its children are all position:fixed
+     and lay themselves out independently). Without this reset the ancestor
+     display:none would hide every position:fixed child too, regardless of
+     their own display value — this exact bug already happened once with the
+     old .v2-index and cost real debugging time; not repeating it here. */
+  .v2-nav{ display:block; }
+
+  /* ===================================================================
+     PROJECT NAVIGATION — 10th pass: a MORPHING SURFACE, not a growing box.
+     Re-verified live (https://shethmihir98.com/#works: hovered, and the
+     corner pieces' own SVG `d` attributes read directly — see below) plus
+     the user's own reference screenshot and hand sketch. What the
+     Reference site actually builds is not a rounded-rectangle pill: its
+     "pill" is three pieces — a flat-bottomed centre rectangle flanked by
+     two corner pieces, each an SVG path
+       `M 0 0 C 45.98 0 37 34 87 34 L 87 0 Z`
+     i.e. a cubic bezier from the flat top edge (tangent ALONG the edge at
+     its start) down to the pill's full depth (tangent ALONG the flat
+     bottom at its end) — a continuous, edge-flush, organically-eased
+     curve, never a circle/ellipse arc. Only the centre rectangle's WIDTH
+     changes between closed/open; the corner curves are fixed size and
+     simply move apart. THIS pass reproduces that exact curve-easing
+     principle (tangent-matched cubic beziers, flush at the tip, flat at
+     the seam) but as ONE continuous SVG path per state (no 3-piece
+     collage) and rotated 90°, per this project's own brief: the
+     Reference's TOP edge + DOWNWARD bulge becomes our LEFT edge +
+     RIGHTWARD bulge. Unlike the Reference (whose bulge DEPTH stays fixed
+     at 34px and only its WIDTH grows), our own sketch calls for BOTH the
+     depth (how far it reaches right) and the span (how much of the edge
+     it occupies) to grow from CLOSED to OPEN, so both are parameterised
+     below (D/B/C per state) rather than reusing the Reference's own fixed
+     34px depth verbatim — same easing math, our own proportions.
+
+     THE SURFACE is one <path> whose `d` is transitioned between a CLOSED
+     and an OPEN string (both built from the identical M/C/L/C/Z command
+     sequence, which is what lets the browser interpolate `d` smoothly
+     instead of just cutting between two unrelated shapes). Built from:
+       cy   = vertical centre (always the Folder's own centre — this is
+              what keeps the Folder's anchor from ever jumping)
+       B    = half-height of the flat "belly" where the menu content sits
+       C    = vertical run of each easing curve, top and bottom
+       D    = depth (how far right the belly's flat edge sits)
+     Path (viewBox space, f1=.528 f2=.425 — the Reference's own ratios):
+       M 0 (cy-B-C)
+       C 0 (cy-B-C+f1*C)  D (cy-B-C+f2*C)  D (cy-B)     — top curve
+       L D (cy+B)                                        — flat belly
+       C D (cy+B+C-f2*C)  0 (cy+B+C-f1*C)  0 (cy+B+C)   — bottom curve (mirror)
+       Z                                                 — back up the
+                                                            viewport edge
+
+     TRIGGER = the Folder, doing the Reference "MS" mark's exact job: the
+     visual/interaction anchor the whole surface is built around. It is a
+     SEPARATE fixed element (not part of the path), positioned at the
+     surface's own (left-edge, cy) point in both states — CSS asset
+     crossfade only, it never relocates or resizes.
+
+     MENU = five items, each absolutely placed at a fixed vertical offset
+     from cy (two above the Folder, two below, ABOUT a little further
+     below still — see the brief's "TOP ITEMS / FOLDER / BOTTOM ITEMS"
+     flow), inside the OPEN belly's own span so they only ever sit on the
+     flat part of the curve, never in the curved run. */
+  .v2-nav{
+    --v2-surf-w: 320px;   /* SVG viewBox width  (>= open depth + margin) */
+    --v2-surf-h: 720px;   /* SVG viewBox height (>= open span + margin)  */
+    --v2-trigger-left: 26px;
+    --v2-trigger-size: 56px;
+  }
+
+  /* ---------------------------------------------------------------- STAGE --
+     One fixed, vertically-centred box shared by the surface path, the
+     menu items AND (via matching left/top:50% math) the separate Folder
+     trigger — all three read the SAME (0, cy) origin, which is the whole
+     reason the Folder never appears to jump when the surface morphs.
+     transform-origin:0% 50% + a single `scale()` here is also the ONE
+     lever the narrow-viewport media query below needs to shrink this
+     entire curve system as one unit, coordinates untouched. */
+  .v2-nav-panel{
+    position:fixed; left:0; top:50%; z-index:38;
+    width:var(--v2-surf-w); height:var(--v2-surf-h);
+    transform:translateY(-50%);
+    transform-origin:0% 50%;
+    pointer-events:none;
+  }
+  #v2.is-nav-open .v2-nav-panel{ pointer-events:auto; }
+
+  /* ------------------------------------------------------------- SURFACE --
+     fill only (no stroke/glow/blur) — the same flat dark panel colour
+     already used elsewhere in this file, just shaped instead of boxed.
+     Base rule = CLOSED, its own faster ease-in `d` transition; the
+     `#v2.is-nav-open` override supplies OPEN's end-state AND its own
+     slower, more deliberate ease-out — same "id beats class, the two
+     never fight" technique used throughout this file. No bounce/spring/
+     overshoot anywhere in either curve, per the brief. */
+  .v2-nav-surface{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .v2-nav-surface path{
+    fill:var(--v2-panel);
+    d:path("M 0 230 C 0 272.24 90 264 90 310 L 90 410 C 90 456 0 447.76 0 490 Z");
+    transition:d .3s cubic-bezier(.4,0,1,1);
+  }
+  #v2.is-nav-open .v2-nav-surface path{
+    d:path("M 0 90 C 0 150.72 210 138.88 210 205 L 210 555 C 210 621.13 0 609.28 0 670 Z");
+    transition:d .42s cubic-bezier(.16,1,.3,1);
+  }
+
+  /* --------------------------------------------------------------- TRIGGER --
+     The Folder's own (left, top) is derived from the exact same cy the
+     path uses (--v2-surf-h halved) — not a coincidence, the whole point.
+     Sized to still read as a real Folder (not a small icon) while
+     comfortably clearing the CLOSED belly's own depth (D=90 above). */
+  .v2-nav-trigger{
+    position:fixed; left:var(--v2-trigger-left); top:50%; z-index:39;
+    width:var(--v2-trigger-size); aspect-ratio:410/337;
+    transform:translateY(-50%);
+    display:block;
+    appearance:none; background:none; border:0; padding:0; cursor:pointer;
+    opacity:0; pointer-events:none;
+    transition:opacity .35s ease;
+  }
+  #v2.is-ws .v2-nav-trigger{ opacity:1; pointer-events:auto; }
+  .v2-nav-trigger:focus-visible{ outline:1px solid var(--v2-dim); outline-offset:6px; }
+
+  .v2-nav-trigger-visual{ position:relative; display:block; width:100%; height:100%; }
+  .v2-nav-trigger-visual img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:contain; opacity:0;
+    transition:opacity .22s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-nav-trigger-visual .v2-nav-trigger-closed{ opacity:1; }
+  /* CLOSED -> OPEN crossfade only — no scale bounce/rotation/glow, per the
+     brief. The trigger IS the Navigation's state, not a separate icon
+     commenting on the surface elsewhere. */
+  #v2.is-nav-open .v2-nav-trigger-closed,
+  .v2-nav-trigger:hover .v2-nav-trigger-closed,
+  .v2-nav-trigger:focus-visible .v2-nav-trigger-closed{ opacity:0; }
+  #v2.is-nav-open .v2-nav-trigger-open,
+  .v2-nav-trigger:hover .v2-nav-trigger-open,
+  .v2-nav-trigger:focus-visible .v2-nav-trigger-open{ opacity:1; }
+
+  /* ---------------------------------------------------------------- MENU --
+     Every item's `top` is cy (--v2-surf-h/2) plus a fixed pixel offset —
+     two above the Folder, two below, ABOUT a little further below that,
+     never all piled on one side. All five sit inside the OPEN belly's own
+     flat span (205-555 of the 0-720 viewBox), well clear of the curved
+     top/bottom runs. Revealed only once the surface has genuinely started
+     opening (each item's own transition-delay below starts after the
+     surface's first ~140ms) — surface leads, content follows, never the
+     reverse, per the brief. Motion is opacity + a SHORT vertical offset
+     only (no horizontal slide, no per-item stagger theatrics). */
+  .v2-nav-menu{ position:absolute; inset:0; pointer-events:none; }
+  .v2-nav-item{
+    position:absolute; left:30px; top:calc(50% + var(--iy));
+    transform:translateY(calc(-50% + 5px));
+    appearance:none; background:none; border:0; padding:0; margin:0;
+    cursor:pointer; color:inherit; white-space:nowrap;
+    opacity:0; pointer-events:none;
+    transition:opacity .1s ease, transform .1s ease;
+  }
+  #v2.is-nav-open .v2-nav-item{
+    opacity:1; transform:translateY(-50%);
+    pointer-events:auto;
+    transition:opacity .22s cubic-bezier(.16,1,.3,1), transform .22s cubic-bezier(.16,1,.3,1);
+  }
+  .v2-nav-item:focus-visible{ outline:1px solid var(--v2-dim); outline-offset:2px; }
+  #v2.is-nav-open .v2-nav-menu:has(.v2-nav-item:hover) .v2-nav-item:not(:hover):not(:focus-visible){ opacity:.55; }
+
+  /* MOMENTRIP/MIVY above the Folder, FARMLINK/ARCHIVE below it, ABOUT
+     further below still with extra breathing room — the fixed --iy each
+     carries is also what the trigger/surface's shared cy math is built
+     to leave room for (see the OPEN path's belly: 155 above / 195 below
+     cy — longer below because three items sit under the Folder, two
+     above). Item pitch 43px; MIVY/FARMLINK sit ~1.7x that visual gap
+     off the Folder. */
+  .v2-nav-item:nth-of-type(1){ --iy:-119px; }
+  .v2-nav-item:nth-of-type(2){ --iy:-76px; }
+  .v2-nav-item:nth-of-type(3){ --iy:76px; }
+  .v2-nav-item:nth-of-type(4){ --iy:119px; }
+  .v2-nav-item-about{ --iy:165px; }
+
+  /* OPEN stagger — top to bottom, starting only once the surface is
+     visibly underway (surface itself takes .42s; 140ms in it already
+     reads as "open"), 35ms apart, ABOUT a slightly longer 40ms coda.
+     CLOSE has no stagger at all — every item fades in one fast, undelayed
+     .1s beat (the base rule above), well before the surface's own .3s
+     shrink finishes, so nothing is ever caught mid-squeeze. */
+  #v2.is-nav-open .v2-nav-item:nth-of-type(1){ transition-delay:140ms; }
+  #v2.is-nav-open .v2-nav-item:nth-of-type(2){ transition-delay:175ms; }
+  #v2.is-nav-open .v2-nav-item:nth-of-type(3){ transition-delay:210ms; }
+  #v2.is-nav-open .v2-nav-item:nth-of-type(4){ transition-delay:245ms; }
+  #v2.is-nav-open .v2-nav-item-about{ transition-delay:285ms; }
+
+  .v2-nav-name{
+    font-size:15px; font-weight:700; letter-spacing:-.005em;
+    text-transform:uppercase; color:var(--v2-dim);
+    transition:color .2s ease;
+  }
+  .v2-nav-name i{
+    font-style:normal;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:10.5px; letter-spacing:.06em; color:var(--v2-dim2); font-weight:600;
+    margin-right:8px;
+  }
+  .v2-nav-item:hover .v2-nav-name,
+  .v2-nav-item:focus-visible .v2-nav-name{ color:var(--v2-accent); }
+  /* The Project currently on Stage stays accent-coloured — visible the
+     instant Navigation reopens, per the brief; no separate badge/card.
+     Hover and Active share the same accent, so they never conflict. */
+  .v2-nav-item[aria-current="true"] .v2-nav-name{ color:var(--v2-accent); }
+
+  .v2-nav-item-about .v2-nav-name{
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:12px; letter-spacing:.12em;
+  }
+
+  /* Shorter/narrower viewports (this pass's own 1024x640 case, the same
+     breakpoint the code-fragment atmosphere above already uses): the
+     WHOLE curve system — surface, trigger-relative math and menu offsets
+     alike — scales down as one unit around its own fixed left-centre
+     point (transform-origin above), so the geometry stays proportionate
+     rather than needing a second hand-tuned path. Only type steps down
+     alongside it. */
+  @media (max-width:1366px), (max-height:760px){
+    .v2-nav-panel{ transform:translateY(-50%) scale(.74); }
+    .v2-nav-trigger{ width:44px; }
+    .v2-nav-name{ font-size:13px; }
+    .v2-nav-item-about .v2-nav-name{ font-size:11px; }
+  }
+
+  /* NOTE — the no-JS safety net deliberately does NOT live here. See the
+     <noscript><style> block in index.html's <head>: an equivalent
+     ":not(.v2-js)" rule in this stylesheet would stop matching the instant the
+     controller tags itself, which would START transitions from the fallback
+     values at load — in a background tab (document.hidden) those never finish,
+     leaving the intro measuring the wrong geometry. -------------------------*/
+
+  /* -------------------------------------------------------- REDUCED MOTION -- */
+  @media (prefers-reduced-motion:reduce){
+    .v2-convo, .v2-convo-mark, .v2-convo-steps li,
+    .v2-frame, #v2-host, .v2-bar,
+    .v2-core-dot, .v2-core-halo, .v2-core-label, .v2-core-label-rule,
+    .v2-nav-trigger-visual img, .v2-progress-line i{
+      transition-duration:.001s;
+    }
+    /* The OPEN/CLOSE reveal is a surface-path `d` morph plus per-item
+       opacity/position fades, none of which serve any functional purpose
+       under reduced motion, so all get transition:none outright (an
+       instant cut between CLOSED/OPEN) rather than just a shortened
+       duration. !important is deliberate here: the #v2.is-nav-open-scoped
+       OPEN rules (and each item's own transition-delay) are MORE specific
+       than a plain class selector, so without it they would win over this
+       block whenever Navigation is open — exactly the state this rule
+       most needs to reach. */
+    .v2-nav-surface path, .v2-nav-item{
+      transition:none !important;
+    }
+    #v2-host > section.is-stage{ animation:none; }
+    .v2-frame.is-elevated, .v2-frame.is-resting{ transform:none; }
+    .v2-convo{ transform:none; }
+    .v2-convo-mark, .v2-convo-steps li{ transform:none; }
+    /* Background atmosphere: the one-time reveal stays (opacity only, see
+       above), but the continuous static flicker and the code fragments'
+       continuous drift are motion with no functional purpose — both stop
+       outright rather than just speeding up. */
+    .v2-bg-static{ animation:none !important; }
+    .v2-frag-drift{ animation:none !important; transform:none !important; }
+    .v2-frag-signal{ animation:none !important; transform:none !important; opacity:1 !important; letter-spacing:inherit !important; clip-path:none !important; }
+    .v2-code-frag{ transition-duration:.001s; }
+  }
+}
