@@ -3294,6 +3294,50 @@ html.ws-open.mini-ready .mini-folder-fixed{
   .m-intro-bg .m-frag{ opacity:0; transform:translateY(6px); transition:opacity .62s cubic-bezier(.16,1,.3,1), transform .62s cubic-bezier(.16,1,.3,1); }
   .m-intro-bg.is-in .m-frag{ opacity:1; transform:none; }
 
+  /* DRIFT + MICRO-GLITCH — Desktop's .v2-frag-drift / .v2-frag-signal motion. Its
+     keyframes live inside workspace-v2.css's min-width:1024px block, so they do
+     not exist down here; these are the same keyframes. Each fragment takes the
+     duration / phase / glitch timing of the Desktop fragment with the same text
+     (frag-1, 2, 3, 6, 21, 15, 17); only the drift distance (--dx) is halved for
+     the narrow screen. transform/opacity only, like Desktop; it runs while the
+     reveal is still at opacity 0, and stops with the scene (display:none). */
+  .m-frag-drift{
+    display:inline-block;
+    animation:m-frag-drift var(--dur,7s) ease-in-out infinite;
+    animation-delay:var(--delay,0s);
+  }
+  @keyframes m-frag-drift{
+    0%{ transform:translateX(calc(var(--dx,14px) * -1)); }
+    50%{ transform:translateX(var(--dx,14px)); }
+    100%{ transform:translateX(calc(var(--dx,14px) * -1)); }
+  }
+  .m-frag-signal{
+    display:inline-block;
+    animation:m-frag-glitch var(--gdur,8s) linear infinite;
+    animation-delay:var(--gdelay,0s);
+  }
+  @keyframes m-frag-glitch{
+    0%,98.3%,100%{ opacity:1; transform:translateX(0); }
+    98.7%{ opacity:var(--go,.75); transform:translateX(var(--gx,1.5px)); }
+    99.3%{ opacity:1; transform:translateX(calc(var(--gx,1.5px) * -1)); }
+    99.7%{ opacity:var(--go,.75); transform:translateX(0); }
+  }
+  /* Desktop's near tier: a slightly more distinct blip (spacing + clip edge) */
+  .m-frag.is-near .m-frag-signal{ animation-name:m-frag-glitch-near; }
+  @keyframes m-frag-glitch-near{
+    0%,98.3%,100%{ opacity:1; transform:translateX(0); letter-spacing:normal; clip-path:none; }
+    98.7%{ opacity:var(--go,.55); transform:translateX(var(--gx,2.6px)); letter-spacing:.06em; }
+    99.1%{ opacity:1; transform:translateX(calc(var(--gx,2.6px) * -1)); clip-path:inset(0 0 32% 0); }
+    99.5%{ opacity:var(--go,.55); transform:translateX(0); clip-path:none; letter-spacing:normal; }
+  }
+  .m-frag-1{ --dx:22px; --dur:5.1s; --delay:-1.2s; --gdur:6.2s;  --gdelay:-1.1s; --gx:2.6px; --go:.55; }
+  .m-frag-2{ --dx:15px; --dur:6.1s; --delay:-2.2s; --gdur:9.4s;  --gdelay:-3.6s; --gx:1.8px; --go:.68; }
+  .m-frag-3{ --dx:10px; --dur:8.2s; --delay:-1.8s; --gdur:11.4s; --gdelay:-5.2s; --gx:1.1px; --go:.82; }
+  .m-frag-4{ --dx:8px;  --dur:7.6s; --delay:-3.9s; --gdur:8.6s;  --gdelay:-6.1s; --gx:1.1px; --go:.82; }
+  .m-frag-5{ --dx:18px; --dur:5.4s; --delay:-2.1s; --gdur:8.9s;  --gdelay:-4.9s; --gx:2.6px; --go:.55; }
+  .m-frag-6{ --dx:11px; --dur:7.9s; --delay:-4.4s; --gdur:9.2s;  --gdelay:-4.7s; --gx:1.1px; --go:.82; }
+  .m-frag-7{ --dx:14px; --dur:9.0s; --delay:-1.0s; --gdur:10.9s; --gdelay:-6.6s; --gx:1.1px; --go:.82; }
+
   /* Until the intro is armed the Navigation stays out of the way, as Desktop's tab
      only appears after the intro; it fades in the moment RUN is armed (#m-intro
      .is-ready). A sibling selector, so it holds from the first paint — no flash. */
@@ -3313,6 +3357,8 @@ html.ws-open.mini-ready .mini-folder-fixed{
     .m-intro-mark, .m-intro-steps li, .m-intro-frame, .m-intro-run, .m-intro-skip,
     .m-intro-bg, .m-intro-bg .m-frag, .m-nav-trigger, .m-progress{ transition-duration:.001s !important; transition-delay:0s !important; }
     .m-intro-frame.is-elevated, .m-intro-mark, .m-intro-steps li, .m-intro-bg .m-frag{ transform:none; }
+    /* as Desktop under reduced motion: the fragments stay still */
+    .m-frag-drift, .m-frag-signal{ animation:none !important; transform:none !important; opacity:1 !important; clip-path:none !important; }
   }
 
   /* ---------------------------------------------------------------- STAGES --

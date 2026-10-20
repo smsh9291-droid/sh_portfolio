@@ -194,13 +194,16 @@
      ========================================================================== -->
 <section id="m-intro" class="m-intro" aria-labelledby="m-intro-title">
   <div class="m-intro-bg mono" aria-hidden="true">
-    <span class="m-frag m-frag-1">/* human direction */</span>
-    <span class="m-frag m-frag-2">&lt;workspace state="ready"&gt;</span>
-    <span class="m-frag m-frag-3">const intent = "preserve";</span>
-    <span class="m-frag m-frag-4 is-accent">--accent: #C1F85C;</span>
-    <span class="m-frag m-frag-5">function refine() {<br>&nbsp;&nbsp;return verify(result);<br>}</span>
-    <span class="m-frag m-frag-6">AI-assisted !== AI-generated;</span>
-    <span class="m-frag m-frag-7">&lt;output verified&gt;</span>
+    <!-- Same three layers as Desktop's .v2-code-frag: the outer span owns position +
+         the one-time reveal, .m-frag-drift the continuous left/right drift,
+         .m-frag-signal the brief micro-glitch — so no two of them share a transform. -->
+    <span class="m-frag m-frag-1 is-near"><span class="m-frag-drift"><span class="m-frag-signal">/* human direction */</span></span></span>
+    <span class="m-frag m-frag-2"><span class="m-frag-drift"><span class="m-frag-signal">&lt;workspace state="ready"&gt;</span></span></span>
+    <span class="m-frag m-frag-3"><span class="m-frag-drift"><span class="m-frag-signal">const intent = "preserve";</span></span></span>
+    <span class="m-frag m-frag-4 is-accent"><span class="m-frag-drift"><span class="m-frag-signal">--accent: #C1F85C;</span></span></span>
+    <span class="m-frag m-frag-5 is-near"><span class="m-frag-drift"><span class="m-frag-signal">function refine() {<br>&nbsp;&nbsp;return verify(result);<br>}</span></span></span>
+    <span class="m-frag m-frag-6"><span class="m-frag-drift"><span class="m-frag-signal">AI-assisted !== AI-generated;</span></span></span>
+    <span class="m-frag m-frag-7"><span class="m-frag-drift"><span class="m-frag-signal">&lt;output verified&gt;</span></span></span>
   </div>
   <div class="m-intro-top mono">
     <span>HAM SEUNG HEE</span>
