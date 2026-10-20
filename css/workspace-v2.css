@@ -101,7 +101,7 @@
   html, body{ height:100%; overflow:hidden; }
 
   /* V1 intro objects are retired on Desktop — not deleted, just not part of V2. */
-  #entry-hero, #mini-folder, #folder-exit-mask, .meta-corner{ display:none; }
+  #entry-hero, #mini-folder, #folder-exit-mask{ display:none; }
 
   /* ---------------------------------------------------------------- SHELL --
      Editorial Stage + Fixed Interface. Single column, single row — no rail,
@@ -215,10 +215,25 @@
   #v2-host::-webkit-scrollbar-thumb{ background:rgba(244,244,244,.18); }
   #v2.is-ws #v2-host{ opacity:1; pointer-events:auto; }
   #v2-host > section{ display:none; border-top:none; }
+  /* Folder-tab clearance. The fixed left-edge folder tab (.v2-nav-trigger)
+     reaches x=82px (x=70px once it scales down at <=1366px — see the
+     max-width:1366px block below), but .container's own 64px left padding
+     only clears it once the 1440px container is centred with enough margin
+     (viewport >= ~1510px). Below that, chapter numbers and every other
+     left-aligned line scrolled under the tab. Only the LEFT padding grows, and
+     only by what is missing: the margin the centred container already has is
+     subtracted, so wide screens keep exactly 64px. Nothing else moves. */
+  #v2-host .container{
+    --v2-tab-clear:106px;
+    padding-left:max(64px, calc(var(--v2-tab-clear) - max(0px, (100% - 1440px) / 2)));
+  }
   #v2-host > section.is-stage{
     display:block;
     animation:v2-stage-in .42s cubic-bezier(.16,1,.3,1) both;
   }
+  /* CONTACT is a centred flex column (style.css #contact); the generic display:block
+     above flattened it, leaving the headline left and the links centred. */
+  #v2-host > #contact.is-stage{ display:flex; }
   @keyframes v2-stage-in{
     from{ opacity:0; transform:translateY(10px); }
     to{ opacity:1; transform:none; }
@@ -241,10 +256,6 @@
     filter:brightness(.7) saturate(.85);
   }
 
-  /* Desktop V2 only: this caption describes the V1 long-scroll behaviour
-     ("SMOOTH SCROLL TO PROJECT"), which no longer matches CLICK = SELECT here.
-     Left untouched in the DOM so Mobile keeps showing it. */
-  #v2.is-ws .works-note{ display:none; }
   /* Duplicate bottom navigation removed on Desktop V2 only — Project movement
      is unified into the one left-edge Project Navigation (see .v2-nav below).
      The .next elements themselves are untouched in the DOM, so Mobile keeps them. */
@@ -988,6 +999,9 @@
   .v2-nav-item:nth-of-type(3){ --iy:76px; }
   .v2-nav-item:nth-of-type(4){ --iy:119px; }
   .v2-nav-item-about{ --iy:165px; }
+  /* CONTACT pairs with ABOUT as the second secondary item, at the end of the
+     OPEN belly's flat span (cy + 195) */
+  .v2-nav-item-contact{ --iy:196px; }
 
   /* OPEN stagger — top to bottom, starting only once the surface is
      visibly underway (surface itself takes .42s; 140ms in it already
@@ -1000,6 +1014,7 @@
   #v2.is-nav-open .v2-nav-item:nth-of-type(3){ transition-delay:210ms; }
   #v2.is-nav-open .v2-nav-item:nth-of-type(4){ transition-delay:245ms; }
   #v2.is-nav-open .v2-nav-item-about{ transition-delay:285ms; }
+  #v2.is-nav-open .v2-nav-item-contact{ transition-delay:320ms; }
 
   .v2-nav-name{
     font-size:15px; font-weight:700; letter-spacing:-.005em;
@@ -1019,6 +1034,23 @@
      Hover and Active share the same accent, so they never conflict. */
   .v2-nav-item[aria-current="true"] .v2-nav-name{ color:var(--v2-accent); }
 
+  /* SOON (FARMLINK / DESIGN ARCHIVE) — same position, size, stagger and reveal
+     as every other item; only the name stays at its resting dim (no accent on
+     hover, since nothing happens on click) and a small mono SOON follows it.
+     Borderless on purpose: the shell's width is fixed, and a boxed tag after
+     "DESIGN ARCHIVE" ran past the curved edge. Focus still shows the outline
+     so keyboard users can land on it. */
+  .v2-nav-item.is-soon{ cursor:default; }
+  .v2-nav-item.is-soon:hover .v2-nav-name,
+  .v2-nav-item.is-soon:focus-visible .v2-nav-name{ color:var(--v2-dim); }
+  .v2-nav-soon{
+    display:inline-block; vertical-align:1px;
+    margin-left:5px;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:8px; font-weight:600; letter-spacing:.04em; line-height:1;
+    color:var(--v2-dim2);
+  }
+
   .v2-nav-item-about .v2-nav-name{
     font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
     font-size:12px; letter-spacing:.12em;
@@ -1034,6 +1066,7 @@
   @media (max-width:1366px), (max-height:760px){
     .v2-nav-panel{ transform:translateY(-50%) scale(.74); }
     .v2-nav-trigger{ width:44px; }
+    #v2-host .container{ --v2-tab-clear:94px; } /* tab ends at 70px here */
     .v2-nav-name{ font-size:13px; }
     .v2-nav-item-about .v2-nav-name{ font-size:11px; }
   }

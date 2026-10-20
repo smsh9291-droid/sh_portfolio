@@ -42,6 +42,23 @@
 }
 
 *{box-sizing:border-box;}
+/* Below the Desktop V2 breakpoint the long page runs on the same dark token set that
+   css/workspace-v2.css applies at >=1024px, so ABOUT / CONTACT / the MIVY closing link
+   no longer drop back to the light wireframe palette between dark project zones. */
+@media (max-width:1023px){
+  :root{
+    --bg:#121212;
+    --bg-soft:#1b1b1b;
+    --bg-soft-2:#262626;
+    --ink:#f0f0f0;
+    --ink-soft:#a6a6a6;
+    --line:#f0f0f0;
+    --line-soft:#3a3a3a;
+    --fill-a:#262626;
+    --fill-b:#333333;
+    --tag:#8f8f8f;
+  }
+}
 html{scroll-behavior:smooth;}
 @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
 
@@ -140,14 +157,6 @@ h1,h2,h3,p{ margin:0; }
 }
 #entry-hero .tag{ border-color:#565656; color:#9a9a9a; }
 
-.state-tag{
-  position:absolute; top:16px; left:16px; margin:0; z-index:5;
-  transition:opacity .3s ease;
-}
-.state-tag.is-closed{ opacity:1; }
-.state-tag.is-open{ opacity:0; }
-html.ws-open .state-tag.is-closed{ opacity:0; }
-html.ws-open .state-tag.is-open{ opacity:1; }
 
 /* -- CLOSED stage: folder graphic is the user-authored SVG asset, not CSS-drawn shapes.
    Three layered <img> copies live in .folder-stack:
@@ -1139,6 +1148,27 @@ html.ws-open .eh-open{
     text-transform:uppercase;
     color:#f4f4f4;
   }
+
+  /* SOON (03 ARCHIVE): same place, size and reveal as the other three folders; it just
+     never "opens" — no lift, no closed→open crossfade — since it is not a link. */
+  .hero-folder-item.is-soon{ cursor:default; }
+  .hero-folder-item.is-soon:hover .nav-folder-visual{ transform:none; }
+  .hero-folder-item.is-soon:hover .nav-folder-closed{ opacity:1; }
+  .hero-folder-item.is-soon:hover .nav-folder-open{ opacity:0; }
+  .hero-folder-item.is-soon .nav-label{ color:rgba(244,244,244,.55); }
+  /* stacked under the label, not beside it: inline, it widened the label into CONTACT's
+     hand-placed "04" index; the item only grows downward, into empty space */
+  .hero-folder-item.is-soon .soon-tag{ display:block; width:max-content; margin:6px 0 0; }
+}
+/* Shared SOON tag (Hero folder label, SELECTED WORKS rows) — same small outlined mono
+   chip as the V2 Navigation's own .v2-nav-soon. */
+.soon-tag{
+  display:inline-block; vertical-align:middle;
+  margin-left:6px; padding:2px 5px 1px;
+  font-family:ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  font-size:9px; font-weight:600; letter-spacing:.14em; line-height:1.2;
+  color:rgba(244,244,244,.5);
+  border:1px solid currentColor; border-radius:2px;
 }
 @media (min-width:701px) and (prefers-reduced-motion:reduce){
   .hero-folder-item{ transition:opacity .15s ease; transform:none; }
@@ -1173,7 +1203,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
   object-fit:contain;
 }
 @media (max-width:700px){ .folder-icon-sm{ width:44px; } }
-.mini-folder-fixed .tag{ font-size:9.5px; }
+.mini-folder-fixed:focus-visible{ outline:2px solid var(--entry-accent); outline-offset:4px; border-radius:4px; }
 
 /* -- custom cursor: desktop mouse/trackpad only (hover:hover + pointer:fine). Tracks the
    real pointer 1:1 via rAF-throttled transform (see js/main.js) — no trailing/magnetic
@@ -1231,7 +1261,6 @@ html.ws-open.mini-ready .mini-folder-fixed{
   border-top-color:rgba(244,244,244,.14); /* .section's own border-top, re-toned for dark */
 }
 #works .kicker{ color:rgba(244,244,244,.5); }
-#works .tag{ color:rgba(244,244,244,.42); border-color:rgba(244,244,244,.22); }
 .works-heading{
   font-size:clamp(40px,7vw,96px); /* same Large Sans family as Hero's Main Copy, one clamp
     step below it (max 96px vs Hero's 112px) — a clear but lower typographic tier */
@@ -1375,7 +1404,17 @@ html.ws-open.mini-ready .mini-folder-fixed{
   #works .folder-item:focus-visible .folder-num::after{
     animation:works-num-glow .48s steps(1,jump-end) forwards;
   }
+  /* SOON rows are not links: no hover feedback at all. */
+  #works .folder-item.is-soon:hover{ border-bottom-color:rgba(244,244,244,.16); }
+  #works .folder-item.is-soon:hover .folder-name{ transform:none; }
+  #works .folder-item.is-soon:hover .folder-num,
+  #works .folder-item.is-soon:hover .folder-num::after{ animation:none; }
 }
+/* SOON rows (FARMLINK / DESIGN ARCHIVE): same row layout, name dimmed, SOON tag in the
+   arrow's slot. */
+#works .folder-item.is-soon{ cursor:default; }
+#works .folder-item.is-soon .folder-name{ color:rgba(244,244,244,.45); }
+#works .folder-soon{ flex-shrink:0; margin-left:0; align-self:center; font-size:10px; }
 /* Mobile Auto Active Sequence: js/main.js toggles .works-row-active on one .folder-item
    at a time (never added on a real hover-capable Desktop session — see js/main.js's
    `desktopMQ`, a live, reactively-listened MediaQueryList combining width+hover+pointer,
@@ -1432,7 +1471,6 @@ html.ws-open.mini-ready .mini-folder-fixed{
   }
 }
 #works .folder-item:focus-visible{ outline:2px solid rgba(244,244,244,.4); outline-offset:6px; }
-.works-note{ margin-top:40px; }
 
 @media (max-width:700px){
   #works{ padding-top:40px; }
@@ -1940,8 +1978,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
    existing .ed-a/.chapter-label/.copy-sm/.project-meta/.ph rule above is untouched — this
    only adds opacity/transform/clip-path on top. */
 #project-momentrip .ed-a.ov-resetting .ed-a-copy > *,
-#project-momentrip .ed-a.ov-resetting .ph[data-ov-visual],
-#project-momentrip .ed-a.ov-resetting .ov-meta{
+#project-momentrip .ed-a.ov-resetting .ph[data-ov-visual]{
   transition:none !important;
 }
 #project-momentrip .ed-a-copy[data-ov-ready] > *{
@@ -1975,46 +2012,20 @@ html.ws-open.mini-ready .mini-folder-fixed{
   transform:scale(1);
 }
 
-/* Workspace Metadata — Prototype only, opacity + max 4px micro-translate, no Green (see
-   14. GREEN LOCK in the brief this implements). #project-momentrip prefix needed purely
-   for specificity over the pre-existing .ph span rule above, not a new theme scope. */
-#project-momentrip .ov-meta{
-  position:absolute;
-  font-size:10px;
-  letter-spacing:.1em;
-  text-transform:uppercase;
-  color:rgba(244,244,244,.4);
-  opacity:0;
-  transform:translateY(4px);
-  transition:opacity .4s ease, transform .4s ease;
-}
-#project-momentrip .ov-meta-tl{ top:14px; left:16px; }
-#project-momentrip .ov-meta-br{ bottom:14px; right:16px; }
-#project-momentrip .ov-meta.is-visible{ opacity:1; transform:translateY(0); }
 /* Real capture in place of the stripe placeholder (.has-img): the image fills the same 8:5
    box (captured at 16:10, so nothing meaningful is cropped) and rides the existing reveal
-   untouched. The light screenshot would swallow the light metadata and the top-left label
-   would sit on the site's own logo, so with an image both labels sit on a dark chip along
-   the screenshot's empty bottom strip. */
+   untouched. */
 #project-momentrip .ph.has-img .ph-img{
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; object-position:top center; display:block;
 }
-#project-momentrip .ph.has-img .ov-meta{
-  z-index:1; padding:2px 6px;
-  background:rgba(20,20,20,.78); color:rgba(244,244,244,.72);
-}
-/* % of the box height, so the chips stay inside that empty strip (bottom ~13% of the
-   capture) at every width — ~14px on Desktop, ~6px on Mobile's much shorter box. */
-#project-momentrip .ph.has-img .ov-meta-tl,
-#project-momentrip .ph.has-img .ov-meta-br{ top:auto; bottom:2.6%; }
 
 /* ---- LIVE PREVIEW (Chapter 01 only). States on [data-ov-preview][data-state]:
    static (WebP only, nothing requested from the deployed site) -> loading -> live, driven
    by js/workspace-v2.js. The bar lives outside the .ph box (and so outside the iframe):
    EXIT stays reachable whatever the embedded page does with its own scroll. */
-#project-momentrip .ov-preview{ display:flex; flex-direction:column; min-width:0; }
-#project-momentrip .ov-preview-bar{
+#project-momentrip .ov-preview, #project-mivy .ov-preview{ display:flex; flex-direction:column; min-width:0; }
+#project-momentrip .ov-preview-bar, #project-mivy .ov-preview-bar{
   display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap;
   padding:10px 12px 10px 16px;
   border:1.5px solid rgba(244,244,244,.2); border-bottom:none;
@@ -2026,19 +2037,19 @@ html.ws-open.mini-ready .mini-folder-fixed{
    "in" after (js/main.js) */
 #project-momentrip .ov-preview:has(> .ph[data-ov-visual=""]) .ov-preview-bar{ opacity:0; transition:none; }
 #project-momentrip .ed-a.ov-resetting .ov-preview-bar{ transition:none !important; }
-#project-momentrip .ov-preview-status{ display:inline-flex; align-items:center; gap:8px; color:rgba(244,244,244,.72); }
-#project-momentrip .ov-preview-status::before{
+#project-momentrip .ov-preview-status, #project-mivy .ov-preview-status{ display:inline-flex; align-items:center; gap:8px; color:rgba(244,244,244,.72); }
+#project-momentrip .ov-preview-status::before, #project-mivy .ov-preview-status::before{
   content:""; width:6px; height:6px; border-radius:50%;
   background:rgba(244,244,244,.35);
 }
-#project-momentrip .ov-preview[data-state="loading"] .ov-preview-status::before{
+#project-momentrip .ov-preview[data-state="loading"] .ov-preview-status::before, #project-mivy .ov-preview[data-state="loading"] .ov-preview-status::before{
   background:var(--entry-accent); animation:ov-preview-pulse 1s ease-in-out infinite;
 }
-#project-momentrip .ov-preview[data-state="live"] .ov-preview-status::before{ background:var(--entry-accent); }
+#project-momentrip .ov-preview[data-state="live"] .ov-preview-status::before, #project-mivy .ov-preview[data-state="live"] .ov-preview-status::before{ background:var(--entry-accent); }
 @keyframes ov-preview-pulse{ 50%{ opacity:.25; } }
-#project-momentrip .ov-preview-url{ color:rgba(244,244,244,.32); text-transform:none; letter-spacing:.04em; }
-#project-momentrip .ov-preview-actions{ display:flex; gap:8px; margin-left:auto; }
-#project-momentrip .ov-preview-btn{
+#project-momentrip .ov-preview-url, #project-mivy .ov-preview-url{ color:rgba(244,244,244,.32); text-transform:none; letter-spacing:.04em; }
+#project-momentrip .ov-preview-actions, #project-mivy .ov-preview-actions{ display:flex; gap:8px; margin-left:auto; }
+#project-momentrip .ov-preview-btn, #project-mivy .ov-preview-btn{
   display:inline-flex; align-items:center;
   padding:7px 12px;
   font:inherit; letter-spacing:.1em; text-transform:uppercase; text-decoration:none;
@@ -2047,33 +2058,73 @@ html.ws-open.mini-ready .mini-folder-fixed{
   cursor:pointer;
   transition:border-color .2s ease, color .2s ease, background-color .2s ease;
 }
-#project-momentrip .ov-preview-btn[hidden]{ display:none; }
-#project-momentrip .ov-preview-btn:hover,
-#project-momentrip .ov-preview-btn:focus-visible{ border-color:var(--entry-accent); color:var(--entry-accent); }
-#project-momentrip .ov-preview-btn:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:2px; }
-#project-momentrip .ov-preview-btn.is-primary{ border-color:rgba(193,248,92,.55); }
+#project-momentrip .ov-preview-btn[hidden], #project-mivy .ov-preview-btn[hidden]{ display:none; }
+#project-momentrip .ov-preview-btn:hover, #project-mivy .ov-preview-btn:hover,
+#project-momentrip .ov-preview-btn:focus-visible, #project-mivy .ov-preview-btn:focus-visible{ border-color:var(--entry-accent); color:var(--entry-accent); }
+#project-momentrip .ov-preview-btn:focus-visible, #project-mivy .ov-preview-btn:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:2px; }
+/* CTA hierarchy in the bar. Every bar control shares one height (34px) and the same small
+   2px radius (the site's chip radius, cf. .soon-tag); only fill and weight separate them:
+   LIVE PREVIEW = Primary (solid lime, dark text, play glyph) · OPEN SITE ↗ = Secondary
+   (the existing outline) · EXIT = the existing solid light chip while live. No glow, no
+   looping motion — hover lightens, active darkens + 1px press, focus gets a lime ring. */
+#project-momentrip .ov-preview-actions, #project-mivy .ov-preview-actions{ align-items:center; }
+#project-momentrip .ov-preview-btn, #project-mivy .ov-preview-btn{ min-height:34px; border-radius:2px; }
+#project-momentrip .ov-preview-btn.is-primary, #project-mivy .ov-preview-btn.is-primary{
+  gap:9px; padding:7px 16px 7px 14px;
+  font-weight:700;
+  background:var(--entry-accent); border-color:var(--entry-accent); color:#141414;
+  transition:background-color .18s ease, border-color .18s ease, transform .12s ease;
+}
+/* play glyph — drawn in CSS from currentColor, so it always matches the label */
+#project-momentrip .ov-preview-btn.is-primary::before, #project-mivy .ov-preview-btn.is-primary::before{
+  content:""; flex:none; width:8px; height:9px;
+  background:currentColor; clip-path:polygon(0 0, 100% 50%, 0 100%);
+}
+#project-momentrip .ov-preview-btn.is-primary:hover, #project-mivy .ov-preview-btn.is-primary:hover{
+  background:#D3FB8A; border-color:#D3FB8A; color:#141414;
+}
+#project-momentrip .ov-preview-btn.is-primary:focus-visible, #project-mivy .ov-preview-btn.is-primary:focus-visible{
+  color:#141414; outline:2px solid var(--entry-accent); outline-offset:3px;
+}
+#project-momentrip .ov-preview-btn.is-primary:active, #project-mivy .ov-preview-btn.is-primary:active{
+  background:#A9DE48; border-color:#A9DE48; transform:translateY(1px);
+}
+/* EXIT keeps its own identity: it stays the light chip on hover/focus instead of turning
+   lime (keyboard launch moves focus straight onto it, so a lime fill there read as a
+   second Primary button). Focus is the same lime ring as the Primary. Scoped one level
+   deeper (.ov-preview-actions) so it outranks the original .is-exit rules further down. */
+#project-momentrip .ov-preview-actions .ov-preview-btn.is-exit:hover, #project-mivy .ov-preview-actions .ov-preview-btn.is-exit:hover,
+#project-momentrip .ov-preview-actions .ov-preview-btn.is-exit:focus-visible, #project-mivy .ov-preview-actions .ov-preview-btn.is-exit:focus-visible{
+  background:#fff; border-color:#fff; color:#141414;
+}
+#project-momentrip .ov-preview-actions .ov-preview-btn.is-exit:focus-visible, #project-mivy .ov-preview-actions .ov-preview-btn.is-exit:focus-visible{
+  outline:2px solid var(--entry-accent); outline-offset:3px;
+}
+@media (prefers-reduced-motion:reduce){
+  #project-momentrip .ov-preview-btn.is-primary, #project-mivy .ov-preview-btn.is-primary{ transition:none; }
+  #project-momentrip .ov-preview-btn.is-primary:active, #project-mivy .ov-preview-btn.is-primary:active{ transform:none; }
+}
 /* EXIT must read at a glance over a busy live page: solid light chip */
-#project-momentrip .ov-preview-btn.is-exit{ background:#f4f4f4; border-color:#f4f4f4; color:#141414; }
-#project-momentrip .ov-preview-btn.is-exit:hover,
-#project-momentrip .ov-preview-btn.is-exit:focus-visible{ background:var(--entry-accent); border-color:var(--entry-accent); color:#141414; }
+#project-momentrip .ov-preview-btn.is-exit, #project-mivy .ov-preview-btn.is-exit{ background:#f4f4f4; border-color:#f4f4f4; color:#141414; }
+#project-momentrip .ov-preview-btn.is-exit:hover, #project-mivy .ov-preview-btn.is-exit:hover,
+#project-momentrip .ov-preview-btn.is-exit:focus-visible, #project-mivy .ov-preview-btn.is-exit:focus-visible{ background:var(--entry-accent); border-color:var(--entry-accent); color:#141414; }
 
 /* iframe slot — only ever filled while live; the WebP underneath stays as the loading
    backdrop until the embedded page paints over it */
-#project-momentrip .ov-preview-frame{ display:none; position:absolute; inset:0; z-index:2; overflow:hidden; }
-#project-momentrip .ov-preview:not([data-state="static"]) .ov-preview-frame{ display:block; }
-#project-momentrip .ov-preview-frame::before{
+#project-momentrip .ov-preview-frame, #project-mivy .ov-preview-frame{ display:none; position:absolute; inset:0; z-index:2; overflow:hidden; }
+#project-momentrip .ov-preview:not([data-state="static"]) .ov-preview-frame, #project-mivy .ov-preview:not([data-state="static"]) .ov-preview-frame{ display:block; }
+#project-momentrip .ov-preview-frame::before, #project-mivy .ov-preview-frame::before{
   content:"LOADING LIVE SITE…";
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   padding:8px 14px;
   font-family:inherit; font-size:11px; letter-spacing:.1em;
   background:rgba(20,20,20,.86); color:rgba(244,244,244,.8);
 }
-#project-momentrip .ov-preview-frame iframe{
+#project-momentrip .ov-preview-frame iframe, #project-mivy .ov-preview-frame iframe{
   position:absolute; top:0; left:0; width:100%; height:100%;
   border:0; display:block; background:transparent;
   transform-origin:0 0;
 }
-#project-momentrip .ov-preview:not([data-state="static"]) .ov-meta{ visibility:hidden; }
 
 /* Desktop: wide, viewport-fitted preview box (max 720px tall) in place of the 8:5 ratio */
 @media (min-width:1024px){
@@ -2084,13 +2135,13 @@ html.ws-open.mini-ready .mini-folder-fixed{
 }
 /* Below 1024px: no live preview at all — image + OPEN SITE only */
 @media (max-width:1023px){
-  #project-momentrip .ov-preview-btn[data-preview-launch],
-  #project-momentrip .ov-preview-btn[data-preview-exit],
-  #project-momentrip .ov-preview-frame{ display:none !important; }
+  #project-momentrip .ov-preview-btn[data-preview-launch], #project-mivy .ov-preview-btn[data-preview-launch],
+  #project-momentrip .ov-preview-btn[data-preview-exit], #project-mivy .ov-preview-btn[data-preview-exit],
+  #project-momentrip .ov-preview-frame, #project-mivy .ov-preview-frame{ display:none !important; }
 }
 @media (max-width:767px){
-  #project-momentrip .ov-preview-bar{ padding:8px 8px 8px 12px; font-size:10px; }
-  #project-momentrip .ov-preview-url{ display:none; }
+  #project-momentrip .ov-preview-bar, #project-mivy .ov-preview-bar{ padding:8px 8px 8px 12px; font-size:10px; }
+  #project-momentrip .ov-preview-url, #project-mivy .ov-preview-url{ display:none; }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -2100,9 +2151,8 @@ html.ws-open.mini-ready .mini-folder-fixed{
   #project-momentrip .ed-a .ph[data-ov-visual]{
     clip-path:none; transform:none; transition:none;
   }
-  #project-momentrip .ov-meta{ opacity:1; transform:none; transition:none; }
-  #project-momentrip .ov-preview-bar{ transition:none; }
-  #project-momentrip .ov-preview[data-state="loading"] .ov-preview-status::before{ animation:none; }
+  #project-momentrip .ov-preview-bar, #project-mivy .ov-preview-bar{ transition:none; }
+  #project-momentrip .ov-preview[data-state="loading"] .ov-preview-status::before, #project-mivy .ov-preview[data-state="loading"] .ov-preview-status::before{ animation:none; }
 }
 
 /* ---- Project Detail Background Unification (#project-momentrip only) — the page-level
@@ -2217,6 +2267,16 @@ html.ws-open.mini-ready .mini-folder-fixed{
 #project-momentrip .zoomable:focus-visible::after{ opacity:1; }
 #project-momentrip .zoomable:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:3px; }
 @media (hover:none){ #project-momentrip .zoomable::after{ opacity:1; } }
+/* Touch screens show the chip permanently, and inside the capture's bottom-right corner it
+   sat on real UI (Spot list, category buttons). There it becomes a small tab standing on
+   the frame's top-right edge instead — outside the image. The images are absolutely
+   positioned to fill their box, so dropping the frame's clip changes nothing else.
+   Hover devices keep the original in-image chip. */
+@media (hover:none){
+  #project-momentrip .ed-c-grid .ph.zoomable,
+  #project-momentrip .compare .ph.has-img.zoomable{ overflow:visible; }
+  #project-momentrip .zoomable::after{ bottom:calc(100% + 1px); right:-1px; padding:2px 6px; font-size:9px; }
+}
 
 .lightbox{
   position:fixed; inset:0; z-index:900; /* over the V2 Stage/Navigation (60), under the custom cursor (999) */
@@ -2249,7 +2309,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
 .lightbox-sheet .ph.proc-tokens.is-narrow{ min-height:0; padding:20px 18px; }
 .lightbox-sheet .is-narrow .tk-swatches{ grid-template-columns:repeat(3,1fr); row-gap:14px; }
 @media (prefers-reduced-motion:reduce){ .lightbox{ transition:none; } }
-#project-momentrip .collab .tag{ display:inline-block; max-width:100%; white-space:normal; line-height:1.5; text-transform:none; }
+#project-momentrip .collab .tag{ display:inline-block; max-width:100%; white-space:normal; line-height:1.5; text-transform:none; border:0; padding:0; } /* source caption, not a wireframe chip */
 @media (min-width:701px) and (max-width:1100px){
   #project-momentrip .tk-swatches span{ font-size:8px; }
   #project-momentrip .tk-type{ gap:8px; }
@@ -2594,18 +2654,13 @@ html.ws-open.mini-ready .mini-folder-fixed{
 .ed-c-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:24px; }
 .ed-c-grid .ph{ min-height:220px; }
 @media (max-width:700px){ .ed-c-grid{ grid-template-columns:1fr; } }
-.copy-sm{ font-size:15px; line-height:1.6; color:var(--ink-soft); max-width:56ch; }
+.copy-sm{ font-size:15px; line-height:1.6; color:var(--ink-soft); max-width:56ch; word-break:keep-all; overflow-wrap:break-word; }
 @media (max-width:700px){
   .copy-sm{ font-size:13px; line-height:1.55; }
 }
 @media (max-width:700px){
   #project-archive .project-name{ font-size:clamp(26px,8vw,34px); }
   #project-archive .copy-sm{ font-size:12px; line-height:1.5; }
-}
-@media (max-width:700px){
-  /* inline style="font-size:16px" on the About intro paragraph outranks any non-!important
-     class rule; !important is the only way to reach it without touching the HTML. */
-  #about .copy-sm{ font-size:12px !important; line-height:1.5; }
 }
 .label-sm{ font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--tag); margin-bottom:10px; }
 
@@ -2645,7 +2700,7 @@ html.ws-open.mini-ready .mini-folder-fixed{
 .compare-label{ font-size:12px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; color:var(--ink-soft); }
 .why{ font-weight:800; font-size:16px; letter-spacing:.04em; text-transform:uppercase; margin-bottom:14px; }
 .why-list{ list-style:none; margin:0; padding:0; display:inline-flex; flex-direction:column; gap:6px; text-align:left; }
-.why-list li{ font-size:14px; color:var(--ink-soft); }
+.why-list li{ font-size:14px; color:var(--ink-soft); word-break:keep-all; overflow-wrap:break-word; }
 .why-list b{ color:var(--ink); margin-right:8px; }
 .collab.compact .compare .ph{ min-height:180px; }
 .collab.compact .why-list li{ font-size:13px; }
@@ -2714,6 +2769,31 @@ html.ws-open.mini-ready .mini-folder-fixed{
 @media (max-width:700px){ .about-cols{ grid-template-columns:1fr; gap:36px; } }
 .about-cols ul{ list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
 .about-cols li{ font-size:14px; color:var(--ink-soft); border-bottom:1px dotted var(--line-soft); padding-bottom:8px; }
+/* ABOUT content blocks — built only from the tokens/classes the section already used
+   (.label-sm, .copy-sm, the dotted .about-cols list, var(--ink*)/var(--line-soft)), so it
+   follows the V2 dark tokens on Desktop and the light theme on Mobile automatically. */
+.about-intro{ margin-top:clamp(32px,4vw,48px); }
+.about-lead{
+  margin:0; font-size:clamp(22px,2.9vw,38px); font-weight:800; line-height:1.12;
+  letter-spacing:-.01em; text-transform:uppercase; color:var(--ink);
+}
+.about-text{ margin:18px 0 0; font-size:16px; max-width:62ch; word-break:keep-all; }
+.about-key{
+  display:block; margin-bottom:4px;
+  font-size:11px; font-weight:700; letter-spacing:.12em; color:var(--ink);
+}
+.about-skills li{ line-height:1.5; }
+.about-approach{ margin-top:clamp(48px,6vw,72px); }
+.about-steps{
+  list-style:none; margin:14px 0 0; padding:0;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:20px 48px;
+}
+.about-steps li{ padding-top:14px; border-top:1px solid var(--line-soft); }
+.about-steps p{ margin:6px 0 0; font-size:14px; line-height:1.6; color:var(--ink-soft); word-break:keep-all; }
+@media (max-width:700px){
+  .about-steps{ grid-template-columns:1fr; gap:20px; }
+  .about-text{ font-size:14px; line-height:1.6; }
+}
 
 #contact{
   min-height:100vh;
@@ -2725,19 +2805,10 @@ html.ws-open.mini-ready .mini-folder-fixed{
 }
 .contact-links{ display:flex; flex-direction:column; gap:10px; }
 .contact-links a{ font-size:clamp(16px,2vw,20px); text-decoration:underline; text-underline-offset:4px; }
-
-/* meta corner tag */
-.meta-corner{
-  position:fixed; left:14px; bottom:14px;
-  font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
-  color:var(--ink-soft);
-  background:var(--bg);
-  border:1px solid var(--line-soft);
-  padding:6px 10px;
-  pointer-events:none;
-  z-index:50;
-}
-
+.contact-note{ margin:0; max-width:46ch; word-break:keep-all; }
+.contact-links a{ transition:text-decoration-color .18s ease; }
+.contact-links a:hover{ text-decoration-color:var(--entry-accent); }
+.contact-links a:focus-visible{ outline:2px solid var(--entry-accent); outline-offset:4px; }
 /* ============ PROJECT 02 · MIVY — Minimum Public Case Study ============
    Every rule here is scoped to #project-mivy / .mivy-* on purpose. Nothing global is
    redefined and no MOMENTRIP selector is extended, so this block cannot reach
@@ -2795,25 +2866,108 @@ html.ws-open.mini-ready .mini-folder-fixed{
 .mivy-copy{ margin-top:18px; word-break:keep-all; text-wrap:pretty; }
 .mivy-copy + .mivy-copy{ margin-top:12px; }
 
-/* Feature Index — a numbered index, not a bullet list. Thin low-contrast rules only
-   (rgba(244,244,244,.16), the same density SELECTED WORKS' own row dividers use), no
-   cards, no fills, no borders on the outside. */
+/* Real captures (assets/images/mivy/). The frame background is MIVY's own app surface
+   (#F7F7FA, its manifest background_color) so a capture never flashes dark-on-dark while
+   it decodes — the only place MIVY's palette appears; the portfolio accent stays lime. */
+.mivy-shot{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(244,244,244,.2);
+  background:#F7F7FA;
+}
+.mivy-shot img{ display:block; width:100%; height:auto; }
+.mivy-shot-phone{ border-radius:14px; aspect-ratio:520/1125; }
+.mivy-shot-desktop{ aspect-ratio:16/10; }
+
+/* Zoomable captures — same quiet affordance as #project-momentrip .zoomable (that rule is
+   scoped to MOMENTRIP, so it is mirrored here instead of widened). The lightbox itself is
+   the shared one in js/main.js. */
+#project-mivy .zoomable{ cursor:zoom-in; transition:border-color .2s ease; }
+#project-mivy .zoomable::after{
+  content:"+ ZOOM";
+  position:absolute; right:8px; bottom:8px; z-index:1;
+  padding:3px 7px;
+  font-family:ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  font-size:10px; letter-spacing:.1em;
+  background:rgba(20,20,20,.82); color:#f4f4f4;
+  opacity:0; transition:opacity .2s ease;
+  pointer-events:none;
+}
+#project-mivy .zoomable:hover,
+#project-mivy .zoomable:focus-visible{ border-color:rgba(244,244,244,.5); }
+#project-mivy .zoomable:hover::after,
+#project-mivy .zoomable:focus-visible::after{ opacity:1; }
+#project-mivy .zoomable:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:3px; }
+@media (hover:none){ #project-mivy .zoomable::after{ opacity:1; } }
+/* Touch: same outside-the-image tab as MOMENTRIP (in-image it covered the captured app's
+   bottom navigation). The phone frame's rounded clip moves onto the image itself. */
+@media (hover:none){
+  #project-mivy .mivy-shot.zoomable{ overflow:visible; }
+  #project-mivy .mivy-shot-phone img{ border-radius:13px; }
+  #project-mivy .zoomable::after{ bottom:calc(100% + 1px); right:-1px; padding:2px 6px; font-size:9px; }
+}
+
+/* LIVE PREVIEW (01 OVERVIEW) — bar/button/frame styling is the shared MOMENTRIP rule set
+   above; only MIVY's own box is set up here. The bar's border matches .mivy-shot's 1px
+   (MOMENTRIP's .ph is 1.5px), and the iframe slot is laid over the capture. */
+#project-mivy .ov-preview-bar{ border-width:1px; }
+#project-mivy .mivy-preview-box{ position:relative; }
+/* While live, the box never grows past the Stage viewport (minus the bar and a little air)
+   so the whole app — incl. its bottom edge — stays on screen on short laptops (1366x768).
+   The capture underneath is only the loading backdrop then, so cropping it is fine. */
+#project-mivy .ov-preview:not([data-state="static"]) .mivy-shot-desktop{
+  max-height:calc(100vh - 110px); overflow:hidden;
+}
+/* the caption names the static capture; while live it would mislabel the app —
+   OPEN APP ↗ beside it stays */
+#project-mivy .ov-preview:not([data-state="static"]) .mivy-cap b{ visibility:hidden; }
+/* Touch screens: the outside "+ ZOOM" tab would sit on the preview bar (shown at every
+   width), so for this one capture it goes back inside its (empty) bottom-right corner. */
+@media (hover:none){
+  #project-mivy .ov-preview .zoomable::after{ bottom:8px; right:8px; }
+}
+/* 01 representative screen + caption row (same mono caption tiers as MOMENTRIP .proc-cap) */
+.mivy-overview{ margin:clamp(32px,4vw,52px) 0 0; }
+.mivy-cap{
+  display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:6px 16px;
+  margin-top:12px; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:rgba(244,244,244,.42);
+}
+.mivy-cap b{ font-weight:600; color:rgba(244,244,244,.78); }
+.mivy-link{
+  color:rgba(244,244,244,.78); text-decoration:none;
+  border-bottom:1px solid rgba(244,244,244,.3); padding-bottom:2px;
+  transition:color .2s ease, border-color .2s ease;
+}
+.mivy-link:hover, .mivy-link:focus-visible{ color:var(--entry-accent); border-color:var(--entry-accent); }
+.mivy-link:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:3px; }
+/* Touch: invisible 44px-tall hit area; the underline (border-bottom) stays where it was. */
+@media (max-width:1023px){
+  .mivy-link{ position:relative; }
+  .mivy-link::after{ content:""; position:absolute; inset:-14px -8px; }
+}
+
+/* 02 Feature Index — each item is a phone capture, then the numbered index entry under a
+   thin low-contrast rule (rgba(244,244,244,.16), the density SELECTED WORKS' row dividers
+   use). No cards, no fills. */
 .mivy-features{
   list-style:none;
   margin:34px 0 0;
   padding:0;
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:0 clamp(20px,2.6vw,40px);
+  gap:44px clamp(20px,2.6vw,40px);
 }
 .mivy-feature{
   display:flex;
   flex-direction:column;
   gap:10px;
-  padding-top:18px;
-  border-top:1px solid rgba(244,244,244,.16);
+  min-width:0;
 }
 .mivy-feature-num{
+  margin-top:12px;
+  padding-top:16px;
+  border-top:1px solid rgba(244,244,244,.16);
   font-size:12px; letter-spacing:.14em;
   color:var(--entry-accent);
 }
@@ -2832,29 +2986,80 @@ html.ws-open.mini-ready .mini-folder-fixed{
   text-wrap:pretty;
 }
 
+/* 03 Implementation — a three-column ledger: user action → how → measured result. */
+.mivy-impl{ margin-top:34px; border-bottom:1px solid rgba(244,244,244,.16); }
+.mivy-impl-row{
+  display:grid;
+  grid-template-columns:minmax(150px,1fr) 2.6fr minmax(180px,1.15fr);
+  gap:8px clamp(20px,2.6vw,40px);
+  padding:20px 0;
+  border-top:1px solid rgba(244,244,244,.16);
+}
+.mivy-impl-head{
+  padding:0 0 12px; border-top:0;
+  font-size:11px; letter-spacing:.14em; color:rgba(244,244,244,.42);
+}
+.mivy-impl-action{
+  font-size:15px; font-weight:700; color:#f4f4f4; word-break:keep-all;
+}
+.mivy-impl-action i{
+  display:block; margin-bottom:6px;
+  font-style:normal; font-size:12px; letter-spacing:.14em; color:var(--entry-accent);
+}
+.mivy-impl-how{
+  font-size:13.5px; line-height:1.68; color:rgba(244,244,244,.68);
+  word-break:keep-all; text-wrap:pretty;
+}
+.mivy-impl-result{
+  font-size:12px; line-height:1.7; letter-spacing:.04em; color:rgba(244,244,244,.86);
+}
+
+.mivy-note{ margin-top:26px; }
+
+/* 04 Device showcase — the shared .devicewrap/.devices/.device layout, retoned for the
+   Dark Zone exactly the way #project-momentrip retones it (those rules are scoped there).
+   The phone screen follows MIVY's 390x844 capture instead of the 9:18.5 default, so the
+   bottom navigation is not cropped. */
+.mivy-devicewrap .chapter-label{ margin-bottom:clamp(28px,3.5vw,44px); }
+.mivy-devicewrap .mivy-note{ margin-top:clamp(44px,5vw,64px); text-align:center; }
+#project-mivy .device{ border-color:rgba(244,244,244,.22); background:rgba(244,244,244,.04); }
+#project-mivy .device-scr{ overflow:hidden; background:#F7F7FA; }
+#project-mivy .device.desktop .device-scr{ border-color:rgba(244,244,244,.22); }
+#project-mivy .device.desktop .device-base{ background:rgba(244,244,244,.3); }
+#project-mivy .device.mobile .home{ background:rgba(244,244,244,.3); }
+#project-mivy .device.mobile .device-scr{ aspect-ratio:390/844; }
+#project-mivy .device-scr > img{
+  display:block; width:100%; height:100%;
+  object-fit:cover; object-position:top center;
+}
+
 /* .tag's shared palette (var(--tag) ink on a var(--line-soft) dashed border) is tuned for
    the Light page surface and reads either muddy or too bright on the Dark Zone — retoned
    to the Dark Zone's own tiers here only, inside MIVY. */
-.mivy-note{ margin-top:26px; }
 .mivy-note .tag{
   color:rgba(244,244,244,.5);
-  border-color:rgba(244,244,244,.22);
+  border:0; padding:0; /* capture-source caption, not a wireframe chip */
 }
 
-/* Tablet: 4 columns would squeeze the Korean descriptions, 2x2 keeps them readable while
-   the Feature Index still reads as a grid rather than a stack. */
+/* Tablet: 4 phones would shrink below legibility — 2x2 keeps each capture readable. */
 @media (max-width:1024px){
-  .mivy-features{ grid-template-columns:repeat(2,1fr); gap:0 clamp(20px,3vw,32px); }
+  .mivy-features{ grid-template-columns:repeat(2,1fr); gap:44px clamp(20px,3vw,32px); }
+  .mivy-features .mivy-shot-phone{ max-width:300px; }
 }
-/* Mobile: the project's existing 700px breakpoint. Natural stack, no separate mobile
-   design — same sizes stepped down the way .copy-sm already steps itself down. */
+/* Mobile: the project's existing 700px breakpoint. Phones stay two-up (one column of tall
+   phone captures would be ~4 screens of scrolling); the ledger stacks into one column. */
 @media (max-width:700px){
   .mivy-lead{ font-size:clamp(17px,4.6vw,21px); max-width:none; }
-  .mivy-features{ grid-template-columns:1fr; gap:0; margin-top:26px; }
-  .mivy-feature{ padding-top:16px; margin-top:16px; }
-  .mivy-feature:first-child{ margin-top:0; }
+  .mivy-features{ gap:32px 16px; margin-top:26px; }
+  .mivy-feature{ gap:8px; }
+  .mivy-feature-num{ margin-top:8px; padding-top:12px; }
+  .mivy-feature-title{ font-size:14px; }
   .mivy-feature-desc{ font-size:12.5px; }
+  .mivy-impl-row{ grid-template-columns:1fr; gap:8px; padding:18px 0; }
+  .mivy-impl-head{ display:none; }
+  .mivy-impl-how{ font-size:13px; }
   .mivy-note .tag{ white-space:normal; }
+  .mivy-cap{ flex-direction:column; align-items:flex-start; }
 }
 
 /* NEXT PROJECT stays outside .pd-dark-zone (same structure MOMENTRIP uses) so it keeps the
@@ -2881,4 +3086,432 @@ html.ws-open.mini-ready .mini-folder-fixed{
 }
 @media (prefers-reduced-motion:reduce){
   #project-mivy.mivy-motion-ready [data-mivy-reveal]{ transform:none; transition:opacity .2s ease; }
+}
+
+/* =====================================================================================
+   MOBILE V2 (< 1024px) — the same V2 identity Desktop gets from css/workspace-v2.css,
+   rebuilt for touch instead of scaled down:
+     · #entry-hero (V1 folder entry + "8 YEARS…" Hero) and #mini-folder are hidden here,
+       exactly as Desktop V2 hides them at >= 1024px.
+     · #m-intro = the V2 Intro scene: AI presence point, DESIGN × CODE × AI, the three
+       process steps and the Prompt frame with RUN — one static composition.
+     · #m-nav = V2 Project Navigation for touch: the Folder trigger (same closed/open
+       assets as Desktop's left-edge tab) opening a curved bottom sheet, plus the lime
+       reading-progress hairline on the bottom edge (Desktop's .v2-progress-line).
+     · project NEXT rows and CONTACT take V2's outline-button language.
+     · STAGES: one screen at a time, like Desktop — see the STAGES block below.
+   Everything here is scoped to max-width:1023px (or display:none above it).
+   ===================================================================================== */
+.m-intro, .m-nav{ display:none; }
+.m-sr{
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;
+}
+
+@media (max-width:1023px){
+  #entry-hero, #mini-folder, #folder-exit-mask{ display:none; }
+
+  /* ---------------------------------------------------------------- INTRO -- */
+  .m-intro{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative; overflow:hidden; isolation:isolate;
+    min-height:100vh; min-height:100svh;
+    padding:96px 20px 120px;
+    background:#121212; color:#f4f4f4; text-align:center;
+  }
+  .m-intro-bg{ position:absolute; inset:0; z-index:-1; pointer-events:none; }
+  .m-frag{
+    position:absolute; font-size:10px; line-height:1.5; letter-spacing:.02em;
+    color:rgba(244,244,244,.09); white-space:nowrap; text-align:left;
+  }
+  .m-frag.is-accent{ color:rgba(193,248,92,.22); }
+  .m-frag-1{ top:12%; left:6%; }
+  .m-frag-2{ bottom:4%; left:6%; }
+  .m-frag-3{ top:31%; left:-4%; }
+  .m-frag-4{ top:9%; right:24%; }
+  .m-frag-5{ bottom:20%; left:5%; }
+  .m-frag-6{ bottom:9%; right:6%; }
+  .m-frag-7{ bottom:15%; right:18%; }
+
+  .m-intro-top{
+    position:absolute; top:20px; left:20px; right:20px;
+    display:flex; justify-content:space-between; gap:12px;
+    font-size:10px; letter-spacing:.14em; color:rgba(244,244,244,.5);
+  }
+  .m-intro-status i{
+    display:inline-block; width:5px; height:5px; margin-right:7px; vertical-align:middle;
+    border-radius:50%; background:var(--entry-accent);
+  }
+
+  /* ---------------------------------------------------------- INTRO MOTION --
+     The Desktop intro sequence, replayed on the mobile document by the MOBILE
+     INTRO block in js/workspace-v2.js with the SAME timing table (T), the SAME
+     state classes and the SAME transition values as css/workspace-v2.css:
+       core .is-on -> .is-morphing -> .is-done   (dot / halo / line / AI label)
+       frame .is-elevated -> .is-in -> .is-resting (rises to centre, types, descends)
+       bg .is-in -> mark .is-in -> steps .is-in    (atmosphere, title, 3-step stagger)
+       run .is-armed                               (RUN last, nothing auto-advances)
+       intro .is-run                               (RUN: the scene fades, Works enters)
+     Only the geometry is mobile's own: the frame descends into the document's
+     normal flow (title -> steps -> frame), which already is Desktop's composed
+     "message above the Prompt" rest position. Without JS the <noscript> block in
+     index.html shows the written state. */
+  .m-intro-top{ opacity:0; transition:opacity .5s ease; }
+  .m-intro-top.is-in{ opacity:1; }
+
+  /* AI PRESENCE — Desktop .v2-core values: fixed over the viewport centre, so the
+     dot's travel to the Prompt frame / caret is measured live in viewport pixels */
+  .m-intro-core{ position:fixed; inset:0; z-index:4; pointer-events:none; }
+  .m-intro-core.is-done{ display:none; }
+  .m-intro-dot{
+    position:fixed; left:50%; top:50%; width:9px; height:9px;
+    transform:translate(-50%,-50%);
+    border-radius:50%; background:var(--entry-accent);
+    opacity:0; transition:opacity .5s ease;
+  }
+  .m-intro-core.is-on .m-intro-dot{ opacity:1; }
+  .m-intro-halo{
+    position:fixed; left:50%; top:50%; width:136px; aspect-ratio:1/1;
+    transform:translate(-50%,-50%) scale(.94);
+    border:2px solid rgba(193,248,92,.4); border-radius:50%;
+    opacity:0;
+    transition:opacity .55s .12s ease, transform .55s .12s cubic-bezier(.16,1,.3,1);
+  }
+  .m-intro-core.is-on .m-intro-halo{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  .m-intro-core.is-morphing .m-intro-halo{ opacity:0; transition:opacity .4s ease; }
+  .m-intro-line{
+    position:fixed; left:50%; top:50%; width:0; height:2px; margin-top:-1px;
+    transform:translateX(-50%); background:var(--entry-accent); opacity:0;
+  }
+  .m-intro-ai{
+    position:fixed; left:50%; top:50%; transform:translate(-50%,36px);
+    display:flex; flex-direction:column; align-items:center; gap:7px;
+    opacity:0; transition:opacity .5s .38s ease;
+  }
+  .m-intro-ai-text{ font-size:12px; letter-spacing:.4em; text-transform:uppercase; white-space:nowrap; color:rgba(244,244,244,.42); }
+  .m-intro-ai-rule{
+    display:block; width:0; height:1px; background:var(--entry-accent);
+    transition:width .45s .5s cubic-bezier(.16,1,.3,1);
+  }
+  .m-intro-core.is-on .m-intro-ai{ opacity:1; }
+  .m-intro-core.is-on .m-intro-ai-rule{ width:34px; }
+  .m-intro-core.is-morphing .m-intro-ai{ opacity:0; }
+
+  /* TITLE — one centred axis. On phones each term takes its own line and the "×"
+     hangs to the left of its word (out of flow), so DESIGN / CODE / AI themselves
+     sit on the same centre line as the steps and the Prompt frame below. */
+  .m-intro-mark{
+    margin:0; max-width:100%; font-size:clamp(30px,6.6vw,64px); font-weight:800; line-height:1;
+    letter-spacing:-.01em; text-transform:uppercase; white-space:nowrap; text-align:center;
+    opacity:0; transform:translateY(10px);
+    transition:opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);
+  }
+  .m-intro-mark.is-in{ opacity:1; transform:none; }
+  .m-intro-mark i{ font-style:normal; color:rgba(244,244,244,.34); font-weight:700; }
+  .m-accent{ color:var(--entry-accent); }
+
+  .m-intro-steps{
+    list-style:none; margin:20px 0 0; padding:0;
+    display:flex; flex-wrap:wrap; justify-content:center; gap:8px 12px;
+    font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:rgba(244,244,244,.5);
+  }
+  .m-intro-steps li{
+    display:flex; align-items:center; gap:7px;
+    opacity:0; transform:translateY(8px);
+    transition:opacity .42s ease, transform .42s cubic-bezier(.16,1,.3,1);
+  }
+  .m-intro-steps.is-in li{ opacity:1; transform:none; }
+  .m-intro-steps.is-in li:nth-child(1){ transition-delay:0ms; }
+  .m-intro-steps.is-in li:nth-child(2){ transition-delay:160ms; }
+  .m-intro-steps.is-in li:nth-child(3){ transition-delay:320ms; }
+  .m-intro-steps li i{ font-style:normal; font-weight:700; color:var(--entry-accent); }
+  .m-intro-steps li + li::before{ content:"→"; margin-right:5px; color:rgba(244,244,244,.26); }
+
+  /* PROMPT FRAME — Desktop .v2-frame motion: opacity .45s, and one .64s transform
+     carrying both the rise to centre (.is-elevated, --m-rise measured live) and the
+     descent back into place (.is-resting). */
+  .m-intro-frame{
+    position:relative; z-index:1;
+    width:100%; max-width:520px; margin-top:32px; padding:18px 18px 14px;
+    background:#1b1b1b; border:1px solid rgba(244,244,244,.12); border-radius:16px;
+    text-align:left; font-size:11.5px; line-height:1.6;
+    opacity:0;
+    transition:opacity .45s ease, transform .64s cubic-bezier(.16,1,.3,1);
+  }
+  .m-intro-frame.is-in{ opacity:1; }
+  .m-intro-frame.is-elevated{ transform:translateY(var(--m-rise, 0px)); }
+  .m-intro-frame.is-resting{ transform:none; }
+  .m-intro-prompt{ margin:0; display:flex; flex-direction:column; gap:10px; }
+  .m-intro-prompt > div{ display:grid; grid-template-columns:68px 1fr; gap:10px; }
+  .m-intro-prompt dt{ font-size:10.5px; font-weight:700; letter-spacing:.08em; color:#f4f4f4; }
+  .m-intro-prompt dd{ margin:0; color:rgba(244,244,244,.72); overflow-wrap:anywhere; }
+  /* the Desktop Prompt caret (.v2-caret): 2px lime bar, 1s stepped blink */
+  .m-caret{
+    display:inline-block; width:2px; height:1.05em; margin-left:1px; vertical-align:-.16em;
+    background:var(--entry-accent); opacity:0;
+  }
+  .m-caret.is-on{ opacity:1; }
+  @media (prefers-reduced-motion:no-preference){
+    .m-caret.is-blinking{ animation:m-blink 1s steps(1,end) infinite; }
+  }
+  @keyframes m-blink{ 0%,49%{ opacity:1; } 50%,100%{ opacity:0; } }
+  .m-intro-foot{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-top:16px; padding-top:12px; border-top:1px solid rgba(244,244,244,.1);
+    font-size:10px; letter-spacing:.12em; color:rgba(244,244,244,.4);
+  }
+  /* RUN — dim and inert until armed, exactly like .v2-run / .v2-run.is-armed */
+  .m-intro-run{
+    display:inline-flex; align-items:center; gap:8px; flex:none;
+    min-height:44px; padding:0 16px;
+    border:1px solid rgba(244,244,244,.12); border-radius:2px;
+    font-size:11px; font-weight:700; letter-spacing:.12em; color:rgba(244,244,244,.26);
+    text-decoration:none;
+    opacity:.5; pointer-events:none;
+    transition:color .3s ease, border-color .3s ease, opacity .3s ease, background-color .2s ease;
+  }
+  .m-intro-run.is-armed{ opacity:1; pointer-events:auto; color:var(--entry-accent); border-color:var(--entry-accent); }
+  .m-intro-run i{ font-style:normal; }
+  .m-intro-run.is-armed:hover, .m-intro-run.is-armed:active{ background:var(--entry-accent); color:#141414; }
+  .m-intro-run:focus-visible{ outline:2px solid var(--entry-accent); outline-offset:3px; }
+
+  /* SKIP — Desktop .v2-skip: visible while the sequence plays, gone once armed */
+  .m-intro-skip{
+    position:fixed; right:12px; bottom:12px; z-index:5;
+    min-width:44px; min-height:44px; padding:0 10px;
+    appearance:none; background:none; border:0; cursor:pointer;
+    font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:rgba(244,244,244,.26);
+    opacity:0; pointer-events:none;
+    transition:opacity .4s ease, color .2s ease;
+  }
+  .m-intro-skip.is-in{ opacity:1; pointer-events:auto; }
+  .m-intro-skip:hover, .m-intro-skip:focus-visible{ color:#f4f4f4; }
+  .m-intro-skip.is-done{ opacity:0; pointer-events:none; visibility:hidden; }
+
+  /* atmosphere — Desktop .v2-bg-fx / .v2-code-frag reveal values */
+  .m-intro-bg{ opacity:0; transition:opacity .4s ease; }
+  .m-intro-bg.is-in{ opacity:1; }
+  .m-intro-bg .m-frag{ opacity:0; transform:translateY(6px); transition:opacity .62s cubic-bezier(.16,1,.3,1), transform .62s cubic-bezier(.16,1,.3,1); }
+  .m-intro-bg.is-in .m-frag{ opacity:1; transform:none; }
+
+  /* Until the intro is armed the Navigation stays out of the way, as Desktop's tab
+     only appears after the intro; it fades in the moment RUN is armed (#m-intro
+     .is-ready). A sibling selector, so it holds from the first paint — no flash. */
+  .m-nav-trigger, .m-progress{ transition:opacity .35s ease, visibility 0s; }
+  .m-intro:not(.is-ready) ~ .m-nav .m-nav-trigger,
+  .m-intro:not(.is-ready) ~ .m-nav .m-progress{ opacity:0; visibility:hidden; pointer-events:none; }
+
+  /* RUN -> WORKSPACE: Desktop's #v2.is-ws fade of the prompt scene (.4s / .3s),
+     then SELECTED WORKS enters as a Stage (see STAGES below). */
+  .m-intro.is-run .m-intro-frame{ opacity:0; transition:opacity .4s ease; }
+  .m-intro.is-run .m-intro-mark,
+  .m-intro.is-run .m-intro-steps,
+  .m-intro.is-run .m-intro-bg{ opacity:0; transition:opacity .3s ease; }
+
+  @media (prefers-reduced-motion:reduce){
+    .m-intro-top, .m-intro-dot, .m-intro-halo, .m-intro-ai, .m-intro-ai-rule,
+    .m-intro-mark, .m-intro-steps li, .m-intro-frame, .m-intro-run, .m-intro-skip,
+    .m-intro-bg, .m-intro-bg .m-frag, .m-nav-trigger, .m-progress{ transition-duration:.001s !important; transition-delay:0s !important; }
+    .m-intro-frame.is-elevated, .m-intro-mark, .m-intro-steps li, .m-intro-bg .m-frag{ transform:none; }
+  }
+
+  /* ---------------------------------------------------------------- STAGES --
+     Mobile runs on Desktop V2's Stage model: one screen at a time, never one long
+     document. html.m-stage is set by js/workspace-v2.js (without JS the plain long
+     page below stays as it was). The document itself never scrolls (as on Desktop):
+       #m-intro  = the INTRO Stage, fixed over the viewport.
+       #v2-host  = display:contents in css/workspace-v2.css below 1024px; here it is
+                   the one fixed scroll box every workspace Stage lives in, exactly
+                   Desktop's #v2-host. Desktop setStage() marks the current section
+                   .is-stage; html.m-ws = the workspace has been entered (RUN, the
+                   Navigation, a deep link or Back/Forward).
+     Only the current Stage is rendered (display:none for the rest: no paint, no
+     focus) and only it scrolls, internally. inset:0 follows the dynamic viewport,
+     so the browser bar showing / hiding never leaves a gap or clips a Stage. */
+  html.m-stage, html.m-stage body{ height:100%; overflow:hidden; }
+  html.m-stage .m-intro{
+    position:fixed; inset:0; z-index:2; min-height:0;
+    overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain;
+    justify-content:flex-start;
+  }
+  /* centred like justify-content:center, but a short screen scrolls the scene
+     instead of clipping its top */
+  html.m-stage .m-intro-mark{ margin-top:auto; }
+  html.m-stage .m-intro-frame{ margin-bottom:auto; }
+  html.m-stage.m-ws .m-intro{ display:none; }
+  html.m-stage #v2-host{ display:none; }
+  html.m-stage.m-ws #v2-host{
+    display:block; position:fixed; inset:0; z-index:1;
+    overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain;
+    background:var(--bg);
+  }
+  html.m-stage #v2-host > section:not(.is-stage){ display:none; }
+  /* Desktop's v2-stage-in (.42s, 10px rise), replayed each time a Stage appears.
+     Stage tops sit on the screen edge, so the long page's section divider goes, as
+     on Desktop; the bottom clears the fixed Folder trigger. */
+  html.m-stage #v2-host > section.is-stage{
+    min-height:100%; border-top:none;
+    padding-bottom:calc(96px + env(safe-area-inset-bottom));
+    animation:m-stage-in .42s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.m-stage #v2-host > #contact.is-stage{ padding-bottom:calc(128px + env(safe-area-inset-bottom)); }
+  html.m-stage #v2-host > section:focus, html.m-stage .m-intro:focus{ outline:none; }
+  @keyframes m-stage-in{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion:reduce){
+    html.m-stage #v2-host > section.is-stage{ animation:none; }
+  }
+
+  /* ------------------------------------------------------------ NAVIGATION -- */
+  .m-nav{ display:block; }
+  html.m-nav-lock{ overflow:hidden; }
+
+  .m-progress{
+    position:fixed; left:0; right:0; bottom:0; z-index:70; height:2px;
+    background:rgba(244,244,244,.12); pointer-events:none;
+  }
+  .m-progress i{
+    position:absolute; inset:0; transform:scaleX(0); transform-origin:0 50%;
+    background:var(--entry-accent);
+  }
+
+  .m-nav-trigger{
+    position:fixed; z-index:73;
+    right:max(12px, env(safe-area-inset-right)); bottom:calc(14px + env(safe-area-inset-bottom));
+    width:60px; height:52px; padding:0;
+    display:grid; place-items:center;
+    appearance:none; cursor:pointer;
+    background:#1b1b1b; border:1px solid rgba(244,244,244,.14); border-radius:16px;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+  .m-nav-trigger:focus-visible{ outline:2px solid var(--entry-accent); outline-offset:3px; }
+  .m-nav-trigger-visual{ position:relative; display:block; width:36px; aspect-ratio:410/337; }
+  .m-nav-trigger-visual img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+    transition:opacity .22s cubic-bezier(.16,1,.3,1);
+  }
+  .m-nav-trigger-open{ opacity:0; }
+  .m-nav.is-open .m-nav-trigger-closed{ opacity:0; }
+  .m-nav.is-open .m-nav-trigger-open{ opacity:1; }
+
+  .m-nav-scrim{
+    position:fixed; inset:0; z-index:71;
+    background:rgba(10,10,10,.62);
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  .m-nav.is-open .m-nav-scrim{ opacity:1; pointer-events:auto; }
+
+  /* the sheet: Desktop's curved shell turned to rise from the bottom edge */
+  .m-nav-sheet{
+    position:fixed; left:0; right:0; bottom:0; z-index:72;
+    display:flex; flex-direction:column;
+    max-height:calc(100vh - 24px); max-height:calc(100svh - 24px);
+    transform:translateY(105%); visibility:hidden;
+    transition:transform .3s cubic-bezier(.4,0,1,1), visibility 0s linear .3s;
+  }
+  .m-nav.is-open .m-nav-sheet{
+    transform:none; visibility:visible;
+    transition:transform .42s cubic-bezier(.16,1,.3,1), visibility 0s;
+  }
+  .m-nav-surface{ display:block; flex:none; width:100%; height:40px; margin-bottom:-1px; }
+  .m-nav-surface path{ fill:#1b1b1b; }
+  .m-nav-body{
+    overflow-y:auto; overscroll-behavior:contain;
+    padding:0 24px calc(92px + env(safe-area-inset-bottom));
+    background:#1b1b1b; color:#f4f4f4;
+  }
+  .m-nav-head{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:10px; letter-spacing:.14em; color:rgba(244,244,244,.42);
+  }
+  .m-nav-close{
+    min-height:44px; padding:0 0 0 12px; appearance:none; background:none; border:0; cursor:pointer;
+    font:inherit; font-size:11px; font-weight:600; letter-spacing:.14em; color:#f4f4f4;
+  }
+  .m-nav-close i{ font-style:normal; margin-left:4px; }
+  .m-nav-close:focus-visible{ outline:2px solid var(--entry-accent); outline-offset:2px; }
+  .m-nav-list{ list-style:none; margin:6px 0 0; padding:0; border-top:1px solid rgba(244,244,244,.1); }
+  .m-nav-item{
+    display:flex; align-items:baseline; gap:12px;
+    min-height:54px; padding:14px 0 10px;
+    border-bottom:1px solid rgba(244,244,244,.08);
+    font-size:26px; font-weight:800; line-height:1.1; letter-spacing:-.005em; text-transform:uppercase;
+    color:#f4f4f4; text-decoration:none;
+    transition:color .2s ease;
+  }
+  .m-nav-item i{
+    flex:none; width:22px; font-style:normal;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:11px; font-weight:600; letter-spacing:.06em; color:rgba(244,244,244,.32);
+  }
+  .m-nav-item.is-sub{
+    align-items:center;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:13px; font-weight:600; letter-spacing:.14em; color:rgba(244,244,244,.72);
+  }
+  a.m-nav-item:hover, a.m-nav-item:active, a.m-nav-item:focus-visible,
+  .m-nav-item[aria-current="true"]{ color:var(--entry-accent); }
+  a.m-nav-item:focus-visible{ outline:2px solid var(--entry-accent); outline-offset:-2px; }
+  .m-nav-item.is-soon{ color:rgba(244,244,244,.3); cursor:default; }
+  .m-nav-soon{
+    margin-left:auto; align-self:center; padding:2px 5px 1px;
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:9px; font-weight:600; letter-spacing:.14em; line-height:1.2;
+    color:rgba(244,244,244,.5); border:1px solid currentColor; border-radius:2px;
+  }
+  .m-nav-foot{
+    margin:20px 0 0; font-size:10.5px; letter-spacing:.14em; color:rgba(244,244,244,.42);
+  }
+  .m-nav-foot i{ font-style:normal; color:rgba(244,244,244,.24); }
+  @media (prefers-reduced-motion:reduce){
+    .m-nav-sheet, .m-nav.is-open .m-nav-sheet, .m-nav-scrim, .m-nav-trigger-visual img{ transition:none; }
+  }
+
+  /* ------------------------------------------------------- PROJECT DETAIL -- */
+  /* NEXT: the V1 oversized "NEXT PROJECT / 02 / MIVY →" block becomes a V2 index row —
+     same hairlines, mono index and Large Sans name as SELECTED WORKS, lime arrow button. */
+  .next{
+    margin-top:clamp(56px,12vw,88px); padding:20px 0;
+    border-top:1px solid rgba(244,244,244,.14); border-bottom:1px solid rgba(244,244,244,.14);
+    gap:16px;
+  }
+  .next-left{ flex-direction:row; flex-wrap:wrap; align-items:baseline; gap:6px 12px; min-width:0; }
+  .next-left .kicker{ flex-basis:100%; margin:0; font-size:10px; letter-spacing:.16em; }
+  .next-num, #project-momentrip .next-num, #project-mivy .next-num{
+    font-family:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:12px; font-weight:600; letter-spacing:.06em; color:var(--entry-accent);
+  }
+  .next-name{ font-size:clamp(28px,8.4vw,44px); line-height:1; }
+  .next-arrow{
+    display:grid; place-items:center; flex:none;
+    width:48px; height:48px; border:1px solid rgba(244,244,244,.22); border-radius:50%;
+    font-size:20px; color:var(--entry-accent);
+    transition:background-color .18s ease, color .18s ease, border-color .18s ease;
+  }
+  .next:hover .next-arrow{ transform:none; }
+  .next:active .next-arrow, .next:focus-visible .next-arrow{ background:var(--entry-accent); border-color:var(--entry-accent); color:#141414; }
+  .next:focus-visible{ outline:2px solid var(--entry-accent); outline-offset:4px; }
+
+  /* ---------------------------------------------------------------- CONTACT -- */
+  #contact{ min-height:auto; padding:96px 20px 128px; gap:24px; }
+  #contact > .kicker{ position:static !important; transform:none !important; margin:0; }
+  .contact-h{ font-size:clamp(40px,12vw,76px); line-height:.98; }
+  .contact-links{ width:100%; max-width:420px; gap:10px; margin-top:8px; }
+  .contact-links a{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    min-height:52px; padding:0 16px;
+    border:1px solid rgba(244,244,244,.22); border-radius:2px;
+    font-size:13px; font-weight:600; letter-spacing:.06em; text-decoration:none; color:#f4f4f4;
+    transition:border-color .18s ease, color .18s ease;
+  }
+  .contact-links a:hover, .contact-links a:active{ border-color:var(--entry-accent); color:var(--entry-accent); }
+}
+@media (max-width:700px){
+  /* phones: one line would need ~10vw type and still crowd the edges, so the mark
+     stacks into three lines at a larger size — same words, same accent */
+  .m-intro-mark{ font-size:clamp(46px,14vw,72px); line-height:.98; }
+  .m-intro-mark .m-l{ display:block; }
+  /* the "×" joins its word but hangs outside it, so each WORD is what is centred
+     (in flow it pushed CODE / AI right of the axis DESIGN sits on) */
+  .m-intro-mark .m-l > i{ position:absolute; right:100%; padding-right:.14em; }
+  .m-intro-mark .m-l{ position:relative; width:max-content; margin-inline:auto; }
 }

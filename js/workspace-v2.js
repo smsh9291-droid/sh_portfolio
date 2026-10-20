@@ -40,7 +40,8 @@
                         boundary visible) — never a rectangular sidebar, never
                         a bottom pill, never a centred modal.
 
-   Below 1024px this file returns immediately and changes nothing.
+   Below 1024px the Desktop shell does nothing; only the MOBILE INTRO block
+   (near the end) runs there, replaying the same intro sequence on #m-intro.
    ========================================================================== */
 (function(){
   'use strict';
@@ -51,6 +52,22 @@
   v2.classList.add('v2-js'); // proves the controller is alive (see css fallback note)
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- RELOAD = INTRO. A Stage hash in the URL is a deep link (both boots below
+  //      enter that Stage directly) — but Mobile writes one on every Stage change,
+  //      and Desktop keeps whichever one it was opened with, so F5 / Ctrl+R / a hard
+  //      reload used to land straight in the workspace. When this document was
+  //      loaded BY A RELOAD (Navigation Timing's own type, not a guess), the hash is
+  //      dropped from the current history entry only, before either boot reads it:
+  //      both intros then play from the start. A first visit / pasted link
+  //      ('navigate') and Back/Forward into this page ('back_forward') keep it. ----
+  (function(){
+    var nav = window.performance && performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
+    var isReload = nav ? nav.type === 'reload'
+      : !!(window.performance && performance.navigation && performance.navigation.type === 1);
+    if (!isReload || !window.location.hash || !window.history.replaceState) return;
+    try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch (err) {}
+  })();
 
   // ---- element refs -------------------------------------------------------
   var core        = document.getElementById('v2-core');
@@ -79,8 +96,11 @@
     index:     { id:'works',            label:'SELECTED WORKS', num:'··' },
     momentrip: { id:'project-momentrip', label:'MOMENTRIP',      num:'01' },
     mivy:      { id:'project-mivy',      label:'MIVY',           num:'02' },
-    farmlink:  { id:'project-farmlink',  label:'FARMLINK',       num:'03' },
-    archive:   { id:'project-archive',   label:'DESIGN ARCHIVE', num:'04' },
+    // soon:true — in-progress Projects. Their sections stay in the DOM ([hidden]) but
+    // setStage() never shows them, whatever asks: Navigation, an anchor, or a deep link
+    // (#project-farmlink / #ws-archive land on SELECTED WORKS instead).
+    farmlink:  { id:'project-farmlink',  label:'FARMLINK',       num:'03', soon:true },
+    archive:   { id:'project-archive',   label:'DESIGN ARCHIVE', num:'04', soon:true },
     about:     { id:'about',             label:'ABOUT',          num:'··' },
     contact:   { id:'contact',           label:'CONTACT',        num:'··' }
   };
@@ -171,12 +191,13 @@
   function setStage(key, opts){
     if (!STAGES[key]) return;
     var meta = STAGES[key];
+    if (meta.soon) return;
     var section = document.getElementById(meta.id);
     if (!section) return;
 
     if (currentStage === key && !(opts && opts.force)) return;
     currentStage = key;
-    if (key !== 'momentrip') exitPreview({ silent:true }); // never keep a live site running off-stage
+    exitPreview({ silent:true }, key); // never keep a live site running off-stage
 
     Object.keys(STAGES).forEach(function(k){
       var s = document.getElementById(STAGES[k].id);
@@ -589,108 +610,164 @@
   }
 
   /* ==========================================================================
-     MOMENTRIP LIVE PREVIEW (Chapter 01 OVERVIEW) — Desktop V2 only.
+     LIVE PREVIEW (MOMENTRIP + MIVY Chapter 01 OVERVIEW) — Desktop V2 only.
      STATIC (WebP, nothing requested from the deployed site) -> LAUNCH creates
      the iframe -> EXIT removes it again. The iframe is cross-origin, so the
      parent never reads or listens inside it; everything here is driven from
-     the bar outside it. The deployed site switches to its tablet layout under
-     1200px, so a narrower box renders the page at 1200px and scales it down.
+     the bar outside it. One controller per [data-ov-preview] box, built by
+     makePreview() below — MOMENTRIP's instance keeps exactly the behaviour it
+     had as the original single-instance code; MIVY's only adds the two
+     options documented on it (cover, restoreScroll).
+       minWidth   the embedded page is rendered at least this wide and scaled
+                  down into a narrower box (MOMENTRIP switches to its tablet
+                  layout under 1200px; MIVY to its bottom-nav layout under
+                  1024px), so the live page matches the static capture.
+       cover      element under the frame that must not stay reachable while
+                  the frame covers it (MIVY's zoomable capture): made inert.
+       restoreScroll  EXIT puts the Stage back where it was before LAUNCH's
+                  auto-scroll, unless the user has scrolled it since. The
+                  launch control was on screen at that position (it was just
+                  used), so focus returning to it stays visible.
      ======================================================================== */
-  var PREVIEW_URL = 'https://momentrip-phi.vercel.app/';
-  var PREVIEW_MIN_W = 1200;
-  var preview = document.querySelector('[data-ov-preview]');
-  var pvLaunch = preview && preview.querySelector('[data-preview-launch]');
-  var pvExit = preview && preview.querySelector('[data-preview-exit]');
-  var pvStatus = preview && preview.querySelector('[data-preview-status]');
-  var pvSlot = preview && preview.querySelector('[data-preview-frame]');
-  var pvFrame = null, pvSlowTimer = null, pvResize = null;
+  function makePreview(cfg){
+    var root = document.querySelector(cfg.selector);
+    var launchBtn = root && root.querySelector('[data-preview-launch]');
+    var exitBtn = root && root.querySelector('[data-preview-exit]');
+    var statusEl = root && root.querySelector('[data-preview-status]');
+    var slot = root && root.querySelector('[data-preview-frame]');
+    if (!root || !launchBtn || !exitBtn || !slot) return null;
+    var cover = cfg.cover ? root.querySelector(cfg.cover) : null;
+    var frame = null, slowTimer = null, ro = null;
+    var scrollBefore = null, scrollLanded = null;
 
-  function pvSetState(state, text){
-    preview.setAttribute('data-state', state);
-    if (pvStatus) pvStatus.textContent = text;
-  }
-  function pvFit(){
-    if (!pvFrame || !pvSlot) return;
-    var w = pvSlot.clientWidth, h = pvSlot.clientHeight;
-    if (!w || !h) return;
-    var s = w < PREVIEW_MIN_W ? w / PREVIEW_MIN_W : 1;
-    pvFrame.style.width = (w / s) + 'px';
-    pvFrame.style.height = (h / s) + 'px';
-    pvFrame.style.transform = s === 1 ? '' : 'scale(' + s + ')';
-  }
-  function pvOnLoad(){
-    if (pvSlowTimer) { clearTimeout(pvSlowTimer); pvSlowTimer = null; }
-    // load = the embedded document finished its own load; it says nothing we
-    // could verify about its images, so the label only claims "live".
-    pvSetState('live', 'LIVE PREVIEW');
-  }
-  function pvOnCursorEnter(){ if (cursor) cursor.style.opacity = '0'; }
-  function pvOnCursorLeave(){ if (cursor) cursor.style.opacity = ''; }
+    function setState(state, text){
+      root.setAttribute('data-state', state);
+      if (statusEl) statusEl.textContent = text;
+    }
+    function fit(){
+      if (!frame) return;
+      var w = slot.clientWidth, h = slot.clientHeight;
+      if (!w || !h) return;
+      var s = w < cfg.minWidth ? w / cfg.minWidth : 1;
+      frame.style.width = (w / s) + 'px';
+      frame.style.height = (h / s) + 'px';
+      frame.style.transform = s === 1 ? '' : 'scale(' + s + ')';
+    }
+    function onLoad(){
+      if (slowTimer) { clearTimeout(slowTimer); slowTimer = null; }
+      // load = the embedded document finished its own load; it says nothing we
+      // could verify about its images, so the label only claims "live".
+      setState('live', 'LIVE PREVIEW');
+    }
+    function onCursorEnter(){ if (cursor) cursor.style.opacity = '0'; }
+    function onCursorLeave(){ if (cursor) cursor.style.opacity = ''; }
 
-  function launchPreview(){
-    if (!preview || !pvSlot || pvFrame || !DESKTOP.matches) return;
-    // An open Navigation would sit over a page the user is now driving, and a
-    // click inside the iframe can never reach the outside-click handler —
-    // close it here, silently (focus goes to EXIT below, not the guide).
-    closeNav({ silent:true });
-    pvFrame = document.createElement('iframe');
-    pvFrame.src = PREVIEW_URL;
-    pvFrame.title = 'MOMENTRIP 라이브 프리뷰 — 실제 배포 사이트';
-    pvFrame.setAttribute('loading', 'eager');
-    pvFrame.setAttribute('referrerpolicy', 'no-referrer');
-    pvFrame.addEventListener('load', pvOnLoad);
-    // the site draws its own cursor inside the frame; hide the portfolio's one
-    // so it doesn't freeze at the frame edge
-    pvFrame.addEventListener('mouseenter', pvOnCursorEnter);
-    pvFrame.addEventListener('mouseleave', pvOnCursorLeave);
-    pvSetState('loading', 'LOADING');
-    pvSlot.appendChild(pvFrame);
-    pvFit();
-    if ('ResizeObserver' in window) { pvResize = new ResizeObserver(pvFit); pvResize.observe(pvSlot); }
-    else window.addEventListener('resize', pvFit);
-    pvSlowTimer = setTimeout(function(){
-      pvSlowTimer = null;
-      if (pvFrame && preview.getAttribute('data-state') === 'loading') pvSetState('loading', 'STILL LOADING · OPEN SITE ↗ 로도 볼 수 있습니다');
-    }, 15000);
+    function launch(){
+      if (frame || !DESKTOP.matches) return;
+      // An open Navigation would sit over a page the user is now driving, and a
+      // click inside the iframe can never reach the outside-click handler —
+      // close it here, silently (focus goes to EXIT below, not the guide).
+      closeNav({ silent:true });
+      frame = document.createElement('iframe');
+      frame.src = cfg.url;
+      frame.title = cfg.title;
+      frame.setAttribute('loading', 'eager');
+      frame.setAttribute('referrerpolicy', 'no-referrer');
+      frame.addEventListener('load', onLoad);
+      // the site draws its own cursor inside the frame; hide the portfolio's one
+      // so it doesn't freeze at the frame edge
+      frame.addEventListener('mouseenter', onCursorEnter);
+      frame.addEventListener('mouseleave', onCursorLeave);
+      setState('loading', 'LOADING');
+      slot.appendChild(frame);
+      if (cover) cover.inert = true;
+      fit();
+      if ('ResizeObserver' in window) { ro = new ResizeObserver(fit); ro.observe(slot); }
+      else window.addEventListener('resize', fit);
+      slowTimer = setTimeout(function(){
+        slowTimer = null;
+        if (frame && root.getAttribute('data-state') === 'loading') setState('loading', cfg.slowText);
+      }, 15000);
 
-    pvLaunch.hidden = true;
-    pvExit.hidden = false;
-    pvExit.focus({ preventScroll:true });
-    // bring the whole preview (bar + frame) into the Stage viewport so EXIT and
-    // the frame are both on screen before the user starts working inside it
-    if (host) {
-      var hr = host.getBoundingClientRect(), pr = preview.getBoundingClientRect();
-      if (pr.top < hr.top || pr.bottom > hr.bottom) {
-        host.scrollTo({ top: host.scrollTop + (pr.top - hr.top) - 24, behavior: reduced ? 'auto' : 'smooth' });
+      launchBtn.hidden = true;
+      exitBtn.hidden = false;
+      exitBtn.focus({ preventScroll:true });
+      // bring the whole preview (bar + frame) into the Stage viewport so EXIT and
+      // the frame are both on screen before the user starts working inside it
+      scrollBefore = scrollLanded = null;
+      if (host) {
+        var hr = host.getBoundingClientRect(), pr = root.getBoundingClientRect();
+        scrollBefore = host.scrollTop;
+        if (pr.top < hr.top || pr.bottom > hr.bottom) {
+          scrollLanded = Math.round(host.scrollTop + (pr.top - hr.top) - 24);
+          host.scrollTo({ top: scrollLanded, behavior: reduced ? 'auto' : 'smooth' });
+        }
       }
     }
+
+    function exit(opts){
+      if (!frame) return;
+      if (slowTimer) { clearTimeout(slowTimer); slowTimer = null; }
+      if (ro) { ro.disconnect(); ro = null; }
+      else window.removeEventListener('resize', fit);
+      frame.removeEventListener('load', onLoad);
+      frame.removeEventListener('mouseenter', onCursorEnter);
+      frame.removeEventListener('mouseleave', onCursorLeave);
+      frame.src = 'about:blank'; // stop any in-flight requests before removal
+      frame.remove();
+      frame = null;
+      if (cover) cover.inert = false;
+      onCursorLeave();
+      setState('static', 'STATIC PREVIEW');
+      exitBtn.hidden = true;
+      launchBtn.hidden = false;
+      var silent = opts && opts.silent;
+      // only when the Stage is still exactly where LAUNCH put it (a user scroll
+      // in between means they have moved on, so leave it alone)
+      if (!silent && cfg.restoreScroll && host && scrollBefore !== null &&
+          (scrollLanded === null || Math.abs(host.scrollTop - scrollLanded) <= 2)) {
+        host.scrollTo({ top: scrollBefore, behavior: 'auto' });
+      }
+      scrollBefore = scrollLanded = null;
+      // focus left inside the removed iframe would otherwise drop to <body>
+      if (!silent) launchBtn.focus({ preventScroll:true });
+    }
+
+    // A click inside the cross-origin frame never reaches the outside-click
+    // handler, so an open Navigation would stay up over a page the user is
+    // using — focus moving into the frame closes it instead.
+    window.addEventListener('blur', function(){
+      if (frame && document.activeElement === frame && navState !== 'closed') closeNav({ silent:true });
+    });
+
+    launchBtn.hidden = false; // without this controller the static image + OPEN link remain
+    wireCursor(launchBtn); wireCursor(exitBtn);
+    wireCursor(root.querySelector('.ov-preview-btn[href]'));
+    launchBtn.addEventListener('click', launch);
+    exitBtn.addEventListener('click', function(){ exit(); });
+    return { stage: cfg.stage, exit: exit };
   }
 
-  function exitPreview(opts){
-    if (!pvFrame) return;
-    if (pvSlowTimer) { clearTimeout(pvSlowTimer); pvSlowTimer = null; }
-    if (pvResize) { pvResize.disconnect(); pvResize = null; }
-    else window.removeEventListener('resize', pvFit);
-    pvFrame.removeEventListener('load', pvOnLoad);
-    pvFrame.removeEventListener('mouseenter', pvOnCursorEnter);
-    pvFrame.removeEventListener('mouseleave', pvOnCursorLeave);
-    pvFrame.src = 'about:blank'; // stop any in-flight requests before removal
-    pvFrame.remove();
-    pvFrame = null;
-    pvOnCursorLeave();
-    pvSetState('static', 'STATIC PREVIEW');
-    pvExit.hidden = true;
-    pvLaunch.hidden = false;
-    // focus left inside the removed iframe would otherwise drop to <body>
-    if (!(opts && opts.silent)) pvLaunch.focus({ preventScroll:true });
-  }
+  var previews = [
+    makePreview({
+      selector: '#project-momentrip [data-ov-preview]', stage: 'momentrip',
+      url: 'https://momentrip-phi.vercel.app/', minWidth: 1200,
+      title: 'MOMENTRIP 라이브 프리뷰 — 실제 배포 사이트',
+      slowText: 'STILL LOADING · OPEN SITE ↗ 로도 볼 수 있습니다'
+    }),
+    makePreview({
+      selector: '#project-mivy [data-ov-preview]', stage: 'mivy',
+      url: 'https://mivy.vercel.app/', minWidth: 1024,
+      title: 'MIVY 라이브 프리뷰 — 실제 배포 앱',
+      slowText: 'STILL LOADING · OPEN APP ↗ 으로도 볼 수 있습니다',
+      cover: '.mivy-shot', restoreScroll: true
+    })
+  ].filter(Boolean);
 
-  if (preview && pvLaunch && pvExit && pvSlot) {
-    pvLaunch.hidden = false; // without this controller the static image + OPEN SITE remain
-    wireCursor(pvLaunch); wireCursor(pvExit);
-    wireCursor(preview.querySelector('.ov-preview-btn[href]'));
-    pvLaunch.addEventListener('click', launchPreview);
-    pvExit.addEventListener('click', function(){ exitPreview(); });
+  // Never keep a live site running off-stage (or below 1024px): exits every
+  // preview, or every one except the given Stage's own.
+  function exitPreview(opts, keepStage){
+    previews.forEach(function(p){ if (p.stage !== keepStage) p.exit(opts); });
   }
 
   /* ==========================================================================
@@ -731,9 +808,11 @@
   });
   v2.querySelectorAll('.v2-nav-item[data-nav-go]').forEach(function(btn){
     var key = btn.getAttribute('data-nav-go');
-    wireCursor(btn);
-    // SELECT = NAVIGATE + CLOSE.
+    if (btn.getAttribute('aria-disabled') !== 'true') wireCursor(btn); // no 'clickable' cursor on SOON
+    // SELECT = NAVIGATE + CLOSE. A SOON item does neither — the Navigation stays
+    // open so its SOON state is what the user is left looking at.
     btn.addEventListener('click', function(){
+      if (btn.getAttribute('aria-disabled') === 'true') return;
       setStage(key);
       closeNav({ silent:true });
     });
@@ -775,6 +854,470 @@
   });
 
   if (host) host.addEventListener('scroll', onHostScroll, { passive:true });
+
+  /* ==========================================================================
+     MOBILE INTRO (< 1024px) — the SAME intro sequence, played on #m-intro.
+     Reuses this file's own timing table (T), reduced-motion flag, centre(),
+     canAnimate(), the moveCore() travel / dot->caret morph keyframes and
+     easings, the appendChunk()-style typing loop (charMs, blockPause after
+     each label), and the same state classes (is-on / is-morphing / is-done /
+     is-elevated / is-in / is-resting / is-armed / is-blinking), styled with the
+     same values in css/style.css "INTRO MOTION". Own clock and own flags, so
+     the Desktop intro's clearTimers() can never strand it (and vice versa).
+     Re-run policy = Desktop's: plays once per page load; a deep link or a
+     breakpoint crossing mid-sequence lands in the written state instead; it
+     never replays.
+
+     MOBILE STAGES — Mobile uses Desktop's own Stage model, not a long document:
+     #m-intro is the INTRO Stage, and every workspace Stage is shown through
+     Desktop's setStage() inside #v2-host (made the fixed scroll box by
+     css/style.css "STAGES"; html.m-ws = workspace entered). Navigation, NEXT,
+     in-content links and RUN all go through mGo(); nothing scrolls the page.
+     History: every Stage change is a pushState entry whose URL is that Stage's
+     section hash (the same deep links Desktop boot() accepts), so Back/Forward
+     and a pasted URL land on that Stage; the entry without a hash is the INTRO
+     (shown written, never replayed). A reload always plays the intro from the
+     start instead (see RELOAD = INTRO at the top of this file).
+     ======================================================================== */
+  var MOBILE = window.matchMedia('(max-width:1023px)');
+  var mIntro = document.getElementById('m-intro');
+  if (mIntro) (function(){
+    var mCore  = mIntro.querySelector('.m-intro-core');
+    var mDot   = mCore && mCore.querySelector('.m-intro-dot');
+    var mLine  = mCore && mCore.querySelector('.m-intro-line');
+    var mTop   = mIntro.querySelector('.m-intro-top');
+    var mBg    = mIntro.querySelector('.m-intro-bg');
+    var mMark  = mIntro.querySelector('.m-intro-mark');
+    var mSteps = mIntro.querySelector('.m-intro-steps');
+    var mFrame = mIntro.querySelector('.m-intro-frame');
+    var mDl    = mIntro.querySelector('.m-intro-prompt');
+    var mCaret = mIntro.querySelector('.m-caret');
+    var mRun   = mIntro.querySelector('.m-intro-run');
+    var mSkip  = mIntro.querySelector('.m-intro-skip');
+    var works  = document.getElementById('works');
+
+    var mTimers = [];
+    function mWait(ms){ return new Promise(function(res){ mTimers.push(setTimeout(res, ms)); }); }
+    function mClear(){ mTimers.forEach(clearTimeout); mTimers = []; }
+    var mStarted = false, mDone = false, mTyping = false, mFast = false, mRunning = false;
+    function mPost(ms){ return mWait(mFast ? 0 : ms); }
+
+    // The prompt, read from the markup itself (the mobile wording stays exactly as
+    // written): one chunk per <dt>/<dd>, <br> kept as '\n'. Same shape as PROMPT.
+    var CHUNKS = [];
+    if (mDl) Array.prototype.forEach.call(mDl.querySelectorAll('dt, dd'), function(el){
+      var text = '';
+      Array.prototype.forEach.call(el.childNodes, function(n){
+        if (n.nodeType === 3) text += n.nodeValue;
+        else if (n.nodeName === 'BR') text += '\n';
+      });
+      CHUNKS.push({ el:el, key:el.nodeName === 'DT', text:text });
+    });
+    function writeInto(el, text){ // text -> text nodes + <br>, kept in front of the caret
+      text.split('\n').forEach(function(line, i){
+        if (i) el.insertBefore(document.createElement('br'), mCaret.parentNode === el ? mCaret : null);
+        el.insertBefore(document.createTextNode(line), mCaret.parentNode === el ? mCaret : null);
+      });
+    }
+    function clearPrompt(){
+      CHUNKS.forEach(function(c){
+        Array.prototype.slice.call(c.el.childNodes).forEach(function(n){ if (n !== mCaret) c.el.removeChild(n); });
+      });
+    }
+    function writeAll(){ // the full written state, caret back at the end of RULE
+      clearPrompt();
+      CHUNKS.forEach(function(c){
+        if (c === CHUNKS[CHUNKS.length - 1]) c.el.appendChild(mCaret);
+        writeInto(c.el, c.text);
+      });
+      if (mDl) mDl.style.minHeight = '';
+    }
+
+    async function mTypePrompt(){
+      if (!mDl || !mCaret) return;
+      mTyping = true;
+      mCaret.classList.remove('is-blinking'); // steady while actually typing
+      for (var i = 0; i < CHUNKS.length; i++) {
+        var c = CHUNKS[i];
+        c.el.appendChild(mCaret);
+        if (mFast || reduced) { writeInto(c.el, c.text); continue; }
+        var node = document.createTextNode('');
+        c.el.insertBefore(node, mCaret);
+        for (var k = 0; k < c.text.length; k++) {
+          if (mFast) { // drain the rest of this chunk at once, like Desktop's fast-forward
+            var rest = c.text.slice(k).split('\n');
+            node.nodeValue += rest[0];
+            if (rest.length > 1) writeInto(c.el, '\n' + rest.slice(1).join('\n'));
+            break;
+          }
+          var ch = c.text.charAt(k);
+          if (ch === '\n') { c.el.insertBefore(document.createElement('br'), mCaret); node = document.createTextNode(''); c.el.insertBefore(node, mCaret); }
+          else node.nodeValue += ch;
+          await mWait(T.charMs);
+          if (mDone) { mTyping = false; return; }
+        }
+        if (!mFast && c.key) await mWait(T.blockPause);
+        if (mDone) { mTyping = false; return; }
+      }
+      mTyping = false;
+      mCaret.classList.add('is-blinking');
+    }
+
+    // Desktop applyElevation(): the frame starts life risen to a central position
+    // (opacity 0, so no visible jump), measured live against the real viewport.
+    function mElevate(){
+      mFrame.classList.remove('is-elevated', 'is-resting');
+      var rest = mFrame.getBoundingClientRect();
+      var restCenterY = rest.top + rest.height / 2;
+      var minTargetY = mTop ? mTop.getBoundingClientRect().bottom + 90 : 140;
+      var targetY = Math.max(minTargetY, window.innerHeight * 0.40);
+      mFrame.style.setProperty('--m-rise', Math.round(targetY - restCenterY) + 'px');
+      mFrame.classList.add('is-elevated');
+    }
+    // Desktop moveCore(), for the mobile dot (fixed over the viewport centre too)
+    function mMoveDot(to, ms){
+      var tf = 'translate(' + (to.x - window.innerWidth / 2) + 'px,' + (to.y - window.innerHeight / 2) + 'px)';
+      if (canAnimate(mDot)) {
+        mDot.animate([{ transform:getComputedStyle(mDot).transform }, { transform:'translate(-50%,-50%) ' + tf }],
+          { duration:ms, easing:'cubic-bezier(.16,1,.3,1)', fill:'forwards' });
+      }
+      mDot.style.transform = 'translate(-50%,-50%) ' + tf;
+      return mWait(ms);
+    }
+
+    async function mRunIntro(){
+      if (mStarted) return;
+      mStarted = true;
+      if (!mCore || !mDot || !mFrame || !mDl || !mCaret) { mFinish(); return; }
+      if (mDl) mDl.style.minHeight = mDl.offsetHeight + 'px'; // no reflow while it types
+      clearPrompt();
+      CHUNKS[0].el.appendChild(mCaret);
+      mElevate();
+
+      // -- AI PRESENCE
+      mCore.classList.add('is-on');
+      if (mSkip) mSkip.classList.add('is-in');
+      await mWait(T.presenceIn);
+      if (mDone) return;
+
+      // -- MORPH A : point travels to the risen frame's centre, line grows to its width
+      mCore.classList.add('is-morphing');
+      var frameRect = mFrame.getBoundingClientRect();
+      if (mLine && canAnimate(mLine)) {
+        mLine.animate([{ width:getComputedStyle(mLine).width, opacity:getComputedStyle(mLine).opacity },
+                       { width:Math.round(frameRect.width) + 'px', opacity:.55 }],
+          { duration:T.morphA, easing:'cubic-bezier(.16,1,.3,1)', fill:'forwards' });
+      }
+      await mMoveDot(centre(frameRect), T.morphA);
+      if (mDone) return;
+
+      // -- MORPH B : the frame materialises, the point walks on and becomes the caret
+      mFrame.classList.add('is-in');
+      var caretRect = mCaret.getBoundingClientRect();
+      if (mLine && canAnimate(mLine)) {
+        mLine.animate([{ opacity:.55 }, { opacity:0 }], { duration:T.morphB * .6, easing:'ease', fill:'forwards' });
+      }
+      if (canAnimate(mDot)) {
+        mDot.animate([{ width:'9px', height:'9px', borderRadius:'50%' },
+                      { width:'2px', height:Math.max(10, Math.round(caretRect.height)) + 'px', borderRadius:'0' }],
+          { duration:T.morphB, easing:'cubic-bezier(.16,1,.3,1)', fill:'forwards' });
+      }
+      await mMoveDot(centre(caretRect), T.morphB);
+      if (mDone) return;
+      mCore.classList.add('is-done');
+      mCaret.classList.add('is-on', 'is-blinking');
+
+      // -- INTERFACE REVEAL
+      if (mTop) mTop.classList.add('is-in');
+      await mWait(T.afterMorph);
+      if (mDone) return;
+
+      // -- PROMPT WRITING
+      await mTypePrompt();
+      if (mDone) return;
+
+      // -- PROMPT DESCENDS (into the document's own flow, under the message)
+      await mPost(T.afterType);
+      if (mDone) return;
+      mFrame.classList.remove('is-elevated'); mFrame.classList.add('is-resting');
+      await mPost(T.descend);
+      if (mDone) return;
+
+      // -- BACKGROUND ATMOSPHERE -> MESSAGE REVEAL
+      if (mBg) mBg.classList.add('is-in');
+      await mPost(T.bgIn);
+      if (mDone) return;
+      if (mMark) mMark.classList.add('is-in');
+      await mPost(T.markPause);
+      if (mDone) return;
+      if (mSteps) mSteps.classList.add('is-in');
+      await mPost(T.stepsHold);
+      if (mDone) return;
+
+      // -- USER RUN
+      mArm();
+    }
+
+    function mArm(){
+      mDone = true;
+      if (mDl) mDl.style.minHeight = '';
+      if (mRun) { mRun.classList.add('is-armed'); mRun.removeAttribute('tabindex'); mRun.removeAttribute('aria-disabled'); }
+      if (mSkip) mSkip.classList.add('is-done');
+      mIntro.classList.add('is-ready');               // Navigation fades in (css: #m-intro.is-ready)
+    }
+    // Desktop finishIntroInstantly(): land in the written, armed state in one step
+    function mFinish(){
+      mClear();
+      mFast = true; mTyping = false; mStarted = true;
+      if (mCore) mCore.classList.add('is-on', 'is-done');
+      if (mFrame) { mFrame.classList.remove('is-elevated'); mFrame.classList.add('is-in', 'is-resting'); }
+      [mTop, mBg, mMark, mSteps].forEach(function(el){ if (el) el.classList.add('is-in'); });
+      if (mCaret) { writeAll(); mCaret.classList.add('is-on', 'is-blinking'); }
+      mArm();
+    }
+    // Desktop requestFastForward(): drains the typing, never presses RUN itself
+    function mFastForward(){
+      if (!mStarted || mDone) return;
+      mFast = true;
+      if (!mTyping) mFinish();
+    }
+
+    /* ---- STAGES -------------------------------------------------------- */
+    var root = document.documentElement;
+    var mNav = document.getElementById('m-nav');
+    var mFill = mNav && mNav.querySelector('.m-progress i');
+    var mNavLinks = mNav ? Array.prototype.slice.call(mNav.querySelectorAll('a.m-nav-item[href^="#"]')) : [];
+    var mInWs = false;
+    root.classList.add('m-stage'); // css/style.css STAGES applies only once this exists
+
+    // Desktop boot()'s deep-link forms (#ws, #ws-<key>, #<section id>); a SOON
+    // or unknown Stage lands on SELECTED WORKS, as it does on Desktop.
+    function stageFromHash(hash){
+      var key = null;
+      if (hash === '#ws' || hash === '#workspace') key = 'index';
+      else if (hash.indexOf('#ws-') === 0) key = hash.slice(4);
+      else if (HASH_TO_STAGE[hash]) key = HASH_TO_STAGE[hash];
+      if (key === null) return null;
+      return STAGES[key] && !STAGES[key].soon ? key : 'index';
+    }
+    function stageUrl(key){
+      return window.location.pathname + window.location.search + (key ? '#' + STAGES[key].id : '');
+    }
+    function stageEl(key){ return document.getElementById(STAGES[key].id); }
+
+    // SCROLL = PROGRESS of the current Stage's own scroll box (Desktop's onHostScroll)
+    function mProgress(){
+      if (!mFill) return;
+      var max = mInWs && host ? host.scrollHeight - host.clientHeight : 0;
+      mFill.style.transform = 'scaleX(' + (max > 4 ? Math.min(1, Math.max(0, host.scrollTop / max)) : 0) + ')';
+    }
+    function mMarkNav(){
+      mNavLinks.forEach(function(a){
+        if (mInWs && HASH_TO_STAGE[a.getAttribute('href')] === currentStage) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+    }
+    function mFocus(el){
+      if (!el) return;
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+      el.focus({ preventScroll:true });
+    }
+    // Where each history entry's Stage was scrolled to, for Back / Forward. By the
+    // time popstate fires, history.state is already the NEW entry, so the entry
+    // being left can't be written then — each entry carries an id (mId) and its
+    // position is read from the Stage the moment it is left (mRemember), into
+    // memory. history.state.mScroll (mSaveScroll) is only the copy that survives
+    // leaving this document and coming back with Back / Forward.
+    var mEntry = null, mScrollMem = {}, mSeq = Date.now();
+    function mNewId(){ return (++mSeq).toString(36); }
+    function mRemember(){ if (mInWs && mEntry && host) mScrollMem[mEntry] = host.scrollTop; }
+    function mSaveScroll(){
+      if (!window.history.replaceState) return;
+      var st = window.history.state;
+      st = st && typeof st === 'object' ? Object.assign({}, st) : {};
+      st.mScroll = mInWs && host ? host.scrollTop : 0;
+      try { window.history.replaceState(st, ''); } catch (err) {}
+    }
+
+    // One workspace Stage on screen: the INTRO goes, Desktop setStage() picks the
+    // section (is-stage, Stage scroll reset), the Stage's own entrance plays.
+    function mShow(key, opts){
+      opts = opts || {};
+      if (!mDone) mFinish();                        // never leave the intro half-built behind
+      mIntro.classList.remove('is-run');
+      mInWs = true;
+      root.classList.add('m-ws');
+      setStage(key, { force:true });
+      if (host) host.scrollTop = opts.scroll || 0;
+      mMarkNav();
+      mProgress();
+      if (opts.focus !== false) mFocus(stageEl(currentStage));
+      clearTimeout(mSaveTimer); // a pending save belongs to the Stage just left
+    }
+    // Back to the entry without a hash: the INTRO, in its written, armed state
+    function mShowIntro(opts){
+      if (mStarted && !mDone) mFinish();
+      mIntro.classList.remove('is-run');
+      mInWs = false;
+      root.classList.remove('m-ws');
+      mIntro.scrollTop = 0;
+      mMarkNav();
+      mProgress();
+      if (!(opts && opts.focus === false)) mFocus(mIntro);
+    }
+    // User navigation (Navigation, NEXT, in-content links, RUN): new history entry
+    function mGo(key){
+      key = STAGES[key] && !STAGES[key].soon ? key : null;
+      if (!key) return;
+      if (mInWs && key === currentStage) {          // already here: back to its top
+        if (host) host.scrollTo({ top:0, behavior: reduced ? 'auto' : 'smooth' });
+        mFocus(stageEl(key));
+        return;
+      }
+      mRemember();
+      mSaveScroll();
+      mShow(key);
+      mEntry = mNewId();
+      if (window.history.pushState) window.history.pushState({ mStage:key, mId:mEntry }, '', stageUrl(key));
+    }
+
+    // RUN -> WORKSPACE: the scene fades as #v2.is-ws fades Desktop's prompt, then
+    // SELECTED WORKS comes in as a Stage — a Stage change, not a scroll.
+    function mDoRun(e){
+      if (!MOBILE.matches || !works) return;           // >= 1024px: never reached (display:none)
+      e.preventDefault();
+      if (!mDone || mRunning) return;
+      mRunning = true;
+      mIntro.classList.add('is-run');
+      setTimeout(function(){
+        mRunning = false;
+        if (MOBILE.matches && !mInWs) mGo('index');
+        else mIntro.classList.remove('is-run');
+      }, reduced ? 0 : 420);
+    }
+
+    if (mRun) {
+      mRun.setAttribute('tabindex', '-1');                 // not reachable until armed
+      mRun.setAttribute('aria-disabled', 'true');
+      mRun.addEventListener('click', mDoRun);
+    }
+    if (mSkip) mSkip.addEventListener('click', function(e){ e.stopPropagation(); mFastForward(); });
+    // tap anywhere on the scene fast-forwards the writing (never RUN)
+    mIntro.addEventListener('click', function(e){
+      if (e.target.closest && e.target.closest('.m-intro-run, .m-intro-skip')) return;
+      mFastForward();
+    });
+    document.addEventListener('keydown', function(e){
+      if (MOBILE.matches && e.key === 'Enter' && mStarted && !mDone) mFastForward();
+    });
+    var lastW = window.innerWidth;
+    window.addEventListener('resize', function(){
+      if (window.innerWidth !== lastW && mStarted && !mDone) mFinish(); // geometry changed mid-morph
+      lastW = window.innerWidth;
+      if (MOBILE.matches) mProgress();
+    });
+    window.addEventListener('pageshow', function(e){ if (e.persisted && mStarted && !mDone) mFinish(); });
+
+    // Every in-page link that names a Stage (Navigation items, SELECTED WORKS rows,
+    // NEXT, …) becomes a Stage change instead of an anchor jump — Desktop's own
+    // HASH_TO_STAGE interception, for the whole document. RUN has its own handler
+    // (it prevents the default first). SOON rows have no href, so never reach here;
+    // the Navigation sheet closes itself on the same click (js/main.js).
+    document.addEventListener('click', function(e){
+      if (!MOBILE.matches || e.defaultPrevented) return;
+      var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+      if (!a) return;
+      var key = HASH_TO_STAGE[a.getAttribute('href')];
+      if (!key) return;
+      e.preventDefault();
+      mGo(key);
+    });
+    // progress per frame; the entry's saved position once scrolling settles (a
+    // replaceState from pagehide is too late for a reload to see it)
+    var mSaveTimer = null;
+    if (host) host.addEventListener('scroll', function(){
+      if (!MOBILE.matches || !mInWs) return;
+      requestAnimationFrame(mProgress);
+      clearTimeout(mSaveTimer);
+      mSaveTimer = setTimeout(mSaveScroll, 250);
+    }, { passive:true });
+
+    // Back / Forward (and a hash typed into the address bar): the entry's hash is
+    // its Stage; no hash = the INTRO.
+    window.addEventListener('popstate', function(e){
+      if (!MOBILE.matches) return;
+      var key = stageFromHash(window.location.hash);
+      var st = e.state && typeof e.state === 'object' ? e.state : {};
+      mRemember();                                  // the entry being left
+      mEntry = st.mId || null;
+      var mem = mEntry && mScrollMem.hasOwnProperty(mEntry) ? mScrollMem[mEntry] : st.mScroll;
+      if (key) mShow(key, { scroll:mem });
+      else mShowIntro();
+    });
+
+    // Enter the workspace without the intro (deep link, reload of a Stage entry, or
+    // arriving from Desktop's workspace). replaceState: the URL names the Stage now
+    // shown, in its canonical form, without adding a history entry.
+    // The browser's own fragment jump for the loaded URL's #id also lands in this
+    // scroll box (caught mid stage-in rise, or over a restored position), so until
+    // load the Stage's intended position is put back, unless the user has scrolled.
+    var mBootScroll = null;
+    function mClaimScroll(){ mBootScroll = null; }
+    ['wheel', 'touchstart', 'keydown'].forEach(function(t){
+      window.addEventListener(t, mClaimScroll, { passive:true, capture:true });
+    });
+    window.addEventListener('load', function(){
+      setTimeout(function(){
+        if (mBootScroll !== null && MOBILE.matches && mInWs && host) host.scrollTop = mBootScroll;
+        mBootScroll = null;
+      }, 0);
+    });
+    function mEnterDirectly(key, scroll){
+      if (document.readyState !== 'complete') mBootScroll = scroll || 0;
+      mShow(key, { focus:false, scroll:scroll });
+      if (window.history.replaceState) {
+        var st = window.history.state && typeof window.history.state === 'object' ? window.history.state : {};
+        mEntry = st.mId || mNewId();
+        try { window.history.replaceState(Object.assign({}, st, { mStage:currentStage, mId:mEntry }), '', stageUrl(currentStage)); } catch (err) {}
+      }
+    }
+
+    function mBoot(){
+      if (!MOBILE.matches) return;
+      // Back / Forward between this page's own Stage entries: with 'auto' the
+      // browser follows popstate with its own jump to the entry's #id — inside
+      // the Stage box, onto the section mid stage-in rise — undoing the position
+      // mShow() just restored. The document never scrolls and every Stage
+      // position is restored above, so the browser's own restore has no job here.
+      if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+      if (mStarted) {                               // back below 1024px after a crossing
+        if (ran) mEnterDirectly(currentStage || 'index');
+        else if (mInWs) mShow(currentStage || 'index', { focus:false });
+        else mShowIntro({ focus:false });
+        return;
+      }
+      // Desktop already ran RUN: its current Stage wins (Desktop never updates the hash)
+      if (ran) { mEnterDirectly(currentStage || 'index'); return; }
+      var key = stageFromHash(window.location.hash);
+      if (key) {
+        var st = window.history.state;
+        mEnterDirectly(key, st && typeof st === 'object' ? st.mScroll : 0);
+        return;
+      }
+      mRunIntro().catch(function(err){
+        if (window.console) console.error('[v2] mobile intro failed:', err);
+        if (!mDone) mFinish();
+      });
+    }
+    function mOnBreakpoint(){
+      if (!MOBILE.matches) { if (mStarted && !mDone) mFinish(); return; }
+      mBoot();
+    }
+    if (MOBILE.addEventListener) MOBILE.addEventListener('change', mOnBreakpoint);
+    else if (MOBILE.addListener) MOBILE.addListener(mOnBreakpoint);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mBoot);
+    else mBoot();
+  })();
 
   /* ==========================================================================
      BOOT

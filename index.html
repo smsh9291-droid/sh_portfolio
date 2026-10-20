@@ -3,7 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Workspace Prototype</title>
+<title>HAM SEUNG HEE — DESIGN × CODE × AI</title>
+<meta name="description" content="웹디자인 실무 약 8년의 경험을 바탕으로 화면 설계부터 반응형 웹 퍼블리싱, JavaScript 구현까지 직접 작업하는 함승희의 포트폴리오입니다.">
+<!-- Open Graph: no og:image on purpose — there is no purpose-made share image yet, and a
+     random project capture would misrepresent the portfolio in link previews. og:url is
+     left out until the public URL is final. -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="HAM SEUNG HEE Portfolio">
+<meta property="og:title" content="HAM SEUNG HEE — DESIGN × CODE × AI">
+<meta property="og:description" content="8 YEARS OF DESIGN. NOW DESIGNING AND BUILDING. 디자인 실무 경험을 바탕으로 직접 설계하고 구현한 프로젝트를 소개합니다.">
+<meta name="twitter:card" content="summary">
+<!-- Favicon: the site's own Mini Folder mark (the same SVG as the Hero's bottom-right
+     folder). Declaring it also stops the browser's implicit /favicon.ico request (404). -->
+<link rel="icon" type="image/svg+xml" href="assets/images/Mini-Folder.svg">
 <!-- Pretendard (Korean only): sits after the Latin design fonts in every font stack in
      style.css, so Hangul falls through to it while English keeps Arial / the mono stack.
      Dynamic-subset build = only the glyph ranges a page actually uses are downloaded.
@@ -32,12 +45,17 @@
   #v2-host{ opacity:1; pointer-events:auto; }
   #v2-host > section{ display:block; animation:none; }
 }
+/* Mobile V2 intro: without JS there is no sequence — show the written state */
+@media (max-width:1023px){
+  .m-intro-core, .m-intro-skip{ display:none !important; }
+  .m-intro-top, .m-intro-bg, .m-intro-mark, .m-intro-steps li, .m-intro-frame,
+  .m-intro-run{ opacity:1 !important; transform:none !important; pointer-events:auto !important; }
+  .m-caret{ opacity:1 !important; }
+}
 </style>
 </noscript>
 </head>
 <body>
-
-<div class="meta-corner mono">WIREFRAME · DESKTOP 1440 / MOBILE 390</div>
 
 <div id="custom-cursor" class="custom-cursor" aria-hidden="true">
   <img class="cursor-img cursor-img-default" src="assets/images/mouse-pointer.svg" alt="">
@@ -46,7 +64,6 @@
 
 <a id="mini-folder" class="mini-folder-fixed" href="#entry-hero" aria-label="Close workspace — return to entry">
   <img class="folder-icon-sm" src="assets/images/Mini-Folder.svg" alt="" width="241" height="218">
-  <span class="tag mono">HOME · CLOSE WORKSPACE</span>
 </a>
 
 <!-- Folder Exit Mask: a real overflow:hidden clip container, sized/positioned by JS to the
@@ -56,8 +73,6 @@
 
 <!-- ============ 01 ENTRY / HERO — single interactive intro, two states ============ -->
 <section id="entry-hero">
-  <span class="state-tag is-closed kicker mono">01 · ENTRY — CLOSED</span>
-  <span class="state-tag is-open kicker mono">01 · HERO — OPEN</span>
 
   <div id="big-folder" class="eh-closed">
     <button type="button" id="folder-hit" class="folder-hit" aria-label="Open workspace">
@@ -144,13 +159,15 @@
         </span>
         <span class="nav-label">ABOUT</span>
       </a>
-      <a class="hero-folder-item hfn-03" href="#project-archive">
+      <!-- SOON: DESIGN ARCHIVE is still in progress — no href, so this folder is neither a
+           link nor a tab stop; position/size/reveal are unchanged. -->
+      <a class="hero-folder-item hfn-03 is-soon" aria-disabled="true">
         <span class="nav-index">03</span>
         <span class="nav-folder-visual" aria-hidden="true">
           <img class="nav-folder-svg nav-folder-closed" src="assets/images/nav-folder-closed.svg" alt="" width="410" height="337">
           <img class="nav-folder-svg nav-folder-open" src="assets/images/nav-folder-open.svg" alt="" width="461" height="375">
         </span>
-        <span class="nav-label">ARCHIVE</span>
+        <span class="nav-label">ARCHIVE <span class="soon-tag">SOON</span></span>
       </a>
       <a class="hero-folder-item hfn-04" href="#contact">
         <span class="nav-index">04</span>
@@ -163,6 +180,84 @@
     </nav>
   </div>
 </section>
+<!-- ============================================================================
+     PORTFOLIO WORKSPACE V2 — Mobile / Tablet (< 1024px)
+     ----------------------------------------------------------------------------
+     Below the Desktop V2 breakpoint the V1 folder entry + Hero (#entry-hero) and
+     its mini folder are hidden (css/style.css "MOBILE V2" block), exactly as the
+     Desktop shell hides them at >= 1024px. In their place:
+       #m-intro — the V2 Intro scene (DESIGN × CODE × AI, the three process steps,
+                  the Prompt frame and RUN), played with the Desktop intro sequence.
+       #m-nav   — the V2 Project Navigation for touch: the same Folder trigger,
+                  opening a curved bottom sheet; plus the reading-progress line.
+     Both are display:none at >= 1024px, so Desktop V2 is untouched.
+     ========================================================================== -->
+<section id="m-intro" class="m-intro" aria-labelledby="m-intro-title">
+  <div class="m-intro-bg mono" aria-hidden="true">
+    <span class="m-frag m-frag-1">/* human direction */</span>
+    <span class="m-frag m-frag-2">&lt;workspace state="ready"&gt;</span>
+    <span class="m-frag m-frag-3">const intent = "preserve";</span>
+    <span class="m-frag m-frag-4 is-accent">--accent: #C1F85C;</span>
+    <span class="m-frag m-frag-5">function refine() {<br>&nbsp;&nbsp;return verify(result);<br>}</span>
+    <span class="m-frag m-frag-6">AI-assisted !== AI-generated;</span>
+    <span class="m-frag m-frag-7">&lt;output verified&gt;</span>
+  </div>
+  <div class="m-intro-top mono">
+    <span>HAM SEUNG HEE</span>
+    <span class="m-intro-status"><i aria-hidden="true"></i>WORKSPACE / ACTIVE</span>
+  </div>
+  <!-- AI PRESENCE — same four parts as Desktop's .v2-core (dot, halo, hairline, "AI"
+       label + rule); js/workspace-v2.js walks the dot into the Prompt frame and
+       turns it into the caret, exactly as on Desktop. -->
+  <div class="m-intro-core" aria-hidden="true"><span class="m-intro-dot"></span><span class="m-intro-halo"></span><span class="m-intro-line"></span><span class="m-intro-ai mono"><span class="m-intro-ai-text">AI</span><span class="m-intro-ai-rule"></span></span></div>
+  <h1 class="m-intro-mark" id="m-intro-title"><span class="m-sr">HAM SEUNG HEE — </span><span class="m-l">DESIGN</span> <span class="m-l"><i>×</i> CODE</span> <span class="m-l"><i>×</i> <span class="m-accent">AI</span></span></h1>
+  <ol class="m-intro-steps mono">
+    <li><i>01</i>Human direction</li>
+    <li><i>02</i>AI collaboration</li>
+    <li><i>03</i>Implementation</li>
+  </ol>
+  <div class="m-intro-frame mono">
+    <dl class="m-intro-prompt">
+      <div><dt>PROFILE</dt><dd>8 years of design.<br>Now designing and building.</dd></div>
+      <div><dt>WORKS</dt><dd>MOMENTRIP · MIVY</dd></div>
+      <div><dt>SOON</dt><dd>FARMLINK · DESIGN ARCHIVE</dd></div>
+      <div><dt>RULE</dt><dd>Human direction first. AI implements.<span class="m-caret" aria-hidden="true"></span></dd></div>
+    </dl>
+    <div class="m-intro-foot">
+      <span>CONTEXT / SH PORTFOLIO</span>
+      <a class="m-intro-run" href="#works">RUN PROMPT <i aria-hidden="true">↓</i></a>
+    </div>
+  </div>
+  <button type="button" class="m-intro-skip mono">Skip</button>
+</section>
+
+<div class="m-nav" id="m-nav">
+  <div class="m-progress" aria-hidden="true"><i></i></div>
+  <div class="m-nav-scrim" data-m-nav-close aria-hidden="true"></div>
+  <nav class="m-nav-sheet" id="m-nav-sheet" aria-label="Project navigation" aria-hidden="true">
+    <svg class="m-nav-surface" viewBox="0 0 390 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M 0 44 C 0 18 40 0 96 0 L 294 0 C 350 0 390 18 390 44 Z"/></svg>
+    <div class="m-nav-body">
+    <div class="m-nav-head mono"><span>WORKSPACE / INDEX</span><button type="button" class="m-nav-close" data-m-nav-close>CLOSE <i aria-hidden="true">×</i></button></div>
+    <ol class="m-nav-list">
+      <li><a class="m-nav-item is-sub" href="#works"><i>··</i>Selected works</a></li>
+      <li><a class="m-nav-item" href="#project-momentrip"><i>01</i>Momentrip</a></li>
+      <li><a class="m-nav-item" href="#project-mivy"><i>02</i>Mivy</a></li>
+      <li><span class="m-nav-item is-soon" aria-disabled="true"><i>03</i>Farmlink<span class="m-nav-soon">SOON</span></span></li>
+      <li><span class="m-nav-item is-soon" aria-disabled="true"><i>04</i>Design archive<span class="m-nav-soon">SOON</span></span></li>
+      <li><a class="m-nav-item is-sub" href="#about"><i>··</i>About</a></li>
+      <li><a class="m-nav-item is-sub" href="#contact"><i>··</i>Contact</a></li>
+    </ol>
+    <p class="m-nav-foot mono">DESIGN <i>×</i> CODE <i>×</i> AI</p>
+    </div>
+  </nav>
+  <button type="button" class="m-nav-trigger" aria-expanded="false" aria-controls="m-nav-sheet" aria-label="프로젝트 메뉴 열기">
+    <span class="m-nav-trigger-visual" aria-hidden="true">
+      <img class="m-nav-trigger-closed" src="assets/images/nav-folder-closed.svg" alt="" width="410" height="337">
+      <img class="m-nav-trigger-open" src="assets/images/nav-folder-open.svg" alt="" width="461" height="375">
+    </span>
+  </button>
+</div>
+
 <!-- ============================================================================
      PORTFOLIO WORKSPACE V2 — Desktop shell (>= 1024px)
      ----------------------------------------------------------------------------
@@ -323,25 +418,25 @@
         </span>
         <span class="folder-arrow" aria-hidden="true">↗</span>
       </a>
-      <a class="folder-item" href="#project-farmlink">
+      <!-- SOON rows: FARMLINK / DESIGN ARCHIVE are in progress. No href (not a link, not a
+           tab stop, and V2's anchor→Stage interception never sees them); the ↗ arrow is
+           replaced by a SOON tag. Row layout is unchanged. -->
+      <a class="folder-item is-soon" aria-disabled="true">
         <span class="folder-num mono">03</span>
         <span class="folder-meta">
           <span class="folder-name">FARMLINK</span>
           <span class="folder-cat mono">UX IMPROVEMENT · BEFORE / AFTER</span>
         </span>
-        <span class="folder-arrow" aria-hidden="true">↗</span>
+        <span class="soon-tag folder-soon mono">SOON</span>
       </a>
-      <a class="folder-item" href="#project-archive">
+      <a class="folder-item is-soon" aria-disabled="true">
         <span class="folder-num mono">04</span>
         <span class="folder-meta">
           <span class="folder-name">DESIGN ARCHIVE</span>
           <span class="folder-cat mono">VISUAL DESIGN · ART DIRECTION</span>
         </span>
-        <span class="folder-arrow" aria-hidden="true">↗</span>
+        <span class="soon-tag folder-soon mono">SOON</span>
       </a>
-    </div>
-    <div class="works-note">
-      <span class="tag mono">EACH ROW — CLICK / TAP → SMOOTH SCROLL TO PROJECT</span>
     </div>
   </div>
 </section>
@@ -368,7 +463,7 @@
 
       <!-- Chapter 01 — OVERVIEW. Same .ed-a grid, same .ph placeholder (untouched asset,
            just resized/retoned for Dark Theme) — no new Card layout. data-ov-ready /
-           data-ov-visual / .ov-meta below are the Overview Motion Prototype's own hooks
+           data-ov-visual below are the Overview Motion Prototype's own hooks
            only (see js/main.js "MOMENTRIP Chapter 01 OVERVIEW Motion Prototype" IIFE and
            style.css) — layout/typography/spacing all untouched. -->
       <div class="ed-block ed-a">
@@ -390,7 +485,7 @@
             <span class="ov-preview-status" data-preview-status aria-live="polite">STATIC PREVIEW</span>
             <span class="ov-preview-url">momentrip-phi.vercel.app</span>
             <span class="ov-preview-actions">
-              <button type="button" class="ov-preview-btn is-primary" data-preview-launch hidden>LIVE PREVIEW 실행</button>
+              <button type="button" class="ov-preview-btn is-primary" data-preview-launch aria-label="LIVE PREVIEW 실행" hidden>LIVE PREVIEW</button>
               <button type="button" class="ov-preview-btn is-exit" data-preview-exit hidden>EXIT PREVIEW</button>
               <a class="ov-preview-btn" href="https://momentrip-phi.vercel.app/" target="_blank" rel="noopener noreferrer">OPEN SITE ↗</a>
             </span>
@@ -398,8 +493,6 @@
           <div class="ph has-img" data-ov-visual>
             <img class="ph-img" src="assets/images/momentrip/momentrip-overview-desktop.webp" width="1920" height="1200" decoding="async" alt="MOMENTRIP 메인 화면 — 현재 지역 선택, 검색과 카테고리 버튼, 지도와 오늘 인기 Spot 목록">
 
-            <span class="ov-meta ov-meta-tl mono">PROJECT PREVIEW / 01</span>
-            <span class="ov-meta ov-meta-br mono">VIEWPORT / DESKTOP</span>
             <div class="ov-preview-frame" data-preview-frame></div>
           </div>
         </div>
@@ -455,7 +548,6 @@
         </div>
       </div>
     </div>
-    <div style="margin-top:16px;"><span class="tag mono">AUTO PLAY / SCROLL</span></div>
 
     <!-- 02 / PROBLEM — "Editorial Search Journey" Motion Prototype #6 (not final design).
          Desktop-only rework of Prototype #5: the zigzag Scattered Path is replaced with an
@@ -595,7 +687,6 @@
           <div class="home"></div>
         </div>
       </div>
-      <div style="text-align:center;margin-top:12px;"><span class="tag mono">SCROLL REVEAL POINT (STATIC PREVIEW)</span></div>
     </div>
 
     <a class="next" href="#project-mivy">
@@ -625,10 +716,14 @@
      var(--entry-accent). No new accent color, no new navigation, no new motion system —
      only the small scoped fade-up in js/main.js's MIVY IIFE.
 
-     NO SCREENSHOTS: assets/images/ contains only the Folder/Cursor SVGs used by Hero and
-     the nav — there is no real MIVY capture in this repo, and inventing one was out of
-     scope, so this pass is Typography + Layout only. Drop real captures in later between
-     00/INTRO and 02/CORE FEATURES.
+     CASE STUDY PASS (2026-10-19): 01 OVERVIEW · 02 CORE FEATURES · 03 IMPLEMENTATION ·
+     04 DEVICE SHOWCASE. Every capture in assets/images/mivy/ is the MIVY repo
+     (함승희_메모앱/MemoFlow MVP, v1.1.4 = commit 9d36dc5, same build as mivy.vercel.app)
+     run unmodified in an isolated headless Chrome profile, filled through its own UI with
+     temporary sample memos (photos = MOMENTRIP's own place illustrations). No screen was
+     redrawn or composited. Every number in 03 was measured in that run or read from the
+     source (js/constants.js, js/image-service.js, js/image-storage.js, js/ui.js).
+     Zoomable captures reuse the MOMENTRIP lightbox in js/main.js (selector widened only).
 
      The <a class="next"> below and the MOMENTRIP section above are untouched. -->
 <section id="project-mivy" class="section project">
@@ -641,85 +736,161 @@
       </div>
       <h2 class="project-name">MIVY</h2>
       <div class="project-cat mono">
-        <span>MOBILE / PWA</span><span>FUNCTIONAL BUILD</span>
+        <span>PERSONAL MEMO WEB APP</span><span>MOBILE-FIRST PWA</span><span>FUNCTIONAL BUILD</span>
       </div>
 
-      <!-- 00 / INTRO — identity + technology metadata. The lead sentence carries no manual
-           <br>: .mivy-lead's own max-width does the wrapping, so Desktop uses its full
-           measure and Mobile reflows to the viewport. -->
+      <!-- 01 / OVERVIEW — identity, metadata, one representative screen. The lead sentence
+           carries no manual <br>: .mivy-lead's own max-width does the wrapping. -->
       <div class="mivy-block mivy-block-intro" data-mivy-reveal>
-        <div class="chapter-label mono"><span class="chapter-label-num">00</span> / INTRO</div>
+        <div class="chapter-label mono"><span class="chapter-label-num">01</span> / OVERVIEW</div>
         <p class="mivy-lead">일상의 순간을 텍스트와 사진으로 기록하고, 언제든 다시 꺼내볼 수 있도록 만든 개인 기록형 메모 앱.</p>
-        <!-- Technology Metadata reuses .project-meta / .project-meta-label verbatim (the
-             same Label + Value Mono pair already under MOMENTRIP's Chapter 01 copy) —
-             no new badge system. Only technologies actually used in MIVY are listed. -->
+        <p class="copy-sm mivy-copy">복잡한 기능보다, 필요한 순간 빠르게 기록하고 사진과 함께 다시 찾아볼 수 있는 개인 메모 경험을 목표로 했다. 서버 없이 브라우저 안에서 동작하며, 모바일 화면을 기준으로 설계했다.</p>
+        <!-- .project-meta / .project-meta-label reused verbatim. Only technologies actually
+             used in MIVY are listed. -->
         <div class="project-meta mono mivy-stack">
-          <div><span class="project-meta-label">BUILD</span><span>HTML · CSS · VANILLA JAVASCRIPT</span></div>
+          <div><span class="project-meta-label">TYPE</span><span>PERSONAL MEMO WEB APP · PWA</span></div>
+          <div><span class="project-meta-label">ROLE</span><span>PLANNING · UI DESIGN · FRONT-END · AI COLLABORATION</span></div>
+          <div><span class="project-meta-label">BUILD</span><span>HTML · CSS · VANILLA JAVASCRIPT (ES MODULES)</span></div>
           <div><span class="project-meta-label">DATA</span><span>LOCALSTORAGE · INDEXEDDB</span></div>
-          <div><span class="project-meta-label">APP</span><span>SERVICE WORKER · PWA / MANIFEST</span></div>
+          <div><span class="project-meta-label">APP</span><span>SERVICE WORKER · WEB APP MANIFEST</span></div>
         </div>
+
+        <!-- LIVE PREVIEW — same bar, states and controller as MOMENTRIP's
+             (js/workspace-v2.js makePreview()). Static WebP by default; the deployed app
+             is only requested once [data-preview-launch] is pressed, Desktop V2 only.
+             Below 1024px the bar is hidden and the capture + OPEN APP ↗ remain. While
+             live, the iframe covers the capture and the capture is made inert. -->
+        <figure class="mivy-overview ov-preview" data-ov-preview data-state="static">
+          <div class="ov-preview-bar mono">
+            <span class="ov-preview-status" data-preview-status aria-live="polite">STATIC PREVIEW</span>
+            <span class="ov-preview-url">mivy.vercel.app</span>
+            <span class="ov-preview-actions">
+              <button type="button" class="ov-preview-btn is-primary" data-preview-launch aria-label="LIVE PREVIEW 실행" hidden>LIVE PREVIEW</button>
+              <button type="button" class="ov-preview-btn is-exit" data-preview-exit hidden>EXIT PREVIEW</button>
+            </span>
+          </div>
+          <div class="mivy-preview-box">
+          <div class="mivy-shot mivy-shot-desktop zoomable" data-lightbox="assets/images/mivy/mivy-overview-desktop.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="MIVY 메모 상세 화면 크게 보기">
+            <img src="assets/images/mivy/mivy-overview-desktop.webp" width="1920" height="1200" loading="lazy" decoding="async" alt="MIVY 데스크톱 메모 상세 화면 — 제목, 감정, 메모 날짜, 본문과 첨부 사진 갤러리(1 / 3)">
+          </div>
+            <div class="ov-preview-frame" data-preview-frame></div>
+          </div>
+          <figcaption class="mivy-cap mono">
+            <b>MEMO DETAIL — DESKTOP 1440</b>
+            <a class="mivy-link" href="https://mivy.vercel.app/" target="_blank" rel="noopener noreferrer">OPEN APP ↗</a>
+          </figcaption>
+        </figure>
       </div>
 
-      <!-- 01 / WHY -->
-      <div class="mivy-block" data-mivy-reveal>
-        <div class="chapter-label mono"><span class="chapter-label-num">01</span> / WHY</div>
-        <p class="copy-sm mivy-copy">복잡한 기능보다, 필요한 순간 빠르게 기록하고 사진과 함께 다시 찾아볼 수 있는 개인 메모 경험을 목표로 했다.</p>
-      </div>
-
-      <!-- 02 / CORE FEATURES — Feature Index, not a long bullet list. The nine implemented
-           features (Text Memo / Photo Attachment 10 / Gallery / Lightbox / Photo Counter /
-           Prev-Next / Card Photo Badge / SPA Navigation + History / Sorting / Local
-           Persistence) are compressed into four groups without changing what was built. -->
+      <!-- 02 / CORE FEATURES — four features, each verified in the running app and shown with
+           its own real 390px capture. Each box opens the 780px capture in the lightbox. -->
       <div class="mivy-block" data-mivy-reveal>
         <div class="chapter-label mono"><span class="chapter-label-num">02</span> / CORE FEATURES</div>
         <ol class="mivy-features">
           <li class="mivy-feature">
+            <div class="mivy-shot mivy-shot-phone zoomable" data-lightbox="assets/images/mivy/mivy-feature-record-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="메모 작성 화면 크게 보기">
+              <img src="assets/images/mivy/mivy-feature-record.webp" width="520" height="1125" loading="lazy" decoding="async" alt="MIVY 메모 수정 화면 — 메모 날짜, 감정 6종 선택 버튼, 제목과 본문 입력, 사진 추가·사진 촬영 버튼">
+            </div>
             <span class="mivy-feature-num mono">01</span>
-            <span class="mivy-feature-title">TEXT + PHOTO</span>
-            <span class="mivy-feature-desc">텍스트 메모에 최대 10장까지 사진을 함께 기록. 목록 카드에는 첨부 장수를 배지로 표시.</span>
+            <span class="mivy-feature-title">RECORD</span>
+            <span class="mivy-feature-desc">메모 날짜는 캘린더 팝업에서 고르고, 감정은 최대 3개까지, 태그는 Enter로 추가한다.</span>
           </li>
           <li class="mivy-feature">
+            <div class="mivy-shot mivy-shot-phone zoomable" data-lightbox="assets/images/mivy/mivy-feature-photo-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="사진 첨부 화면 크게 보기">
+              <img src="assets/images/mivy/mivy-feature-photo.webp" width="520" height="1125" loading="lazy" decoding="async" alt="MIVY 사진 첨부 영역 — 사진 추가·사진 촬영 버튼, 삭제 버튼이 있는 썸네일 3장, 사진 3/10 표시, 태그 칩">
+            </div>
             <span class="mivy-feature-num mono">02</span>
-            <span class="mivy-feature-title">GALLERY</span>
-            <span class="mivy-feature-desc">첨부한 사진을 라이트박스로 확대하고, 이전 / 다음 이동과 현재 위치 카운터를 제공.</span>
+            <span class="mivy-feature-title">PHOTO</span>
+            <span class="mivy-feature-desc">메모당 최대 10장. 앨범 선택과 카메라 촬영 버튼을 나누고, 썸네일로 미리 보며 한 장씩 삭제한다.</span>
           </li>
           <li class="mivy-feature">
+            <div class="mivy-shot mivy-shot-phone zoomable" data-lightbox="assets/images/mivy/mivy-feature-lightbox-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="사진 확대 화면 크게 보기">
+              <img src="assets/images/mivy/mivy-feature-lightbox.webp" width="520" height="1125" loading="lazy" decoding="async" alt="MIVY 사진 라이트박스 — 메모 상세 위에 확대된 사진, 닫기·다음 버튼, 1 / 3 카운터">
+            </div>
             <span class="mivy-feature-num mono">03</span>
-            <span class="mivy-feature-title">NAVIGATION</span>
-            <span class="mivy-feature-desc">SPA 방식으로 화면을 전환하고 히스토리를 처리. 기록 목록은 정렬해서 다시 찾을 수 있음.</span>
+            <span class="mivy-feature-title">VIEWER</span>
+            <span class="mivy-feature-desc">상세 화면 갤러리에서 사진을 누르면 라이트박스로 확대. 위치 카운터, 이전 / 다음 버튼, 스와이프, 방향키와 ESC를 지원한다.</span>
           </li>
           <li class="mivy-feature">
+            <div class="mivy-shot mivy-shot-phone zoomable" data-lightbox="assets/images/mivy/mivy-feature-calendar-2x.webp" role="button" tabindex="0" aria-haspopup="dialog" aria-label="캘린더 화면 크게 보기">
+              <img src="assets/images/mivy/mivy-feature-calendar.webp" width="520" height="1125" loading="lazy" decoding="async" alt="MIVY 캘린더 화면 — 메모가 있는 날짜에 점 표시, 선택한 10월 15일의 메모 카드, 하단 내비게이션">
+            </div>
             <span class="mivy-feature-num mono">04</span>
-            <span class="mivy-feature-title">LOCAL DATA</span>
-            <span class="mivy-feature-desc">텍스트는 LocalStorage, 이미지는 IndexedDB에 저장해 브라우저 안에서 기록이 유지됨.</span>
+            <span class="mivy-feature-title">CALENDAR</span>
+            <span class="mivy-feature-desc">메모가 있는 날짜에 점을 표시하고, 날짜를 누르면 그날 기록한 메모 목록을 보여준다.</span>
           </li>
         </ol>
       </div>
 
-      <!-- 03 / BUILD -->
+      <!-- 03 / IMPLEMENTATION — user action → how it is built → observed result. -->
       <div class="mivy-block" data-mivy-reveal>
-        <div class="chapter-label mono"><span class="chapter-label-num">03</span> / BUILD</div>
-        <p class="copy-sm mivy-copy">HTML / CSS와 Vanilla JavaScript로 기능을 직접 구현하고, 텍스트 기반 데이터는 LocalStorage, 이미지 데이터는 IndexedDB를 사용해 저장 역할을 분리했다.</p>
-        <p class="copy-sm mivy-copy">Service Worker와 Manifest를 적용해 PWA 구조로 확장했다.</p>
-        <div class="mivy-note"><span class="tag mono">DESIGN + FUNCTIONAL BUILD — RUNS IN THE BROWSER</span></div>
+        <div class="chapter-label mono"><span class="chapter-label-num">03</span> / IMPLEMENTATION</div>
+        <p class="copy-sm mivy-copy">프레임워크와 외부 라이브러리 없이 HTML / CSS / Vanilla JavaScript ES Module로 화면, 상태, 저장소 계층을 나눠 구현했다.</p>
+        <div class="mivy-impl" role="list">
+          <div class="mivy-impl-row mivy-impl-head mono" aria-hidden="true">
+            <span>USER ACTION</span><span>IMPLEMENTATION</span><span>RESULT</span>
+          </div>
+          <div class="mivy-impl-row" role="listitem">
+            <span class="mivy-impl-action"><i class="mono">01</i>사진을 첨부한다</span>
+            <span class="mivy-impl-how">createImageBitmap으로 실제 디코딩하며 EXIF 방향을 보정하고, 긴 변 1920px로 줄여 JPEG(품질 0.82)로 다시 저장. 투명 픽셀이 있는 PNG·WebP는 원래 포맷을 유지.</span>
+            <span class="mivy-impl-result mono">2816×1536 PNG 12.9MB<br>→ 1920×1047 JPEG 0.47MB</span>
+          </div>
+          <div class="mivy-impl-row" role="listitem">
+            <span class="mivy-impl-action"><i class="mono">02</i>메모를 저장한다</span>
+            <span class="mivy-impl-how">본문·감정·태그와 첨부 메타데이터(id, 크기, 형식)는 LocalStorage에, 이미지 Blob은 IndexedDB에 id 키로 나눠 저장.</span>
+            <span class="mivy-impl-result mono">새로고침 후에도<br>기록 + 사진 유지</span>
+          </div>
+          <div class="mivy-impl-row" role="listitem">
+            <span class="mivy-impl-action"><i class="mono">03</i>메모를 열고 뒤로 간다</span>
+            <span class="mivy-impl-how">index.html 한 장에서 화면 섹션만 바꾸는 SPA 구조. 상세 화면에 들어갈 때 history.pushState로 기록을 남긴다.</span>
+            <span class="mivy-impl-result mono">브라우저 뒤로가기<br>→ 홈으로 복귀</span>
+          </div>
+          <div class="mivy-impl-row" role="listitem">
+            <span class="mivy-impl-action"><i class="mono">04</i>화면 크기가 바뀐다</span>
+            <span class="mivy-impl-how">홈 · 캘린더 · 검색 · 설정 4개 메뉴를 하나의 data-nav 핸들러로 공유. 1024px 미만은 하단 내비게이션, 이상은 사이드바.</span>
+            <span class="mivy-impl-result mono">390px · 1440px<br>레이아웃 확인</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 / DEVICE SHOWCASE — same .devicewrap/.devices/.device markup MOMENTRIP uses;
+           MIVY's dark retone lives under #project-mivy in style.css. -->
+      <div class="devicewrap mivy-devicewrap" data-mivy-reveal>
+        <div class="chapter-label mono"><span class="chapter-label-num">04</span> / DEVICE SHOWCASE</div>
+        <div class="devices">
+          <div class="device desktop">
+            <div class="device-scr"><img src="assets/images/mivy/mivy-device-desktop.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="MIVY 데스크톱 홈 화면 — 사이드바 메뉴, 오늘 메모 작성 버튼, 최근 작성한 메모 카드 5개"></div>
+            <div class="device-base"></div>
+          </div>
+          <div class="device mobile">
+            <div class="device-scr"><img src="assets/images/mivy/mivy-device-mobile.webp" width="780" height="1688" loading="lazy" decoding="async" alt="MIVY 모바일 홈 화면 — 오늘 메모 작성 버튼, 메모 카드 목록, 새 메모 버튼과 하단 내비게이션"></div>
+            <div class="home"></div>
+          </div>
+        </div>
+        <div class="mivy-note"><span class="tag mono">SCREENS — MIVY v1.1.4 · CAPTURED WITH TEMPORARY SAMPLE DATA</span></div>
       </div>
     </div>
   </div>
 
   <div class="container">
-    <a class="next" href="#project-farmlink">
+    <!-- FARMLINK / DESIGN ARCHIVE are SOON, so MIVY's NEXT skips straight to ABOUT, in
+         the same NEXT · ABOUT form DESIGN ARCHIVE's own .next already uses. -->
+    <a class="next" href="#about">
       <div class="next-left">
-        <span class="kicker mono">NEXT PROJECT</span>
-        <span class="next-num mono">03</span>
-        <span class="next-name">FARMLINK</span>
+        <span class="kicker mono">NEXT</span>
+        <span class="next-num mono">·</span>
+        <span class="next-name">ABOUT</span>
       </div>
       <span class="next-arrow">→</span>
     </a>
   </div>
 </section>
 
-<!-- ============ PROJECT 03 · FARMLINK — pending rebuild, placeholder only ============ -->
-<section id="project-farmlink" class="section project">
+<!-- ============ PROJECT 03 · FARMLINK — pending rebuild, placeholder only ============
+     SOON: kept in the DOM unchanged but [hidden] — not shown in the Mobile page flow, and
+     js/workspace-v2.js refuses to make it the V2 Stage (STAGES.farmlink.soon). Remove
+     hidden + data-soon (and the SOON markers in #works / the V2 Navigation) to publish. -->
+<section id="project-farmlink" class="section project" data-soon hidden>
   <div class="container">
     <div class="project-head">
       <span class="kicker mono">PROJECT 03</span>
@@ -742,8 +913,9 @@
   </div>
 </section>
 
-<!-- ============ PROJECT 04 · DESIGN ARCHIVE ============ -->
-<section id="project-archive" class="section project">
+<!-- ============ PROJECT 04 · DESIGN ARCHIVE ============
+     SOON: same treatment as FARMLINK above (kept, [hidden], never a V2 Stage). -->
+<section id="project-archive" class="section project" data-soon hidden>
   <div class="container">
     <div class="project-head">
       <span class="kicker mono">PROJECT 04</span>
@@ -780,7 +952,15 @@
   <div class="container">
     <span class="kicker mono">03 · ABOUT</span>
     <h2 class="project-name" style="font-size:clamp(34px,5.5vw,64px);">HAM SEUNG HEE</h2>
-    <p class="copy-sm" style="margin-top:16px;font-size:16px;">[ SHORT INTRODUCTION — 한 줄 소개 플레이스홀더 텍스트 ]</p>
+
+    <!-- Content source: the career / skills / project facts supplied by the owner only.
+         No company names, employment dates or education details are stated on purpose —
+         none were provided, so none are implied. -->
+    <div class="about-intro">
+      <div class="label-sm mono">01 — INTRODUCTION</div>
+      <p class="about-lead">8 YEARS OF DESIGN.<br>NOW DESIGNING AND BUILDING.</p>
+      <p class="copy-sm about-text">상세페이지·배너·홈페이지부터 책자·리플렛까지, 약 8년간 디자인 실무에서 시각적 완성도와 사용자 관점을 다듬어 왔습니다. 지금은 직접 설계한 화면을 HTML·CSS·JavaScript로 구현하며, 디자인 의도가 코드에서도 그대로 유지되도록 디자인과 구현 사이의 간극을 줄이는 방식으로 작업합니다.</p>
+    </div>
 
     <div class="about-caps mono">
       <div>8 YEARS DESIGN</div>
@@ -791,22 +971,43 @@
 
     <div class="about-cols">
       <div>
-        <div class="label-sm mono">TOOLS / SKILLS</div>
+        <div class="label-sm mono">02 — EXPERIENCE</div>
         <ul>
-          <li>[ TOOL / SKILL 01 ]</li>
-          <li>[ TOOL / SKILL 02 ]</li>
-          <li>[ TOOL / SKILL 03 ]</li>
-          <li>[ TOOL / SKILL 04 ]</li>
+          <li>웹디자인 실무 약 8년</li>
+          <li>상세페이지 · 배너 · 홈페이지 디자인</li>
+          <li>책자 · 리플렛 등 인쇄 디자인</li>
+          <li>After Effects · Premiere Pro 영상 작업</li>
+          <li>2026 웹 퍼블리셔 / UIUX 교육과정 수료</li>
+          <li>교육과정 성적최우수상 · 출석최우수상 수상</li>
         </ul>
       </div>
       <div>
-        <div class="label-sm mono">CAREER SUMMARY</div>
-        <ul>
-          <li>[ YEAR ] — [ ROLE / COMPANY PLACEHOLDER ]</li>
-          <li>[ YEAR ] — [ ROLE / COMPANY PLACEHOLDER ]</li>
-          <li>[ YEAR ] — [ ROLE / COMPANY PLACEHOLDER ]</li>
+        <div class="label-sm mono">03 — SKILLS &amp; TOOLS</div>
+        <ul class="about-skills">
+          <li><span class="about-key mono">DESIGN</span>Figma · Adobe Photoshop · Adobe Illustrator</li>
+          <li><span class="about-key mono">FRONT-END</span>HTML5 / CSS3 · Responsive Web Design · Flexbox / CSS Grid · JavaScript</li>
+          <li><span class="about-key mono">MOTION</span>After Effects · Premiere Pro</li>
+          <li><span class="about-key mono">WORKFLOW</span>Git / GitHub · VS Code · AI-assisted Workflow</li>
         </ul>
       </div>
+    </div>
+
+    <div class="about-approach">
+      <div class="label-sm mono">04 — WORKING APPROACH</div>
+      <ol class="about-steps">
+        <li>
+          <span class="about-key mono">DESIGN</span>
+          <p>사용자 흐름과 화면 구조를 먼저 정리하고, 실무에서 다뤄 온 타이포그래피와 레이아웃 기준으로 시각적 완성도를 맞춥니다.</p>
+        </li>
+        <li>
+          <span class="about-key mono">BUILD</span>
+          <p>설계한 화면을 반응형 HTML·CSS와 JavaScript로 직접 구현합니다. MOMENTRIP에서는 여행 서비스의 반응형 퍼블리싱과 인터랙션을, MIVY에서는 LocalStorage·IndexedDB 기반의 메모와 이미지 첨부 기능을 만들었습니다.</p>
+        </li>
+        <li>
+          <span class="about-key mono">REFINE</span>
+          <p>AI를 작업 도구로 활용하되, 결과물은 브라우저에서 직접 확인하고 검토하며 고쳐 나갑니다.</p>
+        </li>
+      </ol>
     </div>
   </div>
 </section>
@@ -815,9 +1016,10 @@
 <section id="contact" class="section">
   <span class="kicker mono" style="position:absolute; top:32px; left:50%; transform:translateX(-50%);">04 · CONTACT</span>
   <h2 class="contact-h">LET'S WORK<br>TOGETHER</h2>
+  <p class="copy-sm contact-note">디자인부터 구현까지, 함께 만들 프로젝트에 대해 이야기 나누고 싶습니다.</p>
   <div class="contact-links mono">
-    <a href="#" onclick="return false;">[ EMAIL ADDRESS ]</a>
-    <a href="#" onclick="return false;">[ GITHUB URL ]</a>
+    <a href="mailto:a2011345@naver.com">EMAIL · a2011345@naver.com</a>
+    <a href="https://github.com/smsh9291-droid" target="_blank" rel="noopener noreferrer">GITHUB · smsh9291-droid ↗</a>
   </div>
 </section>
 
@@ -909,14 +1111,23 @@
         <button type="button" class="v2-nav-item" data-nav-go="mivy">
           <span class="v2-nav-name"><i>02</i>Mivy</span>
         </button>
-        <button type="button" class="v2-nav-item" data-nav-go="farmlink">
-          <span class="v2-nav-name"><i>03</i>Farmlink</span>
+        <!-- SOON items stay focusable buttons (so keyboard / screen-reader users still
+             learn the project exists) but are aria-disabled: workspace-v2.js ignores
+             their activation and keeps the Navigation open. -->
+        <button type="button" class="v2-nav-item is-soon" data-nav-go="farmlink" aria-disabled="true">
+          <span class="v2-nav-name"><i>03</i>Farmlink</span><span class="v2-nav-soon">SOON</span>
         </button>
-        <button type="button" class="v2-nav-item" data-nav-go="archive">
-          <span class="v2-nav-name"><i>04</i>Design archive</span>
+        <button type="button" class="v2-nav-item is-soon" data-nav-go="archive" aria-disabled="true">
+          <span class="v2-nav-name"><i>04</i>Design archive</span><span class="v2-nav-soon">SOON</span>
         </button>
         <button type="button" class="v2-nav-item v2-nav-item-about" data-nav-go="about">
           <span class="v2-nav-name">About</span>
+        </button>
+        <!-- CONTACT: a registered Stage (STAGES.contact) that nothing on Desktop could
+             select — the identity bar that once carried ABOUT / CONTACT is gone. Same
+             secondary item as ABOUT, directly under it. -->
+        <button type="button" class="v2-nav-item v2-nav-item-about v2-nav-item-contact" data-nav-go="contact">
+          <span class="v2-nav-name">Contact</span>
         </button>
       </div>
     </div>

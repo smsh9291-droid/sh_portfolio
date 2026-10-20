@@ -510,7 +510,7 @@
   // Sub Folder Navigation reuses this exact same cursor + is-hover class — no new cursor
   // system. Items are static in the HTML (only revealed/hidden via CSS opacity later), so
   // querying them once here at load time is enough.
-  document.querySelectorAll('.hero-folder-item').forEach(function(item){
+  document.querySelectorAll('.hero-folder-item:not(.is-soon)').forEach(function(item){
     item.addEventListener('mouseenter', function(){ cursor.classList.add('is-hover'); });
     item.addEventListener('mouseleave', function(){ cursor.classList.remove('is-hover'); });
   });
@@ -519,7 +519,7 @@
   // whole IIFE already returned early above under touch/coarse pointer, so this listener
   // only ever exists on Desktop; the Mobile Auto Active Sequence is untouched and never
   // wired to the cursor.
-  document.querySelectorAll('#works .folder-item').forEach(function(item){
+  document.querySelectorAll('#works .folder-item:not(.is-soon)').forEach(function(item){
     item.addEventListener('mouseenter', function(){ cursor.classList.add('is-hover'); });
     item.addEventListener('mouseleave', function(){ cursor.classList.remove('is-hover'); });
   });
@@ -925,7 +925,9 @@
   var reducedMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
   var desktopMQ = window.matchMedia('(min-width:701px) and (hover:hover) and (pointer:fine)');
   var section = document.getElementById('works');
-  var rows = section ? Array.prototype.slice.call(section.querySelectorAll('.folder-item')) : [];
+  // SOON rows (FARMLINK / DESIGN ARCHIVE) are not enterable, so they never take part in
+  // the sequence or the tap feedback — only the live projects light up (01 -> 02 -> pause).
+  var rows = section ? Array.prototype.slice.call(section.querySelectorAll('.folder-item:not(.is-soon)')) : [];
   if (!section || !rows.length) return;
 
   var ROW_ACTIVE_MS = 1550;     // was 1050 — exactly +500ms per this pass, nothing else recomputed
@@ -1710,7 +1712,8 @@
   Array.prototype.forEach.call(blocks, function(b){ io.observe(b); });
 })();
 
-/* -- MOMENTRIP image lightbox (DESIGN PROCESS 01/03, BEFORE/AFTER). Any
+/* -- MOMENTRIP image lightbox (DESIGN PROCESS 01/03, BEFORE/AFTER; also reused as-is by MIVY's
+   captures — #project-mivy [data-lightbox], same behaviour, no second implementation). Any
    #project-momentrip [data-lightbox] box opens its 2x capture over a 50% black backdrop;
    a click anywhere on it (image or backdrop) or ESC closes it and focus returns to the
    box that opened it. The Stage is never restyled: wheel/touch/scroll keys are simply
@@ -1723,7 +1726,7 @@
    screens the zoom never drops below HTML_MIN_ZOOM; the copy reflows narrower instead and
    the sheet scrolls inside if it ever gets taller than the screen. */
 (function(){
-  var triggers = document.querySelectorAll('#project-momentrip [data-lightbox]');
+  var triggers = document.querySelectorAll('#project-momentrip [data-lightbox], #project-mivy [data-lightbox]');
   if (!triggers.length) return;
   var cursor = document.getElementById('custom-cursor');
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1877,4 +1880,59 @@
     t.addEventListener('mouseenter', function(){ if (cursor) cursor.classList.add('is-hover'); });
     t.addEventListener('mouseleave', function(){ if (cursor) cursor.classList.remove('is-hover'); });
   });
+})();
+
+/* -- MOBILE V2 Navigation (< 1024px): the Folder trigger opens the curved bottom sheet
+   (#m-nav-sheet) and closes it again (CLOSE, scrim tap, ESC, an item). Where an item
+   goes — and the progress hairline / aria-current — is js/workspace-v2.js's MOBILE
+   STAGES; this block reads nothing from, and changes nothing in, the IIFEs above. Above
+   1024px #m-nav is display:none (css/style.css), and any open sheet is closed on
+   crossing over. */
+(function(){
+  var nav = document.getElementById('m-nav');
+  var sheet = document.getElementById('m-nav-sheet');
+  if (!nav || !sheet) return;
+  var trigger = nav.querySelector('.m-nav-trigger');
+  var links = Array.prototype.slice.call(sheet.querySelectorAll('a.m-nav-item'));
+  var root = document.documentElement;
+  var mobileMQ = window.matchMedia('(max-width:1023px)');
+  var isOpen = false;
+
+  function setOpen(open, restoreFocus){
+    isOpen = open;
+    nav.classList.toggle('is-open', open);
+    root.classList.toggle('m-nav-lock', open);
+    trigger.setAttribute('aria-expanded', String(open));
+    trigger.setAttribute('aria-label', open ? '프로젝트 메뉴 닫기' : '프로젝트 메뉴 열기');
+    sheet.setAttribute('aria-hidden', String(!open));
+    sheet.inert = !open;
+    if (open) {
+      var first = sheet.querySelector('a.m-nav-item[aria-current="true"]') || links[0];
+      if (first) first.focus({ preventScroll:true });
+    } else if (restoreFocus) {
+      trigger.focus({ preventScroll:true });
+    }
+  }
+  sheet.inert = true;
+
+  trigger.addEventListener('click', function(){ setOpen(!isOpen, true); });
+  Array.prototype.forEach.call(nav.querySelectorAll('[data-m-nav-close]'), function(el){
+    el.addEventListener('click', function(){ setOpen(false, true); });
+  });
+  // a link closes the sheet first (lifting the scroll lock); js/workspace-v2.js then
+  // turns the same click into a Stage change (no anchor jump, no page scroll)
+  links.forEach(function(a){
+    a.addEventListener('click', function(){ setOpen(false, false); });
+  });
+  document.addEventListener('keydown', function(e){
+    if (isOpen && (e.key === 'Escape' || e.key === 'Esc')) setOpen(false, true);
+  });
+  // Back / Forward changes the Stage underneath — never leave the sheet over it
+  window.addEventListener('popstate', function(){ if (isOpen) setOpen(false, false); });
+  function onBreakpoint(){ if (!mobileMQ.matches && isOpen) setOpen(false, false); }
+  if (mobileMQ.addEventListener) mobileMQ.addEventListener('change', onBreakpoint);
+  else if (mobileMQ.addListener) mobileMQ.addListener(onBreakpoint);
+
+  // The progress hairline and the current item's aria-current follow the current
+  // Stage, so js/workspace-v2.js (MOBILE STAGES) sets both on every Stage change.
 })();
