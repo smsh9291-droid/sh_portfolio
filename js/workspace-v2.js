@@ -98,9 +98,9 @@
     mivy:      { id:'project-mivy',      label:'MIVY',           num:'02' },
     // soon:true — in-progress Projects. Their sections stay in the DOM ([hidden]) but
     // setStage() never shows them, whatever asks: Navigation, an anchor, or a deep link
-    // (#project-farmlink / #ws-archive land on SELECTED WORKS instead).
+    // (#project-farmlink / #ws-farmlink land on SELECTED WORKS instead).
     farmlink:  { id:'project-farmlink',  label:'FARMLINK',       num:'03', soon:true },
-    archive:   { id:'project-archive',   label:'DESIGN ARCHIVE', num:'04', soon:true },
+    archive:   { id:'project-archive',   label:'DESIGN ARCHIVE', num:'04' },
     about:     { id:'about',             label:'ABOUT',          num:'··' },
     contact:   { id:'contact',           label:'CONTACT',        num:'··' }
   };

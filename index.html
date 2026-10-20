@@ -222,8 +222,8 @@
   <div class="m-intro-frame mono">
     <dl class="m-intro-prompt">
       <div><dt>PROFILE</dt><dd>8 years of design.<br>Now designing and building.</dd></div>
-      <div><dt>WORKS</dt><dd>MOMENTRIP · MIVY</dd></div>
-      <div><dt>SOON</dt><dd>FARMLINK · DESIGN ARCHIVE</dd></div>
+      <div><dt>WORKS</dt><dd>MOMENTRIP · MIVY · DESIGN ARCHIVE</dd></div>
+      <div><dt>SOON</dt><dd>FARMLINK</dd></div>
       <div><dt>RULE</dt><dd>Human direction first. AI implements.<span class="m-caret" aria-hidden="true"></span></dd></div>
     </dl>
     <div class="m-intro-foot">
@@ -246,7 +246,7 @@
       <li><a class="m-nav-item" href="#project-momentrip"><i>01</i>Momentrip</a></li>
       <li><a class="m-nav-item" href="#project-mivy"><i>02</i>Mivy</a></li>
       <li><span class="m-nav-item is-soon" aria-disabled="true"><i>03</i>Farmlink<span class="m-nav-soon">SOON</span></span></li>
-      <li><span class="m-nav-item is-soon" aria-disabled="true"><i>04</i>Design archive<span class="m-nav-soon">SOON</span></span></li>
+      <li><a class="m-nav-item" href="#project-archive"><i>04</i>Design archive</a></li>
       <li><a class="m-nav-item is-sub" href="#about"><i>··</i>About</a></li>
       <li><a class="m-nav-item is-sub" href="#contact"><i>··</i>Contact</a></li>
     </ol>
@@ -421,9 +421,9 @@
         </span>
         <span class="folder-arrow" aria-hidden="true">↗</span>
       </a>
-      <!-- SOON rows: FARMLINK / DESIGN ARCHIVE are in progress. No href (not a link, not a
-           tab stop, and V2's anchor→Stage interception never sees them); the ↗ arrow is
-           replaced by a SOON tag. Row layout is unchanged. -->
+      <!-- SOON row: FARMLINK is in progress. No href (not a link, not a tab stop, and V2's
+           anchor→Stage interception never sees it); the ↗ arrow is replaced by a SOON tag.
+           Row layout is unchanged. -->
       <a class="folder-item is-soon" aria-disabled="true">
         <span class="folder-num mono">03</span>
         <span class="folder-meta">
@@ -432,13 +432,13 @@
         </span>
         <span class="soon-tag folder-soon mono">SOON</span>
       </a>
-      <a class="folder-item is-soon" aria-disabled="true">
+      <a class="folder-item" href="#project-archive">
         <span class="folder-num mono">04</span>
         <span class="folder-meta">
           <span class="folder-name">DESIGN ARCHIVE</span>
-          <span class="folder-cat mono">VISUAL DESIGN · ART DIRECTION</span>
+          <span class="folder-cat mono">PROFESSIONAL WORK · UI · WEB · PRINT</span>
         </span>
-        <span class="soon-tag folder-soon mono">SOON</span>
+        <span class="folder-arrow" aria-hidden="true">↗</span>
       </a>
     </div>
   </div>
@@ -876,13 +876,12 @@
   </div>
 
   <div class="container">
-    <!-- FARMLINK / DESIGN ARCHIVE are SOON, so MIVY's NEXT skips straight to ABOUT, in
-         the same NEXT · ABOUT form DESIGN ARCHIVE's own .next already uses. -->
-    <a class="next" href="#about">
+    <!-- FARMLINK is SOON, so MIVY's NEXT skips straight to DESIGN ARCHIVE (04). -->
+    <a class="next" href="#project-archive">
       <div class="next-left">
-        <span class="kicker mono">NEXT</span>
-        <span class="next-num mono">·</span>
-        <span class="next-name">ABOUT</span>
+        <span class="kicker mono">NEXT PROJECT</span>
+        <span class="next-num mono">04</span>
+        <span class="next-name">DESIGN ARCHIVE</span>
       </div>
       <span class="next-arrow">→</span>
     </a>
@@ -916,29 +915,300 @@
   </div>
 </section>
 
-<!-- ============ PROJECT 04 · DESIGN ARCHIVE ============
-     SOON: same treatment as FARMLINK above (kept, [hidden], never a V2 Stage). -->
-<section id="project-archive" class="section project" data-soon hidden>
-  <div class="container">
-    <div class="project-head">
-      <span class="kicker mono">PROJECT 04</span>
-      <span class="kicker mono">ARCHIVE</span>
-    </div>
-    <h2 class="project-name">DESIGN ARCHIVE</h2>
-    <p class="copy-sm" style="margin-top:12px;">[ VISUAL DESIGN · ART DIRECTION — 기존 디자인 경력 아카이브 ]</p>
+<!-- ============ PROJECT 04 · DESIGN ARCHIVE — professional work ============
+     Five representative pieces from the owner's company work, shown as an archive, not as
+     five more case studies: an index of cards, then one entry per piece (images +
+     short description + own role). Card → entry and ↑ INDEX → index are in-Stage jumps
+     (js/main.js ARCHIVE IIFE): no hash, no history entry, so Back still leaves the Stage
+     the same way it does from MOMENTRIP / MIVY.
 
-    <div class="ed-block">
-      <div class="label-sm mono">EDITORIAL GALLERY</div>
-      <div class="gallery">
-        <div class="ph"><span>[ VISUAL 01 ]</span></div>
-        <div class="ph"><span>[ VISUAL 02 ]</span></div>
-        <div class="ph"><span>[ VISUAL 03 ]</span></div>
-        <div class="ph"><span>[ VISUAL 04 ]</span></div>
-        <div class="ph"><span>[ VISUAL 05 ]</span></div>
-        <div class="ph"><span>[ VISUAL 06 ]</span></div>
+     Every image in assets/images/archive/ is the original file from the owner's Google
+     Drive portfolio folder, only cropped and/or downscaled (PDFs rendered to JPEG, the
+     leaflet trimmed at its own crop marks). No piece was redrawn or retouched. Copy states
+     only what the files themselves show or the owner supplied: no dates, tools, team
+     sizes or results were added. Zoom reuses the shared lightbox in js/main.js;
+     data-lightbox-long opens tall pages as a scrollable full-width sheet instead of
+     shrinking them to the screen height. Visual language is MIVY's (.pd-dark-zone,
+     .chapter-label, .project-meta, lime only on numbers). -->
+<section id="project-archive" class="section project">
+  <div class="pd-dark-zone">
+    <div class="section-boundary" aria-hidden="true"></div>
+    <div class="container">
+      <div class="project-head">
+        <span class="kicker mono">PROJECT 04</span>
+        <span class="kicker mono">PROFESSIONAL WORK</span>
+      </div>
+      <h2 class="project-name">DESIGN ARCHIVE</h2>
+      <div class="project-cat mono">
+        <span>APPLICATION UI</span><span>WEB / E-COMMERCE</span><span>EDITORIAL / PRINT</span>
+      </div>
+
+      <!-- INDEX — five cards; each jumps to its entry below -->
+      <div class="arc-block arc-block-intro" id="archive-index" data-archive-reveal>
+        <div class="chapter-label mono"><span class="chapter-label-num">00</span> / INDEX</div>
+        <p class="arc-lead">실무 경험을 기반으로 구축한 디자인 아카이브.</p>
+        <p class="copy-sm arc-copy">약 8년간 다양한 산업과 매체에서 수행한 프로젝트 중, 주요 디자인 작업을 선별했습니다. 작업을 선택하면 원본 이미지와 설명으로 이동합니다.</p>
+        <ol class="arc-index">
+          <li><a class="arc-card" href="#archive-rakuten" data-archive-go>
+            <span class="arc-card-img"><img src="assets/images/archive/rakuten-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-num mono">01</span>
+            <span class="arc-card-name">RAKUTEN PMP</span>
+            <span class="arc-card-type mono">APPLICATION UI</span>
+          </a></li>
+          <li><a class="arc-card" href="#archive-landing" data-archive-go>
+            <span class="arc-card-img"><img src="assets/images/archive/landing-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-num mono">02</span>
+            <span class="arc-card-name">FINANCIAL LANDING PAGES</span>
+            <span class="arc-card-type mono">LANDING PAGE · WEB</span>
+          </a></li>
+          <li><a class="arc-card" href="#archive-myeonjangin" data-archive-go>
+            <span class="arc-card-img"><img src="assets/images/archive/myeonjangin-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-num mono">03</span>
+            <span class="arc-card-name">MYEONJANGIN</span>
+            <span class="arc-card-type mono">E-COMMERCE · DETAIL PAGE</span>
+          </a></li>
+          <li><a class="arc-card" href="#archive-gwanak" data-archive-go>
+            <span class="arc-card-img"><img src="assets/images/archive/gwanak-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-num mono">04</span>
+            <span class="arc-card-name">GWANAK CIL</span>
+            <span class="arc-card-type mono">EDITORIAL · PRINT</span>
+          </a></li>
+          <li><a class="arc-card" href="#archive-beammall" data-archive-go>
+            <span class="arc-card-img"><img src="assets/images/archive/beammall-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-num mono">05</span>
+            <span class="arc-card-name">BEAMMALL</span>
+            <span class="arc-card-type mono">E-COMMERCE · PROMOTION</span>
+          </a></li>
+        </ol>
+      </div>
+
+      <!-- 01 RAKUTEN PMP — UI design only; build/release status is deliberately not claimed -->
+      <article class="arc-entry" id="archive-rakuten" aria-labelledby="archive-rakuten-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">01</span> / APPLICATION UI · PROFESSIONAL WORK</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-rakuten-title" tabindex="-1">RAKUTEN PMP <span>Program UI Design</span></h3>
+        <div class="arc-entry-body">
+          <p class="copy-sm arc-copy">개발자와 협업해 진행한 라쿠텐 가격관리 프로그램(PMP, Price Management Program)의 UI 디자인. 많은 상품과 가격 데이터를 한 화면에서 확인할 수 있도록 목록 테이블과 설정 패널을 나누고, 로그인부터 상품 등록, 가격 수정 설정, 시간대별 하한가, 경쟁방지 상품 등록, 알림 메시지까지 기능별 화면과 상태를 설계했습니다.</p>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>UI DESIGN</span></div>
+            <div><span class="project-meta-label">TEAM</span><span>DEVELOPER COLLABORATION</span></div>
+            <div><span class="project-meta-label">LANG</span><span>KOREAN · JAPANESE VERSIONS</span></div>
+            <div><span class="project-meta-label">STATUS</span><span>UI DESIGN COMPLETED · FINAL BUILD / RELEASE NOT CONFIRMED</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-wide">
+          <li class="arc-wide"><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/rakuten-ko-p16.jpg" role="button" tabindex="0" aria-haspopup="dialog" aria-label="상품 개별 등록 화면 크게 보기">
+              <img src="assets/images/archive/rakuten-ko-p16-sm.jpg" width="1100" height="504" loading="lazy" decoding="async" alt="라쿠텐 PMP 상품 개별 등록 화면 — 왼쪽 상품 정보·가격 수정 설정 패널과 오른쪽 상품 목록 테이블">
+            </div>
+            <figcaption class="arc-cap mono"><b>PRODUCT SETUP</b> 상품 정보 · 가격 수정 설정</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/rakuten-ko-p8.jpg" role="button" tabindex="0" aria-haspopup="dialog" aria-label="상품 목록 화면 크게 보기">
+              <img src="assets/images/archive/rakuten-ko-p8-sm.jpg" width="1100" height="504" loading="lazy" decoding="async" alt="라쿠텐 PMP 상품 목록 관리 화면 — 기본 상품가, 조정금액, 하한가, 기준순위, 변동가 열이 있는 데이터 테이블">
+            </div>
+            <figcaption class="arc-cap mono"><b>PRODUCT LIST</b> 상품 목록 관리</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/rakuten-ja-p8.jpg" role="button" tabindex="0" aria-haspopup="dialog" aria-label="일본어 버전 상품 목록 화면 크게 보기">
+              <img src="assets/images/archive/rakuten-ja-p8-sm.jpg" width="1100" height="504" loading="lazy" decoding="async" alt="라쿠텐 PMP 일본어 버전 상품 리스트 화면 — 같은 테이블 구성의 일본어 레이블">
+            </div>
+            <figcaption class="arc-cap mono"><b>PRODUCT LIST · JP</b> 일본어 버전</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/rakuten-ko-p3.jpg" role="button" tabindex="0" aria-haspopup="dialog" aria-label="로그인 화면 크게 보기">
+              <img src="assets/images/archive/rakuten-ko-p3-sm.jpg" width="1100" height="786" loading="lazy" decoding="async" alt="라쿠텐 PMP 로그인 화면 — 한국어 / 일본어 선택, 아이디·비밀번호 입력, 로그인 버튼">
+            </div>
+            <figcaption class="arc-cap mono"><b>LOGIN</b> 언어 선택 · 로그인</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/rakuten-ja-p3.jpg" role="button" tabindex="0" aria-haspopup="dialog" aria-label="일본어 버전 로그인 화면 크게 보기">
+              <img src="assets/images/archive/rakuten-ja-p3-sm.jpg" width="1100" height="786" loading="lazy" decoding="async" alt="라쿠텐 PMP 일본어 버전 로그인 화면">
+            </div>
+            <figcaption class="arc-cap mono"><b>LOGIN · JP</b> 일본어 버전</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/rakuten-ko-p27.jpg" role="button" tabindex="0" aria-haspopup="dialog" aria-label="시간대별 하한가 설정 화면 크게 보기">
+              <img src="assets/images/archive/rakuten-ko-p27-sm.jpg" width="1100" height="1100" loading="lazy" decoding="async" alt="라쿠텐 PMP 시간대별 하한가 설정 창 — 오전·오후 1시간 단위 금액 입력표와 전체선택, 일괄입력, 저장 버튼">
+            </div>
+            <figcaption class="arc-cap mono"><b>TIME-BASED PRICE</b> 시간대별 하한가 설정</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/rakuten-ko-p41.jpg" role="button" tabindex="0" aria-haspopup="dialog" aria-label="경쟁방지 상품 등록 화면 크게 보기">
+              <img src="assets/images/archive/rakuten-ko-p41-sm.jpg" width="1100" height="621" loading="lazy" decoding="async" alt="라쿠텐 PMP 경쟁방지 상품 등록 창 — 가격 비교 대상, 수동 등록 입력란, 경쟁 방지 대상 상품 목록과 안내 문구">
+            </div>
+            <figcaption class="arc-cap mono"><b>EXCLUSION LIST</b> 경쟁방지 상품 등록</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <!-- 02 FINANCIAL LANDING PAGES — desktop pages from the Drive folder, dated by file name -->
+      <article class="arc-entry" id="archive-landing" aria-labelledby="archive-landing-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">02</span> / LANDING PAGE · WEB DESIGN</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-landing-title" tabindex="-1">FINANCIAL LANDING PAGES</h3>
+        <div class="arc-entry-body">
+          <p class="copy-sm arc-copy">2022년과 2023년에 디자인한 금융 상품 랜딩페이지. 페이지마다 다른 콘셉트로 첫 화면을 구성하고, 혜택 · 비교 · 신청 안내로 이어지는 긴 흐름 안에서 정보의 위계와 신청 버튼의 위치를 설계했습니다.</p>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>LANDING PAGE DESIGN</span></div>
+            <div><span class="project-meta-label">FOCUS</span><span>CONCEPT · INFORMATION HIERARCHY · CTA · LONG-PAGE FLOW</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-4">
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/landing-20220812.jpg" data-lightbox-long data-lightbox-size="1440x4532" role="button" tabindex="0" aria-haspopup="dialog" aria-label="2022년 8월 랜딩페이지 전체 보기">
+              <img src="assets/images/archive/landing-20220812-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="금융 랜딩페이지(2022.08) — 흰 배경과 파란 포인트의 채무통합지원 안내 페이지">
+            </div>
+            <figcaption class="arc-cap mono"><b>2022.08</b> FULL PAGE</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/landing-20221207.jpg" data-lightbox-long data-lightbox-size="1440x3268" role="button" tabindex="0" aria-haspopup="dialog" aria-label="2022년 12월 랜딩페이지 전체 보기">
+              <img src="assets/images/archive/landing-20221207-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="금융 랜딩페이지(2022.12) — 초록 배경과 캐릭터 일러스트의 채무통합 안내 페이지">
+            </div>
+            <figcaption class="arc-cap mono"><b>2022.12</b> FULL PAGE</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/landing-20230102.jpg" data-lightbox-long data-lightbox-size="1440x3552" role="button" tabindex="0" aria-haspopup="dialog" aria-label="2023년 1월 랜딩페이지 전체 보기">
+              <img src="assets/images/archive/landing-20230102-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="금융 랜딩페이지(2023.01) — 보라 배경과 새해 캐릭터 일러스트의 채무통합 안내 페이지">
+            </div>
+            <figcaption class="arc-cap mono"><b>2023.01</b> FULL PAGE</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/landing-20230306.jpg" data-lightbox-long data-lightbox-size="1440x3146" role="button" tabindex="0" aria-haspopup="dialog" aria-label="2023년 3월 랜딩페이지 전체 보기">
+              <img src="assets/images/archive/landing-20230306-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="금융 랜딩페이지(2023.03) — 하늘색 배경과 인물 일러스트의 대출 안내 페이지">
+            </div>
+            <figcaption class="arc-cap mono"><b>2023.03</b> FULL PAGE</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <!-- 03 MYEONJANGIN — one long product detail page -->
+      <article class="arc-entry arc-entry-split" id="archive-myeonjangin" aria-labelledby="archive-myeonjangin-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">03</span> / E-COMMERCE · DETAIL PAGE</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-myeonjangin-title" tabindex="-1">MYEONJANGIN <span>Product Detail Page</span></h3>
+        <div class="arc-entry-body">
+          <p class="copy-sm arc-copy">‘면장인의 짬뽕 이야기’ 제품 상세페이지. 브랜드 스토리로 시작해 면과 제품의 특징, 위생 관리, 조리 방법, 제품 정보와 영양 정보까지 구매 전에 필요한 내용을 하나의 흐름으로 이어지도록 구성했습니다.</p>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>DETAIL PAGE DESIGN</span></div>
+            <div><span class="project-meta-label">FLOW</span><span>BRAND STORY → FEATURES → HOW TO COOK → PRODUCT INFO</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-1">
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/myeonjangin.jpg" data-lightbox-long data-lightbox-size="900x10758" role="button" tabindex="0" aria-haspopup="dialog" aria-label="면장인의 짬뽕 이야기 상세페이지 전체 보기">
+              <img src="assets/images/archive/myeonjangin-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="면장인의 짬뽕 이야기 상세페이지 상단 — 붉은 배경의 제품명과 짬뽕 사진, 브랜드 소개">
+            </div>
+            <figcaption class="arc-cap mono"><b>DETAIL PAGE</b> FULL PAGE · 900 × 10758</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <!-- 04 GWANAK CIL — eight panels of the printed leaflet, trimmed at the crop marks -->
+      <article class="arc-entry" id="archive-gwanak" aria-labelledby="archive-gwanak-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">04</span> / EDITORIAL · PRINT DESIGN</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-gwanak-title" tabindex="-1">GWANAK CIL <span>Editorial Design</span></h3>
+        <div class="arc-entry-body">
+          <p class="copy-sm arc-copy">관악장애인자립생활센터의 2021년 사업안내 리플렛. 인사말, 센터 안내, 자립생활지원, 활동지원 서비스, 자립생활주택, 찾아오시는 길까지 많은 분량의 안내를 면마다 섹션으로 나누고, 같은 제목 · 아이콘 · 색 체계로 정리한 인쇄용 편집디자인입니다.</p>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>EDITORIAL DESIGN · PRINT</span></div>
+            <div><span class="project-meta-label">FORMAT</span><span>LEAFLET · 8 PANELS</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-4">
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p1.jpg" data-lightbox-long data-lightbox-size="1600x3056" role="button" tabindex="0" aria-haspopup="dialog" aria-label="리플렛 표지 크게 보기">
+              <img src="assets/images/archive/gwanak-p1-sm.jpg" width="600" height="1146" loading="lazy" decoding="async" alt="리플렛 표지 — 관악장애인자립생활센터 2021년 사업안내, 연락처와 QR 코드, 퍼즐 일러스트">
+            </div>
+            <figcaption class="arc-cap mono"><b>01</b> COVER</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p2.jpg" data-lightbox-long data-lightbox-size="1600x3056" role="button" tabindex="0" aria-haspopup="dialog" aria-label="인사말 면 크게 보기">
+              <img src="assets/images/archive/gwanak-p2-sm.jpg" width="600" height="1146" loading="lazy" decoding="async" alt="리플렛 인사말 면 — 세로 제목과 대표 인사 본문">
+            </div>
+            <figcaption class="arc-cap mono"><b>02</b> 인사말</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p3.jpg" data-lightbox-long data-lightbox-size="1600x2824" role="button" tabindex="0" aria-haspopup="dialog" aria-label="센터 안내 면 크게 보기">
+              <img src="assets/images/archive/gwanak-p3-sm.jpg" width="600" height="1059" loading="lazy" decoding="async" alt="리플렛 센터 안내 면 — 비전, 미션, 슬로건, 핵심가치, 사업목표 블록">
+            </div>
+            <figcaption class="arc-cap mono"><b>03</b> 센터 안내</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p4.jpg" data-lightbox-long data-lightbox-size="1600x2824" role="button" tabindex="0" aria-haspopup="dialog" aria-label="자립생활지원 안내 면 크게 보기">
+              <img src="assets/images/archive/gwanak-p4-sm.jpg" width="600" height="1059" loading="lazy" decoding="async" alt="리플렛 자립생활지원 안내 면 — 아이콘과 함께 정리한 동료상담, 개인별 자립지원 항목">
+            </div>
+            <figcaption class="arc-cap mono"><b>04</b> 자립생활지원</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p5.jpg" data-lightbox-long data-lightbox-size="1600x2647" role="button" tabindex="0" aria-haspopup="dialog" aria-label="권익옹호·선택사업 면 크게 보기">
+              <img src="assets/images/archive/gwanak-p5-sm.jpg" width="600" height="993" loading="lazy" decoding="async" alt="리플렛 권익옹호·선택사업 면 — 아이콘과 일정이 붙은 사업 목록, 거주시설 연계사업 안내">
+            </div>
+            <figcaption class="arc-cap mono"><b>05</b> 권익옹호 · 선택사업</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p6.jpg" data-lightbox-long data-lightbox-size="1600x2647" role="button" tabindex="0" aria-haspopup="dialog" aria-label="장애인활동지원 서비스 안내 면 크게 보기">
+              <img src="assets/images/archive/gwanak-p6-sm.jpg" width="600" height="993" loading="lazy" decoding="async" alt="리플렛 장애인활동지원 서비스 안내 면 — 대상, 내용, 활동지원사 모집 안내">
+            </div>
+            <figcaption class="arc-cap mono"><b>06</b> 활동지원 서비스</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p7.jpg" data-lightbox-long data-lightbox-size="1600x2471" role="button" tabindex="0" aria-haspopup="dialog" aria-label="자립생활주택 사업 안내 면 크게 보기">
+              <img src="assets/images/archive/gwanak-p7-sm.jpg" width="600" height="927" loading="lazy" decoding="async" alt="리플렛 자립생활주택 사업 안내 면 — 개요 표와 입주대상, 지원 내용">
+            </div>
+            <figcaption class="arc-cap mono"><b>07</b> 자립생활주택</figcaption>
+          </figure></li>
+          <li><figure>
+            <div class="arc-shot zoomable" data-lightbox="assets/images/archive/gwanak-p8.jpg" data-lightbox-long data-lightbox-size="1600x2471" role="button" tabindex="0" aria-haspopup="dialog" aria-label="찾아오시는 길 면 크게 보기">
+              <img src="assets/images/archive/gwanak-p8-sm.jpg" width="600" height="927" loading="lazy" decoding="async" alt="리플렛 찾아오시는 길 면 — 약도, 교통편 안내 표">
+            </div>
+            <figcaption class="arc-cap mono"><b>08</b> 찾아오시는 길</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <!-- 05 BEAMMALL — one long promotion page -->
+      <article class="arc-entry arc-entry-split" id="archive-beammall" aria-labelledby="archive-beammall-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">05</span> / E-COMMERCE · PROMOTION DESIGN</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-beammall-title" tabindex="-1">BEAMMALL <span>Promotion Page</span></h3>
+        <div class="arc-entry-body">
+          <p class="copy-sm arc-copy">빔몰 프로젝터 기획전 페이지. 같은 구조의 상품 카드를 반복해 모델명, 주요 사양 아이콘, 정상가와 할인가를 같은 위치에서 비교할 수 있도록 정리하고, 브랜드별로 카드 색을 나눠 긴 목록에서도 구분되도록 했습니다.</p>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>PROMOTION PAGE DESIGN</span></div>
+            <div><span class="project-meta-label">FOCUS</span><span>PRODUCT CARD SYSTEM · PRICE / PROMOTION INFO</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-1">
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/beammall.jpg" data-lightbox-long data-lightbox-size="900x6882" role="button" tabindex="0" aria-haspopup="dialog" aria-label="빔몰 기획전 페이지 전체 보기">
+              <img src="assets/images/archive/beammall-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="빔몰 기획전 페이지 상단 — 극한세일 타이틀과 번호가 붙은 프로젝터 상품 카드, 정상가와 할인가">
+            </div>
+            <figcaption class="arc-cap mono"><b>PROMOTION PAGE</b> FULL PAGE · 900 × 6882</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <!-- Full portfolio — new tab, so the Stage underneath stays exactly where it was -->
+      <div class="arc-more" data-archive-reveal>
+        <p class="copy-sm arc-copy">배너, 이벤트페이지, 패키지, 영상 등 다른 작업은 전체 디자인 포트폴리오에서 볼 수 있습니다.</p>
+        <a class="arc-more-link mono" href="https://drive.google.com/drive/folders/1d9McsFrj-HlAoZCBK4p2QUBY9OVzKuys" target="_blank" rel="noopener noreferrer">VIEW FULL DESIGN PORTFOLIO ↗</a>
       </div>
     </div>
+  </div>
 
+  <div class="container">
     <a class="next" href="#about">
       <div class="next-left">
         <span class="kicker mono">NEXT</span>
@@ -1120,8 +1390,8 @@
         <button type="button" class="v2-nav-item is-soon" data-nav-go="farmlink" aria-disabled="true">
           <span class="v2-nav-name"><i>03</i>Farmlink</span><span class="v2-nav-soon">SOON</span>
         </button>
-        <button type="button" class="v2-nav-item is-soon" data-nav-go="archive" aria-disabled="true">
-          <span class="v2-nav-name"><i>04</i>Design archive</span><span class="v2-nav-soon">SOON</span>
+        <button type="button" class="v2-nav-item" data-nav-go="archive">
+          <span class="v2-nav-name"><i>04</i>Design archive</span>
         </button>
         <button type="button" class="v2-nav-item v2-nav-item-about" data-nav-go="about">
           <span class="v2-nav-name">About</span>

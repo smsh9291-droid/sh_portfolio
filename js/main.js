@@ -1724,14 +1724,18 @@
    the box itself instead of an image: laid out at a fixed 600x375 (the card's 8:5) and
    enlarged with CSS zoom, so the text is re-rendered at size, not scaled pixels. On narrow
    screens the zoom never drops below HTML_MIN_ZOOM; the copy reflows narrower instead and
-   the sheet scrolls inside if it ever gets taller than the screen. */
+   the sheet scrolls inside if it ever gets taller than the screen.
+   DESIGN ARCHIVE reuses it too. Its tall pieces (landing / detail pages, leaflet panels)
+   carry data-lightbox-long: fitted to the screen height they would be unreadable, so the
+   image is shown at reading width (never wider than LONG_MAX or its own pixels) inside
+   the same scrolling sheet the HTML card uses, and scrolls by wheel / touch / keys. */
 (function(){
-  var triggers = document.querySelectorAll('#project-momentrip [data-lightbox], #project-mivy [data-lightbox]');
+  var triggers = document.querySelectorAll('#project-momentrip [data-lightbox], #project-mivy [data-lightbox], #project-archive [data-lightbox]');
   if (!triggers.length) return;
   var cursor = document.getElementById('custom-cursor');
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var SCROLL_KEYS = { ' ':1, 'Spacebar':1, 'ArrowUp':1, 'ArrowDown':1, 'ArrowLeft':1, 'ArrowRight':1, 'PageUp':1, 'PageDown':1, 'Home':1, 'End':1 };
-  var HTML_W = 600, HTML_H = 375, HTML_MIN_ZOOM = 1.35;
+  var HTML_W = 600, HTML_H = 375, HTML_MIN_ZOOM = 1.35, LONG_MAX = 1100;
   var box = null, img = null, sheet = null, copy = null, current = null, thumb = null, hi = null, hideTimer = null;
 
   function build(){
@@ -1768,7 +1772,7 @@
 
   // fit the source ratio inside the viewport (never larger than the screen)
   function fit(){
-    if (copy) return fitHtml();
+    if (copy) return copy.tagName === 'IMG' ? fitLong() : fitHtml();
     if (!current || !thumb) return;
     var nw = thumb.naturalWidth || +thumb.getAttribute('width');
     var nh = thumb.naturalHeight || +thumb.getAttribute('height');
@@ -1783,6 +1787,11 @@
     copy.classList.toggle('is-narrow', w < HTML_W);
     copy.style.width = w + 'px';
     copy.style.zoom = z;
+  }
+  // tall image: reading width, natural ratio, the sheet scrolls the rest
+  function fitLong(){
+    var nw = +copy.getAttribute('width');
+    copy.style.width = Math.round(Math.min(window.innerWidth * 0.92, LONG_MAX, nw)) + 'px';
   }
 
   // a live copy of the card, stripped of its trigger role so it is just a picture
@@ -1832,6 +1841,26 @@
       sheet.scrollTop = 0;
       box.setAttribute('aria-label', trigger.getAttribute('data-lightbox-alt') || '확대 보기');
       fit();
+    } else if (trigger.hasAttribute('data-lightbox-long')) {
+      thumb = trigger.querySelector('img');
+      img.hidden = true;
+      img.removeAttribute('src');
+      copy = new Image();
+      copy.className = 'lightbox-long';
+      copy.decoding = 'async';
+      copy.alt = thumb ? thumb.alt : '';
+      // the thumbnail may be a top crop, so the full file's own size comes from
+      // data-lightbox-size="WxH" — known up front, the sheet never jumps while it loads
+      var size = (trigger.getAttribute('data-lightbox-size') || '').split('x');
+      copy.setAttribute('width', size[0]);
+      copy.setAttribute('height', size[1]);
+      copy.style.aspectRatio = size[0] + ' / ' + size[1];
+      copy.src = trigger.getAttribute('data-lightbox');
+      sheet.appendChild(copy);
+      sheet.hidden = false;
+      sheet.scrollTop = 0;
+      box.setAttribute('aria-label', copy.alt || '확대 이미지');
+      fit();
     } else {
       sheet.hidden = true;
       img.hidden = false;
@@ -1880,6 +1909,58 @@
     t.addEventListener('mouseenter', function(){ if (cursor) cursor.classList.add('is-hover'); });
     t.addEventListener('mouseleave', function(){ if (cursor) cursor.classList.remove('is-hover'); });
   });
+})();
+
+/* -- DESIGN ARCHIVE: index card → entry, ↑ INDEX → index. A jump inside the Stage, not a
+   navigation: the href (#archive-…) is only the no-JS fallback, so no hash is written, no
+   history entry is added, and Back still leaves the Stage exactly as from MOMENTRIP/MIVY.
+   It scrolls whatever box actually scrolls the section — #v2-host as a Stage (Desktop and
+   Mobile), the page itself without JS-built Stages — by setting scrollTop on it directly
+   (never scrollIntoView, which would also move the page around the fixed Stage).
+   Focus follows to the entry title for keyboard / screen-reader users. The fade-in is
+   MIVY's: one IntersectionObserver, .archive-motion-ready armed only once supported. */
+(function(){
+  var section = document.getElementById('project-archive');
+  if (!section) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function scroller(){
+    for (var el = section.parentElement; el && el !== document.body; el = el.parentElement) {
+      var oy = getComputedStyle(el).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight) return el;
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+  function jump(target){
+    var box = scroller();
+    var isPage = box === document.scrollingElement || box === document.documentElement;
+    var top = target.getBoundingClientRect().top - (isPage ? 0 : box.getBoundingClientRect().top);
+    var y = Math.max(0, box.scrollTop + top - 24);
+    if (typeof box.scrollTo === 'function') box.scrollTo({ top:y, behavior: reduced ? 'auto' : 'smooth' });
+    else box.scrollTop = y;
+    var focusEl = target.querySelector('.arc-entry-name') || target.querySelector('.arc-card');
+    if (focusEl) focusEl.focus({ preventScroll:true });
+  }
+  section.addEventListener('click', function(e){
+    var a = e.target.closest ? e.target.closest('a[data-archive-go]') : null;
+    if (!a) return;
+    var target = document.getElementById(a.getAttribute('href').slice(1));
+    if (!target) return;
+    e.preventDefault();
+    jump(target);
+  });
+
+  var blocks = section.querySelectorAll('[data-archive-reveal]');
+  if (!blocks.length || !('IntersectionObserver' in window)) return; // leave everything visible
+  section.classList.add('archive-motion-ready');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -8% 0px' });
+  Array.prototype.forEach.call(blocks, function(b){ io.observe(b); });
 })();
 
 /* -- MOBILE V2 Navigation (< 1024px): the Folder trigger opens the curved bottom sheet

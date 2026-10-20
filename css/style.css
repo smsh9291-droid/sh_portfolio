@@ -2300,6 +2300,8 @@ html.ws-open.mini-ready .mini-folder-fixed{
   background:#FFFCF6; box-shadow:0 18px 60px rgba(0,0,0,.45);
 }
 .lightbox-img[hidden], .lightbox-sheet[hidden]{ display:none; }
+/* DESIGN ARCHIVE tall pages (data-lightbox-long): reading width set by js, natural ratio */
+.lightbox-sheet .lightbox-long{ display:block; max-width:none; height:auto; background:#fff; }
 .lightbox-sheet .ph.proc-tokens{
   min-height:375px; padding:36px 42px; /* = the card's 8:5 box and its 6%/7% padding at 600px */
   border:0;
@@ -2657,10 +2659,6 @@ html.ws-open.mini-ready .mini-folder-fixed{
 .copy-sm{ font-size:15px; line-height:1.6; color:var(--ink-soft); max-width:56ch; word-break:keep-all; overflow-wrap:break-word; }
 @media (max-width:700px){
   .copy-sm{ font-size:13px; line-height:1.55; }
-}
-@media (max-width:700px){
-  #project-archive .project-name{ font-size:clamp(26px,8vw,34px); }
-  #project-archive .copy-sm{ font-size:12px; line-height:1.5; }
 }
 .label-sm{ font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--tag); margin-bottom:10px; }
 
@@ -3086,6 +3084,205 @@ html.ws-open.mini-ready .mini-folder-fixed{
 }
 @media (prefers-reduced-motion:reduce){
   #project-mivy.mivy-motion-ready [data-mivy-reveal]{ transform:none; transition:opacity .2s ease; }
+}
+
+/* ============ PROJECT 04 · DESIGN ARCHIVE — professional work ============
+   Scoped to #project-archive / .arc-* only. Built from MIVY's vocabulary (same Dark
+   Zone, chapter rhythm, lead size, meta ledger, capture frame, caption tiers, zoom chip,
+   fade-in) so the archive reads as the same site; the only new pieces are the card index,
+   the entry header with ↑ INDEX, and the gallery grids. Images are shown at their own
+   ratio everywhere except the index cards and the tall-page tiles, which show the top of
+   the page (object-position:top) — the lightbox always shows the whole original. */
+#project-archive .project-cat{
+  display:flex; flex-wrap:wrap;
+  margin-top:16px;
+  font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  color:rgba(244,244,244,.5);
+}
+#project-archive .project-cat span:not(:last-child)::after{
+  content:"·"; margin:0 14px; color:rgba(244,244,244,.25);
+}
+.arc-block-intro{ margin-top:clamp(40px,5.5vw,72px); }
+.arc-lead{
+  margin-top:22px;
+  font-size:clamp(19px,2.1vw,30px); line-height:1.5; font-weight:700; letter-spacing:-.01em;
+  color:#f4f4f4; max-width:46ch; word-break:keep-all; text-wrap:pretty;
+}
+.arc-copy{ margin-top:18px; word-break:keep-all; text-wrap:pretty; }
+
+/* INDEX — five cards in one row; the number / name / type stack is SELECTED WORKS'
+   index row (mono lime number, Large Sans name, small mono category) under a hairline. */
+.arc-index{
+  list-style:none; margin:clamp(32px,4vw,52px) 0 0; padding:0;
+  display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:clamp(16px,2vw,28px);
+}
+.arc-card{
+  display:flex; flex-direction:column; gap:8px; height:100%;
+  color:inherit; text-decoration:none;
+}
+.arc-card-img{
+  display:block; aspect-ratio:4/3; overflow:hidden; margin-bottom:6px;
+  border:1px solid rgba(244,244,244,.2); background:#fff;
+  transition:border-color .2s ease;
+}
+.arc-card-img img{ display:block; width:100%; height:100%; object-fit:cover; object-position:top center; }
+.arc-card-num{
+  padding-top:12px; border-top:1px solid rgba(244,244,244,.16);
+  font-size:12px; letter-spacing:.14em; color:var(--entry-accent);
+}
+.arc-card-name{
+  font-size:clamp(14px,1.25vw,18px); font-weight:800; letter-spacing:.02em; line-height:1.25;
+  color:#f4f4f4; transition:color .2s ease;
+}
+.arc-card-type{ font-size:11px; letter-spacing:.1em; color:rgba(244,244,244,.45); }
+.arc-card:hover .arc-card-img, .arc-card:focus-visible .arc-card-img{ border-color:rgba(244,244,244,.5); }
+.arc-card:hover .arc-card-name, .arc-card:focus-visible .arc-card-name{ color:var(--entry-accent); }
+.arc-card:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:6px; }
+
+/* ENTRY — one per piece: header (chapter label + ↑ INDEX), name, copy | meta, gallery */
+.arc-entry{
+  margin-top:clamp(72px,9vw,128px);
+  padding-top:clamp(24px,2.6vw,36px);
+  border-top:1px solid rgba(244,244,244,.16);
+}
+.arc-entry-head{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; }
+.arc-back{
+  flex:none; font-size:11px; letter-spacing:.12em;
+  color:rgba(244,244,244,.62); text-decoration:none;
+  border-bottom:1px solid rgba(244,244,244,.3); padding-bottom:2px;
+  transition:color .2s ease, border-color .2s ease;
+}
+.arc-back:hover, .arc-back:focus-visible{ color:var(--entry-accent); border-color:var(--entry-accent); }
+.arc-back:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:3px; }
+.arc-entry-name{
+  margin:16px 0 0;
+  font-size:clamp(28px,3.8vw,56px); font-weight:800; line-height:1.05; letter-spacing:-.01em;
+  text-transform:uppercase; color:#f4f4f4;
+}
+.arc-entry-name:focus{ outline:none; }
+.arc-entry-name span{
+  display:block; margin-top:8px;
+  font-size:clamp(15px,1.3vw,19px); font-weight:600; letter-spacing:.01em; text-transform:none;
+  color:rgba(244,244,244,.5);
+}
+.arc-entry-body{
+  display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+  gap:8px clamp(32px,5vw,80px); align-items:start;
+}
+.arc-entry-body .arc-copy{ max-width:60ch; }
+.arc-meta{ margin-top:20px; }
+.arc-meta .project-meta-label{ min-width:7ch; }
+
+/* GALLERY — real files in the MIVY capture frame; white behind, so nothing flashes dark */
+.arc-gallery{
+  list-style:none; margin:clamp(28px,3.4vw,44px) 0 0; padding:0;
+  display:grid; gap:clamp(20px,2.4vw,32px) clamp(16px,2vw,28px); align-items:start;
+}
+.arc-gallery figure{ margin:0; }
+.arc-gallery-wide{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.arc-gallery-wide .arc-wide{ grid-column:1 / -1; }
+.arc-gallery-4{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+.arc-gallery-1{ grid-template-columns:minmax(0,440px); }
+.arc-shot{
+  position:relative; overflow:hidden;
+  border:1px solid rgba(244,244,244,.2); background:#fff;
+}
+.arc-shot img{ display:block; width:100%; height:auto; }
+/* tall pages: a 3:4 window on the top of the page, fading out, "+ FULL PAGE" to read it all */
+.arc-shot-long{ aspect-ratio:3/4; }
+.arc-shot-long img{ height:100%; object-fit:cover; object-position:top center; }
+.arc-shot-long::before{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:22%; z-index:1;
+  background:linear-gradient(to bottom, rgba(20,20,20,0), rgba(20,20,20,.55));
+  pointer-events:none;
+}
+.arc-cap{
+  display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:10px;
+  font-size:11px; letter-spacing:.08em; line-height:1.5; color:rgba(244,244,244,.42);
+}
+.arc-cap b{ font-weight:600; color:rgba(244,244,244,.78); }
+
+/* zoom affordance — MIVY's chip, mirrored under this scope */
+#project-archive .zoomable{ cursor:zoom-in; transition:border-color .2s ease; }
+#project-archive .zoomable::after{
+  content:"+ ZOOM";
+  position:absolute; right:8px; bottom:8px; z-index:2;
+  padding:3px 7px;
+  font-family:ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  font-size:10px; letter-spacing:.1em;
+  background:rgba(20,20,20,.82); color:#f4f4f4;
+  opacity:0; transition:opacity .2s ease;
+  pointer-events:none;
+}
+#project-archive .arc-shot-long.zoomable::after{ content:"+ FULL PAGE"; }
+#project-archive .zoomable:hover,
+#project-archive .zoomable:focus-visible{ border-color:rgba(244,244,244,.5); }
+#project-archive .zoomable:hover::after,
+#project-archive .zoomable:focus-visible::after{ opacity:1; }
+#project-archive .zoomable:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:3px; }
+@media (hover:none){ #project-archive .zoomable::after{ opacity:1; } }
+
+/* FULL PORTFOLIO link */
+.arc-more{
+  margin-top:clamp(72px,9vw,128px);
+  padding-top:clamp(24px,2.6vw,36px);
+  border-top:1px solid rgba(244,244,244,.16);
+  display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:20px 40px;
+}
+.arc-more .arc-copy{ margin:0; }
+.arc-more-link{
+  display:inline-flex; align-items:center; min-height:48px; padding:0 22px;
+  font-size:12px; letter-spacing:.12em; text-decoration:none;
+  color:#141414; background:#f4f4f4; border:1px solid #f4f4f4; border-radius:2px;
+  transition:background-color .2s ease, border-color .2s ease;
+}
+.arc-more-link:hover, .arc-more-link:focus-visible{ background:var(--entry-accent); border-color:var(--entry-accent); }
+.arc-more-link:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:3px; }
+
+#project-archive .next{ margin-top:clamp(48px,6vw,84px); }
+
+/* fade-in — MIVY's, armed by js/main.js only once IntersectionObserver exists */
+#project-archive.archive-motion-ready [data-archive-reveal]{
+  opacity:0; transform:translateY(14px);
+  transition:opacity .55s ease, transform .55s ease;
+}
+#project-archive.archive-motion-ready [data-archive-reveal].is-visible{ opacity:1; transform:none; }
+@media (prefers-reduced-motion:reduce){
+  #project-archive.archive-motion-ready [data-archive-reveal]{ transform:none; transition:opacity .2s ease; }
+}
+
+/* Tablet: three index cards per row, two-up leaflet panels stay legible */
+@media (max-width:1024px){
+  .arc-index{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .arc-gallery-4{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+/* Mobile (the project's 700px breakpoint): the index becomes a list of tappable rows
+   (thumbnail left, text right — five 4:3 cards stacked would be five screens), the copy
+   and meta stack, and the wide gallery goes one column. */
+@media (max-width:700px){
+  .arc-lead{ font-size:clamp(17px,4.6vw,21px); max-width:none; }
+  .arc-index{ grid-template-columns:1fr; gap:0; margin-top:26px; }
+  .arc-index li{ border-top:1px solid rgba(244,244,244,.16); }
+  .arc-index li:last-child{ border-bottom:1px solid rgba(244,244,244,.16); }
+  .arc-card{
+    display:grid; grid-template-columns:112px minmax(0,1fr); grid-template-rows:auto auto auto 1fr;
+    column-gap:16px; row-gap:4px; padding:14px 0; min-height:84px;
+  }
+  .arc-card-img{ grid-row:1 / -1; margin:0; }
+  .arc-card-num{ padding-top:2px; border-top:0; font-size:11px; }
+  .arc-card-name{ font-size:15px; }
+  .arc-card-type{ font-size:10px; }
+  .arc-entry-head{ align-items:center; }
+  .arc-back{ position:relative; }
+  .arc-back::after{ content:""; position:absolute; inset:-14px -10px; } /* 44px touch target */
+  .arc-entry-body{ grid-template-columns:1fr; }
+  .arc-meta .project-meta-label{ min-width:6ch; }
+  .arc-gallery-wide{ grid-template-columns:1fr; }
+  .arc-gallery-4{ gap:20px 12px; }
+  .arc-gallery-1{ grid-template-columns:minmax(0,1fr); }
+  .arc-cap{ font-size:10px; }
+  .arc-more{ flex-direction:column; align-items:stretch; }
+  .arc-more-link{ justify-content:center; }
 }
 
 /* =====================================================================================
