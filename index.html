@@ -943,49 +943,211 @@
         <span>APPLICATION UI</span><span>WEB / E-COMMERCE</span><span>EDITORIAL / PRINT</span>
       </div>
 
-      <!-- INDEX — five cards; each jumps to its entry below -->
+      <!-- INDEX — eight cards in an asymmetric editorial grid; each jumps to its entry below.
+           The three long detail pages (SOBA, TEVIGO, COCOMINT) open the index side by side;
+           JJAMPPONG, RAKUTEN, LANDING, GWANAK and BEAMMALL follow.
+           data-arc-fx names the card's own hover (css/style.css "INDEX"); data-arc-track
+           cards also follow the pointer (js/main.js ARCHIVE INDEX HOVER). Thumbnails are
+           web copies / crops of the originals; GWANAK shows three whole leaflet panels and
+           the detail pages a tall crop of their page top, so none has to be cut to fit. -->
       <div class="arc-block arc-block-intro" id="archive-index" data-archive-reveal>
         <div class="chapter-label mono"><span class="chapter-label-num">00</span> / INDEX</div>
         <p class="arc-lead">실무 경험을 기반으로 구축한 디자인 아카이브.</p>
         <p class="copy-sm arc-copy">약 8년간 다양한 산업과 매체에서 수행한 프로젝트 중, 주요 디자인 작업을 선별했습니다. 작업을 선택하면 원본 이미지와 설명으로 이동합니다.</p>
         <ol class="arc-index">
-          <li><a class="arc-card" href="#archive-rakuten" data-archive-go>
+          <li class="arc-item arc-item-detail arc-item-soba"><a class="arc-card" href="#archive-soba" data-archive-go data-arc-fx="scroll">
+            <span class="arc-card-img"><img src="assets/images/archive/myeonjangin-soba-tall.jpg" width="600" height="1800" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">01<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">MYEONJANGIN SOBA</span>
+              <span class="arc-card-type mono">E-COMMERCE · DETAIL PAGE</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
+          </a></li>
+          <li class="arc-item arc-item-detail arc-item-tevigo"><a class="arc-card" href="#archive-tevigo" data-archive-go data-arc-fx="scroll">
+            <span class="arc-card-img"><img src="assets/images/archive/tevigo-op010-tall.jpg" width="600" height="1800" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">02<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">TEVIGO OP-010</span>
+              <span class="arc-card-type mono">E-COMMERCE · DETAIL PAGE</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
+          </a></li>
+          <li class="arc-item arc-item-detail arc-item-cocomint"><a class="arc-card" href="#archive-cocomint" data-archive-go data-arc-fx="scroll">
+            <span class="arc-card-img"><img src="assets/images/archive/cocomint-op020r-tall.jpg" width="600" height="1800" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">03<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">COCOMINT OP-020R</span>
+              <span class="arc-card-type mono">E-COMMERCE · DETAIL PAGE</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
+          </a></li>
+          <li class="arc-item arc-item-jjamppong"><a class="arc-card" href="#archive-jjamppong" data-archive-go data-arc-fx="scroll">
+            <span class="arc-card-img"><img src="assets/images/archive/myeonjangin-tall.jpg" width="600" height="1100" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">04<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">MYEONJANGIN JJAMPPONG</span>
+              <span class="arc-card-type mono">E-COMMERCE · DETAIL PAGE</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
+          </a></li>
+          <li class="arc-item arc-item-rakuten"><a class="arc-card" href="#archive-rakuten" data-archive-go data-arc-fx="zoom" data-arc-track>
             <span class="arc-card-img"><img src="assets/images/archive/rakuten-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
-            <span class="arc-card-num mono">01</span>
-            <span class="arc-card-name">RAKUTEN PMP</span>
-            <span class="arc-card-type mono">APPLICATION UI</span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">05<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">RAKUTEN PMP</span>
+              <span class="arc-card-type mono">APPLICATION UI</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
           </a></li>
-          <li><a class="arc-card" href="#archive-landing" data-archive-go>
-            <span class="arc-card-img"><img src="assets/images/archive/landing-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
-            <span class="arc-card-num mono">02</span>
-            <span class="arc-card-name">FINANCIAL LANDING PAGES</span>
-            <span class="arc-card-type mono">LANDING PAGE · WEB</span>
+          <li class="arc-item arc-item-landing"><a class="arc-card" href="#archive-landing" data-archive-go data-arc-fx="lift">
+            <span class="arc-card-img"><img src="assets/images/archive/landing-20230306-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt=""></span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">06<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">FINANCIAL LANDING PAGES</span>
+              <span class="arc-card-type mono">LANDING PAGE · WEB</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
           </a></li>
-          <li><a class="arc-card" href="#archive-myeonjangin" data-archive-go>
-            <span class="arc-card-img"><img src="assets/images/archive/myeonjangin-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
-            <span class="arc-card-num mono">03</span>
-            <span class="arc-card-name">MYEONJANGIN</span>
-            <span class="arc-card-type mono">E-COMMERCE · DETAIL PAGE</span>
+          <li class="arc-item arc-item-gwanak"><a class="arc-card" href="#archive-gwanak" data-archive-go data-arc-fx="layers">
+            <span class="arc-card-img arc-spread">
+              <img src="assets/images/archive/gwanak-p1-sm.jpg" width="600" height="1146" loading="lazy" decoding="async" alt="">
+              <img src="assets/images/archive/gwanak-p2-sm.jpg" width="600" height="1146" loading="lazy" decoding="async" alt="">
+              <img src="assets/images/archive/gwanak-p3-sm.jpg" width="600" height="1059" loading="lazy" decoding="async" alt="">
+            </span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">07<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">GWANAK CIL</span>
+              <span class="arc-card-type mono">EDITORIAL · PRINT</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
           </a></li>
-          <li><a class="arc-card" href="#archive-gwanak" data-archive-go>
-            <span class="arc-card-img"><img src="assets/images/archive/gwanak-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
-            <span class="arc-card-num mono">04</span>
-            <span class="arc-card-name">GWANAK CIL</span>
-            <span class="arc-card-type mono">EDITORIAL · PRINT</span>
-          </a></li>
-          <li><a class="arc-card" href="#archive-beammall" data-archive-go>
+          <li class="arc-item arc-item-beammall"><a class="arc-card" href="#archive-beammall" data-archive-go data-arc-fx="parallax" data-arc-track>
             <span class="arc-card-img"><img src="assets/images/archive/beammall-cover.jpg" width="800" height="600" loading="lazy" decoding="async" alt=""></span>
-            <span class="arc-card-num mono">05</span>
-            <span class="arc-card-name">BEAMMALL</span>
-            <span class="arc-card-type mono">E-COMMERCE · PROMOTION</span>
+            <span class="arc-card-meta">
+              <span class="arc-card-num mono">08<i aria-hidden="true"> / 08</i></span>
+              <span class="arc-card-name">BEAMMALL</span>
+              <span class="arc-card-type mono">E-COMMERCE · PROMOTION</span>
+              <span class="arc-card-view mono" aria-hidden="true">VIEW PROJECT ↓</span>
+            </span>
           </a></li>
         </ol>
       </div>
 
-      <!-- 01 RAKUTEN PMP — UI design only; build/release status is deliberately not claimed -->
+      <!-- 01–04 PRODUCT DETAIL PAGES — one long page each. Illustration credits follow what the
+           owner confirmed: product-explanation / structure-function graphics are their own;
+           backgrounds, people, decoration and (for SOBA) finished-dish images are external.
+           No individual graphic is credited beyond that. TEVIGO's efficacy claims (negative
+           ions etc.) are described only as the page's marketing copy, never as fact. The page
+           images themselves are unchanged. -->
+      <article class="arc-entry arc-entry-split" id="archive-soba" aria-labelledby="archive-soba-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">01</span> / E-COMMERCE · DETAIL PAGE</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-soba-title" tabindex="-1">MYEONJANGIN SOBA <span>Product Detail Page</span></h3>
+        <div class="arc-entry-body">
+          <div>
+            <p class="copy-sm arc-copy">‘면장인의 소바 이야기’ 제품 상세페이지. 당일 발송 안내와 대표 인사말로 시작해 브랜드 타이틀, 생면과 쯔유 소스의 특징, HACCP 위생 관리, 추천 대상, 조리 방법, 구성품과 배송, 제품·영양 정보, Q&amp;A, 교환·반품 안내까지 구매 전에 필요한 내용을 하나의 흐름으로 구성했습니다. 남색과 짙은 녹색 바탕의 차분한 톤으로 정리했습니다.</p>
+            <p class="copy-sm arc-copy">조리 방법 안내에 쓰인 조리 과정 설명 일러스트는 직접 제작했으며, 완성 요리 이미지 등 일부 이미지는 외부 소스를 활용했습니다.</p>
+          </div>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>DETAIL PAGE DESIGN</span></div>
+            <div><span class="project-meta-label">FLOW</span><span>BRAND STORY → FEATURES → HACCP → HOW TO EAT → PRODUCT INFO → Q&amp;A</span></div>
+            <div><span class="project-meta-label">ILLUST</span><span>COOKING STEP ILLUSTRATIONS — OWN · FOOD IMAGES — PARTLY EXTERNAL</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-1">
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/myeonjangin-soba.jpg" data-lightbox-long data-lightbox-size="900x20527" role="button" tabindex="0" aria-haspopup="dialog" aria-label="면장인의 소바 이야기 상세페이지 전체 보기">
+              <img src="assets/images/archive/myeonjangin-soba-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="면장인의 소바 이야기 상세페이지 상단 — 당일 발송 안내와 대표 인사말">
+            </div>
+            <figcaption class="arc-cap mono"><b>DETAIL PAGE</b> FULL PAGE · 900 × 20527</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <article class="arc-entry arc-entry-split" id="archive-tevigo" aria-labelledby="archive-tevigo-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">02</span> / E-COMMERCE · DETAIL PAGE</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-tevigo-title" tabindex="-1">TEVIGO OP-010 <span>Product Detail Page</span></h3>
+        <div class="arc-entry-body">
+          <div>
+            <p class="copy-sm arc-copy">Tevigo 공기청정기 OP-010 제품 상세페이지. ‘마치, 숲에 있는 것처럼’이라는 콘셉트 카피에 맞춰 짙은 청록색과 숲 이미지로 첫인상을 만들고, 아이콘 8개로 주요 소구점을 먼저 요약한 뒤 01–08 번호 섹션에서 하나씩 풀어내는 구조로 구성했습니다. 큰 숫자 헤드라인과 제품 라인 드로잉, 아이콘·그래프형 그래픽으로 각 항목을 시각화하고, 청소 방법·인증서·치수·사양 정보로 마무리했습니다.</p>
+            <p class="copy-sm arc-copy">음이온 등 효능 관련 문구는 당시 제품 상세페이지의 마케팅 카피이며, 이 아카이브에서는 그 내용을 시각적으로 전달한 방식을 중심으로 소개합니다. 제품 설명용 일러스트와 제품 구조·기능을 표현한 그래픽은 직접 제작했으며, 배경·인물·장식 요소 등은 외부 소스를 활용했습니다.</p>
+          </div>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>DETAIL PAGE DESIGN</span></div>
+            <div><span class="project-meta-label">FLOW</span><span>KEY VISUAL → ICON SUMMARY → POINTS 01–08 → CARE → CERTIFICATES → SPEC</span></div>
+            <div><span class="project-meta-label">ILLUST</span><span>PRODUCT / FUNCTION GRAPHICS — OWN · BACKGROUND, PEOPLE, DECOR — EXTERNAL</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-1">
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/tevigo-op010.jpg" data-lightbox-long data-lightbox-size="900x22837" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Tevigo 공기청정기 OP-010 상세페이지 전체 보기">
+              <img src="assets/images/archive/tevigo-op010-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="Tevigo 공기청정기 OP-010 상세페이지 상단 — 청록색 배경과 잎사귀 사이의 검은색 타워형 제품">
+            </div>
+            <figcaption class="arc-cap mono"><b>DETAIL PAGE</b> FULL PAGE · 900 × 22837</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <article class="arc-entry arc-entry-split" id="archive-cocomint" aria-labelledby="archive-cocomint-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">03</span> / E-COMMERCE · DETAIL PAGE</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-cocomint-title" tabindex="-1">COCOMINT OP-020R <span>Product Detail Page</span></h3>
+        <div class="arc-entry-body">
+          <div>
+            <p class="copy-sm arc-copy">코코민트 트윈파워 BLDC 무선청소기 OP-020R 제품 상세페이지. 회색 계열 바탕에 로즈골드 제품과 어울리는 골드 계열 포인트 색을 쓰고, 01–06 번호 배지로 모터, 2단계 청소 모드, 핸디·스틱 겸용 구조, 브러시 구성, 필터 구조, 분리 세척 기능을 차례로 나눴습니다. 원형 확대 컷, 모터 비교표, 단계별 모드 안내처럼 기능을 짧게 읽을 수 있는 정보 그래픽으로 정리하고 구성품 안내와 제품 사양으로 마무리했습니다.</p>
+            <p class="copy-sm arc-copy">제품 구조·기능을 설명하는 그래픽은 직접 제작했으며, 배경 등 직접 제작하지 않은 이미지는 외부 소스를 활용했습니다.</p>
+          </div>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>DETAIL PAGE DESIGN</span></div>
+            <div><span class="project-meta-label">FLOW</span><span>KEY VISUAL → FEATURES 01–06 → COMPONENTS → SPEC</span></div>
+            <div><span class="project-meta-label">ILLUST</span><span>PRODUCT / FUNCTION GRAPHICS — OWN · BACKGROUND IMAGES — EXTERNAL</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-1">
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/cocomint-op020r.jpg" data-lightbox-long data-lightbox-size="900x17301" role="button" tabindex="0" aria-haspopup="dialog" aria-label="코코민트 무선청소기 OP-020R 상세페이지 전체 보기">
+              <img src="assets/images/archive/cocomint-op020r-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="코코민트 무선청소기 OP-020R 상세페이지 상단 — 밝은 거실에 세워진 로즈골드 무선청소기와 독립 BLDC 장착 타이틀">
+            </div>
+            <figcaption class="arc-cap mono"><b>DETAIL PAGE</b> FULL PAGE · 900 × 17301</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <article class="arc-entry arc-entry-split" id="archive-jjamppong" aria-labelledby="archive-jjamppong-title" data-archive-reveal>
+        <div class="arc-entry-head">
+          <div class="chapter-label mono"><span class="chapter-label-num">04</span> / E-COMMERCE · DETAIL PAGE</div>
+          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
+        </div>
+        <h3 class="arc-entry-name" id="archive-jjamppong-title" tabindex="-1">MYEONJANGIN JJAMPPONG <span>Product Detail Page</span></h3>
+        <div class="arc-entry-body">
+          <p class="copy-sm arc-copy">‘면장인의 짬뽕 이야기’ 제품 상세페이지. 브랜드 스토리로 시작해 면과 제품의 특징, 위생 관리, 조리 방법, 제품 정보와 영양 정보까지 구매 전에 필요한 내용을 하나의 흐름으로 이어지도록 구성했습니다.</p>
+          <div class="project-meta mono arc-meta">
+            <div><span class="project-meta-label">ROLE</span><span>DETAIL PAGE DESIGN</span></div>
+            <div><span class="project-meta-label">FLOW</span><span>BRAND STORY → FEATURES → HOW TO COOK → PRODUCT INFO</span></div>
+          </div>
+        </div>
+        <ul class="arc-gallery arc-gallery-1">
+          <li><figure>
+            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/myeonjangin.jpg" data-lightbox-long data-lightbox-size="900x10758" role="button" tabindex="0" aria-haspopup="dialog" aria-label="면장인의 짬뽕 이야기 상세페이지 전체 보기">
+              <img src="assets/images/archive/myeonjangin-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="면장인의 짬뽕 이야기 상세페이지 상단 — 붉은 배경의 제품명과 짬뽕 사진, 브랜드 소개">
+            </div>
+            <figcaption class="arc-cap mono"><b>DETAIL PAGE</b> FULL PAGE · 900 × 10758</figcaption>
+          </figure></li>
+        </ul>
+      </article>
+
+      <!-- 05 RAKUTEN PMP — UI design only; build/release status is deliberately not claimed -->
       <article class="arc-entry" id="archive-rakuten" aria-labelledby="archive-rakuten-title" data-archive-reveal>
         <div class="arc-entry-head">
-          <div class="chapter-label mono"><span class="chapter-label-num">01</span> / APPLICATION UI · PROFESSIONAL WORK</div>
+          <div class="chapter-label mono"><span class="chapter-label-num">05</span> / APPLICATION UI · PROFESSIONAL WORK</div>
           <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
         </div>
         <h3 class="arc-entry-name" id="archive-rakuten-title" tabindex="-1">RAKUTEN PMP <span>Program UI Design</span></h3>
@@ -1044,10 +1206,10 @@
         </ul>
       </article>
 
-      <!-- 02 FINANCIAL LANDING PAGES — desktop pages from the Drive folder, dated by file name -->
+      <!-- 06 FINANCIAL LANDING PAGES — desktop pages from the Drive folder, dated by file name -->
       <article class="arc-entry" id="archive-landing" aria-labelledby="archive-landing-title" data-archive-reveal>
         <div class="arc-entry-head">
-          <div class="chapter-label mono"><span class="chapter-label-num">02</span> / LANDING PAGE · WEB DESIGN</div>
+          <div class="chapter-label mono"><span class="chapter-label-num">06</span> / LANDING PAGE · WEB DESIGN</div>
           <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
         </div>
         <h3 class="arc-entry-name" id="archive-landing-title" tabindex="-1">FINANCIAL LANDING PAGES</h3>
@@ -1086,34 +1248,10 @@
         </ul>
       </article>
 
-      <!-- 03 MYEONJANGIN — one long product detail page -->
-      <article class="arc-entry arc-entry-split" id="archive-myeonjangin" aria-labelledby="archive-myeonjangin-title" data-archive-reveal>
-        <div class="arc-entry-head">
-          <div class="chapter-label mono"><span class="chapter-label-num">03</span> / E-COMMERCE · DETAIL PAGE</div>
-          <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
-        </div>
-        <h3 class="arc-entry-name" id="archive-myeonjangin-title" tabindex="-1">MYEONJANGIN <span>Product Detail Page</span></h3>
-        <div class="arc-entry-body">
-          <p class="copy-sm arc-copy">‘면장인의 짬뽕 이야기’ 제품 상세페이지. 브랜드 스토리로 시작해 면과 제품의 특징, 위생 관리, 조리 방법, 제품 정보와 영양 정보까지 구매 전에 필요한 내용을 하나의 흐름으로 이어지도록 구성했습니다.</p>
-          <div class="project-meta mono arc-meta">
-            <div><span class="project-meta-label">ROLE</span><span>DETAIL PAGE DESIGN</span></div>
-            <div><span class="project-meta-label">FLOW</span><span>BRAND STORY → FEATURES → HOW TO COOK → PRODUCT INFO</span></div>
-          </div>
-        </div>
-        <ul class="arc-gallery arc-gallery-1">
-          <li><figure>
-            <div class="arc-shot arc-shot-long zoomable" data-lightbox="assets/images/archive/myeonjangin.jpg" data-lightbox-long data-lightbox-size="900x10758" role="button" tabindex="0" aria-haspopup="dialog" aria-label="면장인의 짬뽕 이야기 상세페이지 전체 보기">
-              <img src="assets/images/archive/myeonjangin-sm.jpg" width="600" height="800" loading="lazy" decoding="async" alt="면장인의 짬뽕 이야기 상세페이지 상단 — 붉은 배경의 제품명과 짬뽕 사진, 브랜드 소개">
-            </div>
-            <figcaption class="arc-cap mono"><b>DETAIL PAGE</b> FULL PAGE · 900 × 10758</figcaption>
-          </figure></li>
-        </ul>
-      </article>
-
-      <!-- 04 GWANAK CIL — eight panels of the printed leaflet, trimmed at the crop marks -->
+      <!-- 07 GWANAK CIL — eight panels of the printed leaflet, trimmed at the crop marks -->
       <article class="arc-entry" id="archive-gwanak" aria-labelledby="archive-gwanak-title" data-archive-reveal>
         <div class="arc-entry-head">
-          <div class="chapter-label mono"><span class="chapter-label-num">04</span> / EDITORIAL · PRINT DESIGN</div>
+          <div class="chapter-label mono"><span class="chapter-label-num">07</span> / EDITORIAL · PRINT DESIGN</div>
           <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
         </div>
         <h3 class="arc-entry-name" id="archive-gwanak-title" tabindex="-1">GWANAK CIL <span>Editorial Design</span></h3>
@@ -1176,10 +1314,10 @@
         </ul>
       </article>
 
-      <!-- 05 BEAMMALL — one long promotion page -->
+      <!-- 08 BEAMMALL — one long promotion page -->
       <article class="arc-entry arc-entry-split" id="archive-beammall" aria-labelledby="archive-beammall-title" data-archive-reveal>
         <div class="arc-entry-head">
-          <div class="chapter-label mono"><span class="chapter-label-num">05</span> / E-COMMERCE · PROMOTION DESIGN</div>
+          <div class="chapter-label mono"><span class="chapter-label-num">08</span> / E-COMMERCE · PROMOTION DESIGN</div>
           <a class="arc-back mono" href="#archive-index" data-archive-go>↑ INDEX</a>
         </div>
         <h3 class="arc-entry-name" id="archive-beammall-title" tabindex="-1">BEAMMALL <span>Promotion Page</span></h3>

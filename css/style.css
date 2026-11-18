@@ -3110,34 +3110,140 @@ html.ws-open.mini-ready .mini-folder-fixed{
 }
 .arc-copy{ margin-top:18px; word-break:keep-all; text-wrap:pretty; }
 
-/* INDEX — five cards in one row; the number / name / type stack is SELECTED WORKS'
-   index row (mono lime number, Large Sans name, small mono category) under a hairline. */
+/* INDEX — an asymmetric editorial grid on 12 columns (Desktop):
+     01 SOBA     tall  1–4   | 02 TEVIGO tall 5–8 | 03 COCOMINT tall 9–12
+     04 JJAMPPONG tall 1–4   | 05 RAKUTEN  wide 5–12, set lower (align-self:end)
+     06 LANDING  tall  1–4   | 07 GWANAK   wide 6–12, set lower (align-self:end)
+     08 BEAMMALL wide  1–8   + its caption beside it in 9–12
+   Every frame height is var(--arc-h) in cqw of the list, so heights are fixed before
+   any image loads (no layout shift) and the pairs line up at every width. Thumbnails
+   are cropped only by the frame (object-fit, anchored on the headline); the entry and
+   the lightbox always show the whole original. Under each frame: SELECTED WORKS'
+   ledger — lime mono number, Large Sans name, small mono type, VIEW PROJECT ↓. */
 .arc-index{
+  --arc-gap:clamp(16px,2vw,28px);
+  --arc-dur:.7s; --arc-ease:cubic-bezier(.22,.61,.36,1);
   list-style:none; margin:clamp(32px,4vw,52px) 0 0; padding:0;
-  display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:clamp(16px,2vw,28px);
+  container-type:inline-size;
+  display:grid; grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:clamp(48px,6vw,88px) var(--arc-gap); align-items:start;
 }
-.arc-card{
-  display:flex; flex-direction:column; gap:8px; height:100%;
-  color:inherit; text-decoration:none;
-}
+.arc-item{ min-width:0; }
+/* 01–03 SOBA / TEVIGO / COCOMINT — the three long detail pages side by side, one tall
+   frame each (4 + 4 + 4). Their thumbnails are 600×1800 page tops, so the scroll hover
+   has a real distance to travel; that travel gets a longer duration than the other
+   gestures so it reads as a scroll, not a jump. */
+.arc-item-detail{ --arc-h:52cqw; }
+.arc-item-detail .arc-card{ --arc-dur:1.4s; }
+.arc-item-soba{ grid-column:1 / 5; }
+.arc-item-tevigo{ grid-column:5 / 9; }
+.arc-item-cocomint{ grid-column:9 / 13; }
+/* 04–08: the tall | wide pairs of the previous index, re-paired in the new order */
+.arc-item-jjamppong{ grid-column:1 / 5; --arc-h:50cqw; }
+.arc-item-rakuten{ grid-column:5 / 13; --arc-h:40cqw; align-self:end; }
+.arc-item-landing{ grid-column:1 / 5; --arc-h:40cqw; }
+.arc-item-gwanak{ grid-column:6 / 13; --arc-h:36cqw; align-self:end; }
+.arc-item-beammall{ grid-column:1 / -1; --arc-h:44cqw; }
+
+.arc-card{ display:block; color:inherit; text-decoration:none; }
 .arc-card-img{
-  display:block; aspect-ratio:4/3; overflow:hidden; margin-bottom:6px;
+  position:relative; display:block; height:var(--arc-h); overflow:hidden;
   border:1px solid rgba(244,244,244,.2); background:#fff;
   transition:border-color .2s ease;
 }
-.arc-card-img img{ display:block; width:100%; height:100%; object-fit:cover; object-position:top center; }
-.arc-card-num{
-  padding-top:12px; border-top:1px solid rgba(244,244,244,.16);
-  font-size:12px; letter-spacing:.14em; color:var(--entry-accent);
+.arc-card-img img{
+  display:block; width:100%; height:100%; object-fit:cover; object-position:top center;
+  transition:transform var(--arc-dur) var(--arc-ease), transform-origin var(--arc-dur) var(--arc-ease);
+  will-change:transform;
+}
+
+/* caption ledger: number + VIEW on the hairline, then name, then type */
+.arc-card-meta{
+  display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 16px;
+  margin-top:14px; padding-top:12px; border-top:1px solid rgba(244,244,244,.16);
+}
+.arc-card-num{ font-size:12px; letter-spacing:.14em; color:var(--entry-accent); }
+.arc-card-num i{ font-style:normal; color:rgba(244,244,244,.32); }
+.arc-card-view{
+  grid-column:2; grid-row:1; text-align:right;
+  font-size:11px; letter-spacing:.12em; color:rgba(244,244,244,.4);
+  transition:color .2s ease, transform var(--arc-dur) var(--arc-ease);
 }
 .arc-card-name{
-  font-size:clamp(14px,1.25vw,18px); font-weight:800; letter-spacing:.02em; line-height:1.25;
+  grid-column:1 / -1; margin-top:4px;
+  font-size:clamp(15px,1.35vw,20px); font-weight:800; letter-spacing:.02em; line-height:1.25;
   color:#f4f4f4; transition:color .2s ease;
 }
-.arc-card-type{ font-size:11px; letter-spacing:.1em; color:rgba(244,244,244,.45); }
+.arc-card-type{ grid-column:1 / -1; font-size:11px; letter-spacing:.1em; color:rgba(244,244,244,.45); }
 .arc-card:hover .arc-card-img, .arc-card:focus-visible .arc-card-img{ border-color:rgba(244,244,244,.5); }
-.arc-card:hover .arc-card-name, .arc-card:focus-visible .arc-card-name{ color:var(--entry-accent); }
+.arc-card:hover .arc-card-name, .arc-card:focus-visible .arc-card-name,
+.arc-card:hover .arc-card-view, .arc-card:focus-visible .arc-card-view{ color:var(--entry-accent); }
+.arc-card:hover .arc-card-view, .arc-card:focus-visible .arc-card-view{ transform:translateY(2px); }
 .arc-card:focus-visible{ outline:1px solid var(--entry-accent); outline-offset:6px; }
+
+/* 05 BEAMMALL — the closing wide band: frame on 1–8, a larger caption in 9–12 at the
+   foot of the frame (subgrid keeps both on the same 12 columns as the rows above). */
+.arc-item-beammall .arc-card{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); column-gap:var(--arc-gap); }
+@supports (grid-template-columns:subgrid){
+  .arc-item-beammall{ display:grid; grid-template-columns:subgrid; }
+  .arc-item-beammall .arc-card{ grid-column:1 / -1; grid-template-columns:subgrid; }
+  .arc-item-beammall .arc-card-img{ grid-column:1 / 9; }
+  .arc-item-beammall .arc-card-meta{ grid-column:9 / -1; }
+}
+.arc-item-beammall .arc-card-meta{ align-self:end; margin-top:0; }
+.arc-item-beammall .arc-card-name{ font-size:clamp(24px,2.6vw,40px); line-height:1.1; letter-spacing:-.005em; }
+.arc-item-beammall .arc-card-img img{ object-position:50% 45%; }
+
+/* HOVER — one duration / easing for all, transform only, each card its own gesture.
+   (hover:hover) keeps touch screens on the plain, fully readable static state. */
+@media (hover:hover){
+  /* 01 zoom — magnifies the UI toward the pointer (--ox/--oy from js/main.js) */
+  .arc-card[data-arc-fx="zoom"] img{ transform-origin:var(--ox,50%) var(--oy,35%); }
+  .arc-card[data-arc-fx="zoom"]:hover img,
+  .arc-card[data-arc-fx="zoom"]:focus-visible img{ transform:scale(1.1); }
+  /* 02 lift — a gentle push-in that keeps the whole page composition in view */
+  .arc-card[data-arc-fx="lift"] img{ transform-origin:50% 20%; }
+  .arc-card[data-arc-fx="lift"]:hover img,
+  .arc-card[data-arc-fx="lift"]:focus-visible img{ transform:scale(1.045); }
+  /* 03 scroll — the long page slides up by exactly what the frame hides */
+  .arc-card[data-arc-fx="scroll"]:hover img,
+  .arc-card[data-arc-fx="scroll"]:focus-visible img{ transform:translateY(calc(var(--arc-h) - 2px - 100%)); } /* 2px = frame border */
+  /* 04 layers — the stacked leaflet panels open into a spread (rules below) */
+  /* 05 parallax — the poster drifts against the pointer (--px/--py) */
+  .arc-card[data-arc-fx="parallax"]:hover img,
+  .arc-card[data-arc-fx="parallax"]:focus-visible img{
+    transform:translate3d(calc(var(--px,0) * -1.6%), calc(var(--py,0) * -1.6%), 0) scale(1.06);
+  }
+}
+/* 03 MYEONJANGIN — the tall crop at its own ratio, top of the page in the frame */
+.arc-card[data-arc-fx="scroll"] img{ height:auto; }
+
+/* 04 GWANAK — three whole panels (never cropped) on a dark plate, overlapping like a
+   folded leaflet; on hover/focus they part into a flat spread and the middle one lifts. */
+.arc-spread{
+  display:flex; justify-content:center; align-items:center; gap:clamp(8px,1vw,14px);
+  background:#1f1f1f;
+}
+.arc-spread img{
+  width:auto; height:84%; object-fit:contain;
+  box-shadow:0 10px 28px rgba(0,0,0,.45);
+}
+.arc-spread img:nth-child(1){ transform:translateX(16%); }
+.arc-spread img:nth-child(2){ position:relative; z-index:1; }
+.arc-spread img:nth-child(3){ transform:translateX(-16%); }
+@media (hover:hover){
+  .arc-card[data-arc-fx="layers"]:hover .arc-spread img,
+  .arc-card[data-arc-fx="layers"]:focus-visible .arc-spread img{ transform:none; }
+  .arc-card[data-arc-fx="layers"]:hover .arc-spread img:nth-child(2),
+  .arc-card[data-arc-fx="layers"]:focus-visible .arc-spread img:nth-child(2){ transform:translateY(-3%); }
+}
+@media (prefers-reduced-motion:reduce){
+  .arc-card-img img, .arc-card-view{ transition:none !important; }
+  .arc-card:hover .arc-card-img img, .arc-card:focus-visible .arc-card-img img,
+  .arc-card:hover .arc-card-view, .arc-card:focus-visible .arc-card-view{ transform:none !important; }
+  .arc-card:hover .arc-spread img:nth-child(1), .arc-card:focus-visible .arc-spread img:nth-child(1){ transform:translateX(16%) !important; }
+  .arc-card:hover .arc-spread img:nth-child(3), .arc-card:focus-visible .arc-spread img:nth-child(3){ transform:translateX(-16%) !important; }
+}
 
 /* ENTRY — one per piece: header (chapter label + ↑ INDEX), name, copy | meta, gallery */
 .arc-entry{
@@ -3251,27 +3357,40 @@ html.ws-open.mini-ready .mini-folder-fixed{
   #project-archive.archive-motion-ready [data-archive-reveal]{ transform:none; transition:opacity .2s ease; }
 }
 
-/* Tablet: three index cards per row, two-up leaflet panels stay legible */
+/* Tablet: two-up leaflet panels stay legible. The index is no longer the 12-column
+   composition but its own two-column rhythm — the four detail pages two by two, wide
+   RAKUTEN, LANDING, the GWANAK spread, then BEAMMALL with its caption back underneath. */
 @media (max-width:1024px){
-  .arc-index{ grid-template-columns:repeat(3,minmax(0,1fr)); }
   .arc-gallery-4{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .arc-index{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(40px,7vw,64px) var(--arc-gap); }
+  .arc-item-soba, .arc-item-cocomint{ grid-column:1; }
+  .arc-item-tevigo, .arc-item-jjamppong{ grid-column:2; }
+  .arc-item-detail, .arc-item-jjamppong{ --arc-h:64cqw; }
+  .arc-item-rakuten{ grid-column:1 / -1; --arc-h:60cqw; align-self:auto; }
+  .arc-item-landing{ grid-column:1 / -1; --arc-h:56cqw; }
+  .arc-item-gwanak{ grid-column:1 / -1; --arc-h:52cqw; align-self:auto; }
+  .arc-item-beammall{ grid-column:1 / -1; --arc-h:66cqw; display:block; }
+  .arc-item-beammall .arc-card{ display:block; }
+  .arc-item-beammall .arc-card-meta{ margin-top:14px; }
+  .arc-item-beammall .arc-card-name{ font-size:20px; }
 }
-/* Mobile (the project's 700px breakpoint): the index becomes a list of tappable rows
-   (thumbnail left, text right — five 4:3 cards stacked would be five screens), the copy
-   and meta stack, and the wide gallery goes one column. */
+/* Mobile (the project's 700px breakpoint): same two-column rhythm, tighter; the copy and
+   meta stack, and the wide gallery goes one column. No hover here — every card is
+   already complete at rest (image, number, name, type, VIEW). */
 @media (max-width:700px){
   .arc-lead{ font-size:clamp(17px,4.6vw,21px); max-width:none; }
-  .arc-index{ grid-template-columns:1fr; gap:0; margin-top:26px; }
-  .arc-index li{ border-top:1px solid rgba(244,244,244,.16); }
-  .arc-index li:last-child{ border-bottom:1px solid rgba(244,244,244,.16); }
-  .arc-card{
-    display:grid; grid-template-columns:112px minmax(0,1fr); grid-template-rows:auto auto auto 1fr;
-    column-gap:16px; row-gap:4px; padding:14px 0; min-height:84px;
-  }
-  .arc-card-img{ grid-row:1 / -1; margin:0; }
-  .arc-card-num{ padding-top:2px; border-top:0; font-size:11px; }
-  .arc-card-name{ font-size:15px; }
+  .arc-index{ margin-top:28px; gap:40px 12px; }
+  .arc-item-detail, .arc-item-jjamppong{ --arc-h:66cqw; }
+  .arc-item-landing{ --arc-h:66cqw; }
+  .arc-item-gwanak{ --arc-h:62cqw; }
+  .arc-card-meta{ margin-top:12px; padding-top:10px; gap:4px 10px; }
+  .arc-card-num{ font-size:11px; }
+  .arc-card-view{ font-size:10px; letter-spacing:.08em; }
+  .arc-card-name, .arc-item-beammall .arc-card-name{ font-size:16px; }
   .arc-card-type{ font-size:10px; }
+  /* the paired half-width cards: VIEW drops under the type so nothing collides */
+  .arc-item-detail .arc-card-view, .arc-item-jjamppong .arc-card-view{ grid-column:1 / -1; grid-row:4; margin-top:4px; text-align:left; }
+  .arc-item-detail .arc-card-name, .arc-item-jjamppong .arc-card-name{ font-size:14px; }
   .arc-entry-head{ align-items:center; }
   .arc-back{ position:relative; }
   .arc-back::after{ content:""; position:absolute; inset:-14px -10px; } /* 44px touch target */

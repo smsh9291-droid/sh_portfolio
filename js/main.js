@@ -1963,6 +1963,40 @@
   Array.prototype.forEach.call(blocks, function(b){ io.observe(b); });
 })();
 
+/* -- DESIGN ARCHIVE INDEX HOVER: the cards marked data-arc-track (RAKUTEN zoom, BEAMMALL
+   parallax) follow the pointer. Writes only two CSS custom-property pairs on the card's
+   frame — --ox/--oy (transform-origin, %) and --px/--py (-1…1) — once per frame via
+   rAF; css/style.css "INDEX" turns them into transforms, and its own transition is what
+   smooths the motion, so there is no jitter. Mouse only, and skipped entirely under
+   prefers-reduced-motion; touch keeps the static cards. Leaving recentres. */
+(function(){
+  var cards = document.querySelectorAll('#project-archive .arc-card[data-arc-track]');
+  if (!cards.length) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
+  Array.prototype.forEach.call(cards, function(card){
+    var frame = card.querySelector('.arc-card-img');
+    if (!frame) return;
+    var x = .5, y = .5, raf = 0;
+    function paint(){
+      raf = 0;
+      frame.style.setProperty('--ox', (x * 100).toFixed(1) + '%');
+      frame.style.setProperty('--oy', (y * 100).toFixed(1) + '%');
+      frame.style.setProperty('--px', (x * 2 - 1).toFixed(3));
+      frame.style.setProperty('--py', (y * 2 - 1).toFixed(3));
+    }
+    function queue(){ if (!raf) raf = requestAnimationFrame(paint); }
+    card.addEventListener('pointermove', function(e){
+      if (e.pointerType !== 'mouse' || reduced.matches) return;
+      var r = frame.getBoundingClientRect();
+      x = clamp((e.clientX - r.left) / r.width);
+      y = clamp((e.clientY - r.top) / r.height);
+      queue();
+    });
+    card.addEventListener('pointerleave', function(){ x = .5; y = .5; queue(); });
+  });
+})();
+
 /* -- MOBILE V2 Navigation (< 1024px): the Folder trigger opens the curved bottom sheet
    (#m-nav-sheet) and closes it again (CLOSE, scrim tap, ESC, an item). Where an item
    goes — and the progress hairline / aria-current — is js/workspace-v2.js's MOBILE
